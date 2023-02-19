@@ -1,18 +1,51 @@
+/**
+ * @file generator.cpp
+ * @brief File implementing the main generator program
+ */
+
 #include "shape.hpp"
 #include "shapegenerator.hpp"
 #include <cstring>
 #include <iostream>
 #include <stdexcept>
 
+/**
+ * @brief Asserts that the number of arguments the program has received
+ * equals the given number
+ *
+ * Will throw an @c invalid_argument exception if the number of arguments
+ * differs from the expected
+ *
+ * @param n The expected number of arguments
+ */
 #define ASSERT_ARG_LENGTH(n)                                                   \
   if (argc != n)                                                               \
   throw std::invalid_argument("Wrong number of arguments")
 
+/**
+ * @brief A hash function for strings
+ *
+ * Used in order to be able to @c switch over a @c string value
+ *
+ * @param shape the string to hash
+ * @return      the hash of the string
+ */
 unsigned constexpr shapetoint(char *shape) {
   // Hash copied from https://stackoverflow.com/a/2112111
   return *shape ? *shape + 33 * shapetoint(shape + 1) : 5381;
 }
 
+/**
+ * @brief Generates the requested shape
+ *
+ * @param argc the number of arguments received
+ * @param argv the arguments received
+ *
+ * @return the requested shape
+ *
+ * @throws invalid_argument if the arguments received do not follow the
+ * specification
+ */
 inline std::unique_ptr<Shape> generateShape(int argc, char *argv[]) {
   switch (shapetoint(argv[1])) {
   case shapetoint((char *)"sphere"):
@@ -34,6 +67,15 @@ inline std::unique_ptr<Shape> generateShape(int argc, char *argv[]) {
   }
 }
 
+/**
+ * @brief Generator program entry point
+ *
+ * @param argc the number of arguments received
+ * @param argv the arguments received
+ *
+ * @return 0 if execution was successful
+ * @return 1 if an error occurred
+ */
 int main(int argc, char *argv[]) {
   try {
     std::unique_ptr<Shape> shape = generateShape(argc, argv);

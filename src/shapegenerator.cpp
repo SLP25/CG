@@ -1,3 +1,9 @@
+/**
+ * @file shapegenerator.cpp
+ *
+ * @brief File implementing functions used to generate the different shapes
+ */
+
 #include "shapegenerator.hpp"
 #include <iostream>
 

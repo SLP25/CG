@@ -1,3 +1,9 @@
+/**
+ * @file shape.cpp
+ *
+ * @brief File implementing the @link Shape class
+ */
+
 #include "shape.hpp"
 #include <fstream>
 
