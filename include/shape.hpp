@@ -4,6 +4,7 @@
  * @brief File defining the @link Shape class
  */
 #pragma once
+#include <map>
 #include <string>
 #include <tuple>
 #include <vector>
@@ -26,6 +27,7 @@ public:
    * @brief Default constructor
    */
   Shape();
+  Shape(std::vector<Point> points, std::multimap<int, int> faces);
   /**
    * @brief Exports the shape to a 3D file
    *
@@ -44,4 +46,5 @@ private:
    * The vertices of the shape
    */
   std::vector<Point> points;
+  std::multimap<int, int> faces;
 };
