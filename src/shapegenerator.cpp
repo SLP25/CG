@@ -25,6 +25,12 @@ std::unique_ptr<Shape> generateCube(float length, int divisions) {
   return std::make_unique<Shape>();
 }
 
+inline void generateSquare(Point p1, Point p2, Point p3, Point p4,
+                           std::vector<Triangle> &triangles) {
+  triangles.push_back({p1, p2, p3});
+  triangles.push_back({p1, p3, p4});
+}
+
 std::unique_ptr<Shape> generatePlane(float length, int divisions) {
   /*
 
@@ -39,37 +45,20 @@ std::unique_ptr<Shape> generatePlane(float length, int divisions) {
   in counter-clockwise fashion
 
   */
-  auto points = std::vector<Point>();
-  auto reversePoints = std::map<Point, int>();
-  auto faces = std::multimap<int, int>();
+  auto triangles = std::vector<Triangle>();
 
   float mid = length / 2.0;
   float step = length / divisions;
   int idx = 0;
 
-  for (float x = -mid; x <= mid; x += step) {
-    for (float z = -mid; z <= mid; z += step) {
-      points.push_back({x, 0, z});
-      reversePoints[{x, 0, z}] = idx;
-      idx++;
-    }
-  }
-
   for (int i = 0; i < divisions; i++) {
     for (int j = 0; j < divisions; j++) {
-      faces.insert({i * divisions + j,
-                    reversePoints[{-mid + i * step, 0, -mid + j * step}]});
-      faces.insert(
-          {i * divisions + j,
-           reversePoints[{-mid + i * step, 0, -mid + (j + 1) * step}]});
-      faces.insert(
-          {i * divisions + j,
-           reversePoints[{-mid + (i + 1) * step, 0, -mid + (j + 1) * step}]});
-      faces.insert(
-          {i * divisions + j,
-           reversePoints[{-mid + (i + 1) * step, 0, -mid + j * step}]});
+      generateSquare({-mid + i * step, 0, -mid + j * step},
+                     {-mid + i * step, 0, -mid + (j + 1) * step},
+                     {-mid + (i + 1) * step, 0, -mid + (j + 1) * step},
+                     {-mid + (i + 1) * step, 0, -mid + j * step}, triangles);
     }
   }
 
-  return std::make_unique<Shape>(points, faces);
+  return std::make_unique<Shape>(triangles);
 }

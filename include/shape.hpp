@@ -15,6 +15,10 @@
  */
 typedef std::tuple<float, float, float> Point;
 
+typedef std::tuple<Point, Point, Point> Triangle;
+
+typedef Point Vector;
+
 /**
  * @brief A class representing a shape in 3D space.
  *
@@ -27,7 +31,8 @@ public:
    * @brief Default constructor
    */
   Shape();
-  Shape(std::vector<Point> points, std::multimap<int, int> faces);
+  Shape(std::vector<Triangle> triangles);
+  Shape(std::string filePath);
   /**
    * @brief Exports the shape to a 3D file
    *
@@ -45,6 +50,5 @@ private:
   /**
    * The vertices of the shape
    */
-  std::vector<Point> points;
-  std::multimap<int, int> faces;
+  std::vector<Triangle> triangles;
 };
