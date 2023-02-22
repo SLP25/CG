@@ -49,7 +49,6 @@ std::unique_ptr<Shape> generatePlane(float length, int divisions) {
 
   float mid = length / 2.0;
   float step = length / divisions;
-  int idx = 0;
 
   for (int i = 0; i < divisions; i++) {
     for (int j = 0; j < divisions; j++) {

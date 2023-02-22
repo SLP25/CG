@@ -45,6 +45,7 @@ public:
    * @return whether the operation was successful
    */
   bool exportToFile(std::string filePath);
+  void draw();
 
 private:
   /**

@@ -4,9 +4,16 @@
  * @brief File implementing the @link Shape class
  */
 
+#ifdef __APPLE__
+#include <GLUT/glut.h>
+#else
+#include <GL/glut.h>
+#endif
+
 #include "shape.hpp"
 #include <fstream>
 #include <tuple>
+
 
 Shape::Shape() { this->triangles = std::vector<Triangle>(); }
 
@@ -28,6 +35,20 @@ Shape::Shape(std::string filePath) {
     this->triangles.push_back({points[0], points[1], points[2]});
   }
   file.close();
+}
+
+void Shape::draw(){
+  for (Triangle &triangle : this->triangles){
+      Point p1 = std::get<0>(triangle);
+      Point p2 = std::get<1>(triangle);
+      Point p3 = std::get<2>(triangle);
+      glBegin(GL_TRIANGLES);
+      glColor3f(0.1, 0.2, 0.3);
+      glVertex3f(std::get<0>(p1),std::get<1>(p1),std::get<2>(p1));
+      glVertex3f(std::get<0>(p2),std::get<1>(p2),std::get<2>(p2));
+      glVertex3f(std::get<0>(p3),std::get<1>(p3),std::get<2>(p3));
+      glEnd();
+    }
 }
 
 bool Shape::exportToFile(std::string filePath) {

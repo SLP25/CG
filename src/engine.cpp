@@ -6,53 +6,92 @@
 
 #define _USE_MATH_DEFINES
 #include <math.h>
+#include "config.hpp"
+#include <tuple>
 
-void changeSize(int w, int h) {
-  // Prevent a divide by zero, when window is too short
-  // (you can�t make a window with zero width).
-  if (h == 0)
-    h = 1;
+Config config=Config(
+  WindowSize(512.0,512.0),
+    Camera(
+      Position(3.0,2.0,1.0),
+      LookAt(0.0,0.0,0.0),
+      Up(0.0,1.0,0.0),
+      Projection(60.0,1.0,1000.0)
+      ),
+    Models({ Shape("sphere.3d"), Shape("sphere.3d") })
+  ) ;
 
+void changeSize(int height,int width) {
+  WindowSize size = std::get<0>(config);
+  height = std::get<0>(size);
+  width = std::get<1>(size);
+  Camera camera = std::get<1>(config);
+  Projection projection = std::get<3>(camera);
+  float fov = std::get<0>(projection);
+  float near = std::get<1>(projection);
+  float far = std::get<2>(projection);
+  
   // compute window's aspect ratio
-  float ratio = w * 1.0f / h;
+  float ratio = width * 1.0f / height;
   // Set the projection matrix as current
   glMatrixMode(GL_PROJECTION);
   // Load the identity matrix
   glLoadIdentity();
   // Set the viewport to be the entire window
-  glViewport(0, 0, w, h);
+  glViewport(0, 0, width, height);
   // Set the perspective
-  gluPerspective(45.0f, ratio, 1.0f, 1000.0f);
+  gluPerspective(fov, ratio, near, far);
   // return to the model view matrix mode
   glMatrixMode(GL_MODELVIEW);
 }
 
-int count = 0;
 
 void renderScene(void) {
-  int x = 2 + 2;
+  Camera camera = std::get<1>(config);
+  Position position = std::get<0>(camera);
+  float position_x = std::get<0>(position);
+  float position_y = std::get<1>(position);
+  float position_z = std::get<2>(position);
+
+  LookAt lookat = std::get<1>(camera);
+  float lookat_x = std::get<0>(lookat);
+  float lookat_y = std::get<1>(lookat);
+  float lookat_z = std::get<2>(lookat);
+  Up up = std::get<2>(camera);
+  float up_x = std::get<0>(up);
+  float up_y = std::get<1>(up);
+  float up_z = std::get<2>(up);
+  Models models = std::get<2>(config);
 
   // clear buffers
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   // set camera
   glLoadIdentity();
-  gluLookAt(0.0f, 0.0f, 5.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f);
-
-  // put drawing instructions here
-  glutWireTeapot(exp(count / 500.0) - 0.5);
-  count++;
-
+  gluLookAt( position_x, position_y, position_z, 
+             lookat_x, lookat_y, lookat_z,
+             up_x, up_y, up_z);
+  for (Shape &shape : models) // access by reference to avoid copying  
+      shape.draw();
   // End of frame
   glutSwapBuffers();
 }
 
 int main(int argc, char **argv) {
+  WindowSize size = std::get<0>(config);
+  int width = std::get<0>(size);
+  int height = std::get<1>(size);
+  Camera camera = std::get<1>(config);
+  Projection projection = std::get<3>(camera);
+  float fov = std::get<0>(projection);
+  float near = std::get<1>(projection);
+  float far = std::get<2>(projection);
   // put GLUT's init here
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
   glutInitWindowPosition(100, 100);
-  glutInitWindowSize(800, 800);
+  float ratio = width * 1.0f / height;
+  gluPerspective(fov, ratio, near, far);
+  glutInitWindowSize(width, height);
   glutCreateWindow("CG@DI");
 
   // put callback registry here
