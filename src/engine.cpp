@@ -17,7 +17,7 @@ Config config=Config(
       Up(0.0,1.0,0.0),
       Projection(60.0,1.0,1000.0)
       ),
-    Models({ Shape("sphere.3d"), Shape("sphere.3d") })
+    Models({ Shape("plane.3d"), Shape("plane.3d") })
   ) ;
 
 void changeSize(int height,int width) {
@@ -70,8 +70,10 @@ void renderScene(void) {
   gluLookAt( position_x, position_y, position_z, 
              lookat_x, lookat_y, lookat_z,
              up_x, up_y, up_z);
-  for (Shape &shape : models) // access by reference to avoid copying  
-      shape.draw();
+  for (Shape &shape : models)
+  {
+    shape.draw();
+  }
   // End of frame
   glutSwapBuffers();
 }

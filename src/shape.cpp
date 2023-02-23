@@ -24,6 +24,7 @@ Shape::Shape(std::string filePath) {
   std::ifstream file(filePath);
   int n;
   file >> n;
+  printf("%d\n",n);
   for (int i = 0; i < n; i++) {
     auto points = std::vector<Point>();
     for (int j = 0; j < 3; j++) {
@@ -43,7 +44,7 @@ void Shape::draw(){
       Point p2 = std::get<1>(triangle);
       Point p3 = std::get<2>(triangle);
       glBegin(GL_TRIANGLES);
-      glColor3f(0.1, 0.2, 0.3);
+      glColor3f(1, 1, 1);
       glVertex3f(std::get<0>(p1),std::get<1>(p1),std::get<2>(p1));
       glVertex3f(std::get<0>(p2),std::get<1>(p2),std::get<2>(p2));
       glVertex3f(std::get<0>(p3),std::get<1>(p3),std::get<2>(p3));
