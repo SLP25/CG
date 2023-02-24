@@ -20,15 +20,73 @@ std::unique_ptr<Shape> generateCone(float radius, float height, int slices,
   return std::make_unique<Shape>();
 }
 
-std::unique_ptr<Shape> generateCube(float length, int divisions) {
-  std::cout << length / divisions; // So para compilar, remover depois
-  return std::make_unique<Shape>();
-}
-
 inline void generateSquare(Point p1, Point p2, Point p3, Point p4,
                            std::vector<Triangle> &triangles) {
   triangles.push_back({p1, p2, p3});
   triangles.push_back({p1, p3, p4});
+}
+
+std::unique_ptr<Shape> generateCube(float length, int divisions) {
+  std::vector<Triangle> triangles;
+
+  float mid = length / 2.0;
+  float step = length / divisions;
+
+  for (int i = 0; i < divisions; i++) {
+    for (int j = 0; j < divisions; j++) {
+      generateSquare({-mid, -mid + i * step, -mid + j * step},
+                      {-mid, -mid + i * step, -mid + (j + 1) * step},
+                      {-mid, -mid + (i + 1) * step, -mid + (j + 1) * step},
+                      {-mid, -mid + (i + 1) * step, -mid + j * step}, triangles);
+    }
+  }
+
+  for (int i = 0; i < divisions; i++) {
+    for (int j = 0; j < divisions; j++) {
+      generateSquare({mid, -mid + (i + 1) * step, -mid + j * step},
+                     {mid, -mid + (i + 1) * step, -mid + (j + 1) * step},
+                     {mid, -mid + i * step, -mid + (j + 1) * step},
+                     {mid, -mid + i * step, -mid + j * step}, triangles);
+    }
+  }
+
+  for (int i = 0; i < divisions; i++) {
+    for (int j = 0; j < divisions; j++) {
+      generateSquare({-mid + (i + 1) * step, -mid, -mid + j * step},
+                     {-mid + (i + 1) * step, -mid, -mid + (j + 1) * step},
+                     {-mid + i * step, -mid, -mid + (j + 1) * step},
+                     {-mid + i * step, -mid, -mid + j * step}, triangles);
+    }
+  }
+
+  for (int i = 0; i < divisions; i++) {
+    for (int j = 0; j < divisions; j++) {
+      generateSquare({-mid + i * step, mid, -mid + j * step},
+                     {-mid + i * step, mid, -mid + (j + 1) * step},
+                     {-mid + (i + 1) * step, mid, -mid + (j + 1) * step},
+                     {-mid + (i + 1) * step, mid, -mid + j * step}, triangles);
+    }
+  }
+
+  for (int i = 0; i < divisions; i++) {
+    for (int j = 0; j < divisions; j++) {
+      generateSquare({-mid + i * step, -mid + j * step, -mid},
+                     {-mid + i * step, -mid + (j + 1) * step, -mid},
+                     {-mid + (i + 1) * step, -mid + (j + 1) * step, -mid},
+                     {-mid + (i + 1) * step, -mid + j * step, -mid}, triangles);
+    }
+  }
+
+  for (int i = 0; i < divisions; i++) {
+    for (int j = 0; j < divisions; j++) {
+      generateSquare({-mid + (i + 1) * step, -mid + j * step, mid},
+                     {-mid + (i + 1) * step, -mid + (j + 1) * step, mid},
+                     {-mid + i * step, -mid + (j + 1) * step, mid},
+                     {-mid + i * step, -mid + j * step, mid}, triangles);
+    }
+  }
+
+  return std::make_unique<Shape>(triangles);
 }
 
 std::unique_ptr<Shape> generatePlane(float length, int divisions) {
@@ -45,7 +103,7 @@ std::unique_ptr<Shape> generatePlane(float length, int divisions) {
   in counter-clockwise fashion
 
   */
-  auto triangles = std::vector<Triangle>();
+  std::vector<Triangle> triangles;
 
   float mid = length / 2.0;
   float step = length / divisions;

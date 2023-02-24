@@ -20,22 +20,26 @@ Shape::Shape() { this->triangles = std::vector<Triangle>(); }
 Shape::Shape(std::vector<Triangle> triangles) { this->triangles = triangles; }
 
 Shape::Shape(std::string filePath) {
-  this->triangles = std::vector<Triangle>();
   std::ifstream file(filePath);
   int n;
   file >> n;
-  printf("%d\n",n);
+  this->triangles = std::vector<Triangle>(n);
+  
   for (int i = 0; i < n; i++) {
-    auto points = std::vector<Point>();
+    Point points[3];
     for (int j = 0; j < 3; j++) {
       float x, y, z;
       file >> x >> y >> z;
-      points.push_back({x, y, z});
+      points[j] = {x, y, z};
     }
 
     this->triangles.push_back({points[0], points[1], points[2]});
   }
   file.close();
+}
+
+inline float randomFloat() {
+  return (float)rand()/(float)(RAND_MAX);
 }
 
 void Shape::draw(){
@@ -44,7 +48,7 @@ void Shape::draw(){
       Point p2 = std::get<1>(triangle);
       Point p3 = std::get<2>(triangle);
       glBegin(GL_TRIANGLES);
-      glColor3f(1, 1, 1);
+      glColor3f(randomFloat(), randomFloat(), randomFloat());
       glVertex3f(std::get<0>(p1),std::get<1>(p1),std::get<2>(p1));
       glVertex3f(std::get<0>(p2),std::get<1>(p2),std::get<2>(p2));
       glVertex3f(std::get<0>(p3),std::get<1>(p3),std::get<2>(p3));

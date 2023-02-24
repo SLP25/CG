@@ -7,18 +7,19 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include "config.hpp"
+#include "shapegenerator.hpp"
 #include <tuple>
 
-Config config=Config(
+Config config(
   WindowSize(512.0,512.0),
-    Camera(
-      Position(3.0,2.0,1.0),
-      LookAt(0.0,0.0,0.0),
-      Up(0.0,1.0,0.0),
-      Projection(60.0,1.0,1000.0)
-      ),
-    Models({ Shape("plane.3d"), Shape("plane.3d") })
-  ) ;
+  Camera(
+    Position(3.0,2.0,1.0),
+    LookAt(0.0,0.0,0.0),
+    Up(0.0,1.0,0.0),
+    Projection(60.0,1.0,1000.0)
+  ),
+Models( { Shape("plane.3d"), Shape("box.3d") })
+);
 
 void changeSize(int height,int width) {
   WindowSize size = std::get<0>(config);
@@ -98,7 +99,7 @@ int main(int argc, char **argv) {
 
   // put callback registry here
   glutReshapeFunc(changeSize);
-  glutIdleFunc(renderScene);
+  //glutIdleFunc(renderScene);
   glutDisplayFunc(renderScene);
 
   // some OpenGL settings

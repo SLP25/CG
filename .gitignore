@@ -4,3 +4,4 @@ docs/
 tests/
 .vscode/
 *.obj
+*.3d
