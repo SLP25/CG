@@ -18,5 +18,20 @@ typedef Point Up;
 typedef Point Projection;
 typedef std::tuple<Position, LookAt, Up, Projection> Camera;
 typedef std::vector<Shape> Models;
-typedef std::tuple<WindowSize,Camera,Models> Config;
 
+class World {
+    WindowSize windowSize;
+    Camera camera;
+    Models models;
+
+    public:
+        World(WindowSize, Camera, Models);
+        void initScene(int*, char**);
+        void changeSize(int, int);
+        void renderScene();
+        void handleKey(unsigned char, int, int);
+        void handleSpecialKey(int, int, int);
+
+    private:
+        void drawAxis();
+};

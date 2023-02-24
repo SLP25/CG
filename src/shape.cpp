@@ -23,7 +23,7 @@ Shape::Shape(std::string filePath) {
   std::ifstream file(filePath);
   int n;
   file >> n;
-  this->triangles = std::vector<Triangle>(n);
+  this->triangles = std::vector<Triangle>();
   
   for (int i = 0; i < n; i++) {
     Point points[3];
@@ -47,8 +47,9 @@ void Shape::draw(){
       Point p1 = std::get<0>(triangle);
       Point p2 = std::get<1>(triangle);
       Point p3 = std::get<2>(triangle);
+      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
       glBegin(GL_TRIANGLES);
-      glColor3f(randomFloat(), randomFloat(), randomFloat());
+      glColor3f(1, 1, 1);
       glVertex3f(std::get<0>(p1),std::get<1>(p1),std::get<2>(p1));
       glVertex3f(std::get<0>(p2),std::get<1>(p2),std::get<2>(p2));
       glVertex3f(std::get<0>(p3),std::get<1>(p3),std::get<2>(p3));

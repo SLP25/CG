@@ -46,7 +46,7 @@ unsigned constexpr shapetoint(char *shape) {
  * @throws invalid_argument if the arguments received do not follow the
  * specification
  */
-inline std::unique_ptr<Shape> generateShape(int argc, char *argv[]) {
+std::unique_ptr<Shape> generateShape(int argc, char *argv[]) {
   switch (shapetoint(argv[1])) {
   case shapetoint((char *)"sphere"):
     ASSERT_ARG_LENGTH(6);
