@@ -20,11 +20,13 @@ typedef std::tuple<Position, LookAt, Up, Projection> Camera;
 typedef std::vector<Shape> Models;
 
 class World {
+
     WindowSize windowSize;
     Camera camera;
     Models models;
 
     public:
+
         World(WindowSize, Camera, Models);
         void initScene(int*, char**);
         void changeSize(int, int);
@@ -33,5 +35,6 @@ class World {
         void handleSpecialKey(int, int, int);
 
     private:
+
         void drawAxis();
 };

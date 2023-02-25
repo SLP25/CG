@@ -8,6 +8,7 @@
 #include <math.h>
 #include "config.hpp"
 #include "utils.hpp"
+#include "parser.hpp"
 
 World::World(WindowSize windowSize, Camera camera, Models models) {
     this->windowSize = windowSize;
@@ -149,3 +150,5 @@ void World::drawAxis() {
 
 	glEnd();
 }
+
+

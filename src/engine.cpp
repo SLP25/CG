@@ -9,18 +9,13 @@
 #include <iostream>
 #include "config.hpp"
 #include "shapegenerator.hpp"
-#include <tuple>
+#include "parser.hpp"
 
-World world(
-  WindowSize(512.0,512.0),
-  Camera(
-    Position(3.0,2.0,1.0),
-    LookAt(0.0,0.0,0.0),
-    Up(0.0,1.0,0.0),
-    Projection(60.0,1.0,1000.0)
-  ),
-Models( {Shape("plane.3d"), Shape("box.3d") })
-);
+using namespace std;
+
+XMLParser parser = XMLParser("./xml/dummy.xml");
+World world = parser.parse();
+
 
 void changeSize(int height,int width) {
   world.changeSize(height, width);
@@ -39,17 +34,18 @@ void handleSpecialKey(int key, int x, int y) {
 }
 
 int main(int argc, char **argv) {
-  world.initScene(&argc, argv);
-  glutCreateWindow("CG@DI");
 
-  // put callback registry here
-  glutReshapeFunc(changeSize);
-  glutDisplayFunc(renderScene);
-  //glutIdleFunc(renderScene);
-  glutKeyboardFunc(handleKey);
-  glutSpecialFunc(handleSpecialKey);
+    world.initScene(&argc, argv);
+    glutCreateWindow("Model Viewer 3000");
 
-  // enter GLUT's main cycle
-  glutMainLoop();
-  return 1;
+    // put callback registry here
+    glutReshapeFunc(changeSize);
+    glutDisplayFunc(renderScene);
+    //glutIdleFunc(renderScene);
+    glutKeyboardFunc(handleKey);
+    glutSpecialFunc(handleSpecialKey);
+
+    // enter GLUT's main cycle
+    glutMainLoop();
+    return 1;
 }
