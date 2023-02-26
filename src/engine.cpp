@@ -2,20 +2,16 @@
 #include <GLUT/glut.h>
 #else
 #include <GL/glut.h>
+#include <iostream>
+
 #endif
 
-#define _USE_MATH_DEFINES
-#include <math.h>
-#include <iostream>
 #include "config.hpp"
-#include "shapegenerator.hpp"
 #include "parser.hpp"
 
 using namespace std;
 
-XMLParser parser = XMLParser("./xml/dummy.xml");
-World world = parser.parse();
-
+World world = World();
 
 void changeSize(int height,int width) {
   world.changeSize(height, width);
@@ -35,17 +31,37 @@ void handleSpecialKey(int key, int x, int y) {
 
 int main(int argc, char **argv) {
 
+    if (argc != 2) {
+        cout << "Error: Invalid argument count, expected one argument but got " << argc - 1 << "." << endl;
+        return 0;
+    }
+
+    string arg = argv[1];
+    if (arg == "help") {
+        cout << "usage: engine [argument]\n";
+        cout << "Arguments (and their description):\n";
+        cout << "help    : displays the current message.\n";
+        cout << "path    : set the configuration file (mandatory argument).\n";
+        cout << endl;
+        return 1;
+    }
+
+    /* Parse the configuration file. */
+    XMLParser parser = XMLParser(arg);
+    world = parser.parse(); /* Set up the world. */
+
     world.initScene(&argc, argv);
     glutCreateWindow("Model Viewer 3000");
 
-    // put callback registry here
+    /* Put callback registry here. */
     glutReshapeFunc(changeSize);
     glutDisplayFunc(renderScene);
-    //glutIdleFunc(renderScene);
+
     glutKeyboardFunc(handleKey);
     glutSpecialFunc(handleSpecialKey);
 
-    // enter GLUT's main cycle
+    /* Enter GLUT's main loop. */
     glutMainLoop();
+
     return 1;
 }
