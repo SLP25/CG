@@ -18,7 +18,15 @@
 using namespace std;
 using namespace rapidxml;
 
-XMLParser::XMLParser(std::string file_path) { this->file_path = std::move(file_path); }
+XMLParser::XMLParser(std::string file_path) {
+
+    ifstream test(file_path);
+
+    if (!test)
+        throw InvalidXMLStructure("engine:XMLParser : The XML file provided does not exits.");
+
+    this->file_path = std::move(file_path);
+}
 
 World XMLParser::parse() {
 
@@ -38,7 +46,7 @@ World XMLParser::parse() {
     xml_node<> *root_node = doc.first_node();
 
     if (strcmp(root_node->name(), "world") != 0) {
-        throw InvalidXMLStructure("The XML file should contain a 'world' root node.");
+        throw InvalidXMLStructure("engine:parse : The XML file should contain a 'world' root node.");
     }
 
     /* Parsing the 'window', 'camera' and 'group' nodes. */
@@ -66,7 +74,7 @@ WindowSize XMLParser::parse_window(xml_node<> *root_node) {
             get<1>(window) = stoi(attr->value()); /* 1-index is the height. */
         }
 
-        else throw InvalidXMLStructure("The 'WindowSize' node should only have the attributes 'width' and 'height'.");
+        else throw InvalidXMLStructure("engine:parse_window : The 'WindowSize' node should only have the attributes 'width' and 'height'.");
     }
 
     return window;
@@ -85,7 +93,7 @@ Camera XMLParser::parse_camera(xml_node<> *root_node) {
     xml_node<> *projection_node = camera_node->first_node("projection");
 
     if (!position_node || !look_at_node || !up_node || !projection_node)
-        throw InvalidXMLStructure("The 'camera' node has to have the nodes 'position', 'lookAt', 'up' and 'projection'.");
+        throw InvalidXMLStructure("engine:parse_camera : The 'camera' node has to have the nodes 'position', 'lookAt', 'up' and 'projection'.");
 
     position = XMLParser::get_attr_as_point(position_node, "x", "y", "z");
     look_at = XMLParser::get_attr_as_point(look_at_node, "x", "y", "z");
@@ -114,7 +122,7 @@ Point XMLParser::get_attr_as_point(xml_node<> *node, const string& label_a, cons
         if (label == label_a) get<0>(result) = stof(attr->value());
         else if (label == label_b) get<1>(result) = stof(attr->value());
         else if (label == label_c) get<2>(result) = stof(attr->value());
-        else throw InvalidXMLStructure("Invalid attributes inside 'camera' nodes.");
+        else throw InvalidXMLStructure("engine:get_attr_as_point : Invalid attributes inside 'camera' nodes.");
     }
 
     return result;
@@ -125,20 +133,20 @@ Models XMLParser::parse_group(rapidxml::xml_node<> *root_node) {
     vector<Shape> result;
 
     xml_node<> *group_node = root_node->first_node("group");
-    if (group_node == nullptr) throw InvalidXMLStructure("The file must have a 'group' node.");
+    if (group_node == nullptr) throw InvalidXMLStructure("engine:parse_group : The file must have a 'group' node.");
 
     xml_node<> *models_node = group_node->first_node("models");
-    if (models_node == nullptr) throw InvalidXMLStructure("The file must have a 'models' node inside the 'group' node");
+    if (models_node == nullptr) throw InvalidXMLStructure("engine:parse_group : The file must have a 'models' node inside the 'group' node");
 
     for (xml_node<> *model_node = models_node->first_node(); model_node; model_node = model_node->next_sibling()) {
 
         string node_name = model_node->name();
-        if (node_name != "model") throw InvalidXMLStructure("Inside the 'models' can only be present 'model' nodes.");
+        if (node_name != "model") throw InvalidXMLStructure("engine:parse_group : Inside the 'models' can only be present 'model' nodes.");
 
         xml_attribute<> *attr = model_node->first_attribute();
         string label = attr->name();
 
-        if (label != "file") throw InvalidXMLStructure("'model' nodes can only have the attribute 'file'.");
+        if (label != "file") throw InvalidXMLStructure("engine:parse_group : 'model' nodes can only have the attribute 'file'.");
         result.emplace_back(model_node->first_attribute()->value());
     }
 
