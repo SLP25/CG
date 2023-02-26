@@ -8,13 +8,14 @@
 #include <math.h>
 #include "config.hpp"
 #include "utils.hpp"
-#include "parser.hpp"
 
 World::World(WindowSize windowSize, Camera camera, Models models) {
     this->windowSize = windowSize;
     this->camera = camera;
     this->models = models;
 }
+
+World::World() {};
 
 void World::initScene(int* argc, char** argv) {
 
@@ -103,39 +104,41 @@ void World::handleKey(__attribute__((unused)) unsigned char key, __attribute__((
 }
 
 void World::handleSpecialKey(int key, __attribute__((unused)) int x, __attribute__((unused)) int y) {
+
     Point& pos = std::get<0>(camera);
+
     float d = sqrt(std::get<0>(pos) * std::get<0>(pos) + std::get<2>(pos) * std::get<2>(pos));
     float a = atan(std::get<2>(pos) / std::get<0>(pos));
     
     switch (key) {
         case GLUT_KEY_UP:
-        std::get<0>(camera) = addVector(std::get<0>(camera), {0, 0.1, 0});
-        glutPostRedisplay();
-        break;
+            std::get<0>(camera) = addVector(std::get<0>(camera), {0, 0.1, 0});
+            glutPostRedisplay();
+            break;
 
         case GLUT_KEY_DOWN:
-        std::get<0>(camera) = addVector(std::get<0>(camera), {0, -0.1, 0});
-        glutPostRedisplay();
-        break;
+            std::get<0>(camera) = addVector(std::get<0>(camera), {0, -0.1, 0});
+            glutPostRedisplay();
+            break;
 
         case GLUT_KEY_LEFT:
-        a -= 0.1;
-        pos = { d * cos(a), std::get<1>(pos), d * sin(a) };
-        glutPostRedisplay();
-        break;
+            a -= 0.1;
+            pos = { d * cos(a), std::get<1>(pos), d * sin(a) };
+            glutPostRedisplay();
+            break;
 
         case GLUT_KEY_RIGHT:
-        a += 0.1;
-        pos = { d * cos(a), std::get<1>(pos), d * sin(a) };
-        glutPostRedisplay();
-        break;
+            a += 0.1;
+            pos = { d * cos(a), std::get<1>(pos), d * sin(a) };
+            glutPostRedisplay();
+            break;
     }
 }
 
 void World::drawAxis() {
     glBegin(GL_LINES);
 
-	// X axis in red
+	// X-axis in red
 	glColor3f(1.0f, 0.0f, 0.0f);
 	glVertex3f(-100.0f, 0.0f, 0.0f);
 	glVertex3f(100.0f, 0.0f, 0.0f);
