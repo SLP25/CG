@@ -10,10 +10,9 @@
 #include <sstream>
 #include <iostream>
 
-#include "rapidxml.h"
-#include "../include/config.hpp"
-#include "../include/parser.hpp"
-#include "../include/exceptions/invalid_xml_file.hpp"
+#include "config.hpp"
+#include "parser.hpp"
+#include "exceptions/invalid_xml_file.hpp"
 
 using namespace std;
 using namespace rapidxml;

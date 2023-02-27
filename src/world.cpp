@@ -106,10 +106,8 @@ void World::handleKey(__attribute__((unused)) unsigned char key, __attribute__((
 void World::handleSpecialKey(int key, __attribute__((unused)) int x, __attribute__((unused)) int y) {
 
     Point& pos = std::get<0>(camera);
+    float a = 0.1;
 
-    float d = sqrt(std::get<0>(pos) * std::get<0>(pos) + std::get<2>(pos) * std::get<2>(pos));
-    float a = atan(std::get<2>(pos) / std::get<0>(pos));
-    
     switch (key) {
         case GLUT_KEY_UP:
             std::get<0>(camera) = addVector(std::get<0>(camera), {0, 0.1, 0});
@@ -122,14 +120,16 @@ void World::handleSpecialKey(int key, __attribute__((unused)) int x, __attribute
             break;
 
         case GLUT_KEY_LEFT:
-            a -= 0.1;
-            pos = { d * cos(a), std::get<1>(pos), d * sin(a) };
+            pos = { cos(a) * std::get<0>(pos) - sin(a) * std::get<2>(pos),
+                    std::get<1>(pos),
+                    cos(a) * std::get<2>(pos) + sin(a) * std::get<0>(pos) };
             glutPostRedisplay();
             break;
 
         case GLUT_KEY_RIGHT:
-            a += 0.1;
-            pos = { d * cos(a), std::get<1>(pos), d * sin(a) };
+            pos = { cos(-a) * std::get<0>(pos) - sin(-a) * std::get<2>(pos),
+                    std::get<1>(pos),
+                    cos(-a) * std::get<2>(pos) + sin(-a) * std::get<0>(pos) };
             glutPostRedisplay();
             break;
     }

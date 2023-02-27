@@ -11,7 +11,7 @@
 
 using namespace std;
 
-World world = World();
+World world;
 
 void changeSize(int height,int width) {
   world.changeSize(height, width);

@@ -7,7 +7,7 @@
 
 #include <string>
 #include "config.hpp"
-#include "rapidxml.h"
+#include <rapidxml/rapidxml.hpp>
 
 /**
  * @brief A class representing a XML parser using rapidxml lib.
