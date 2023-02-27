@@ -5,17 +5,19 @@
  */
 
 #include "shapegenerator.hpp"
-#include <iostream>
-#include <math.h>
-#include <map>
 #include "utils.hpp"
+#include <cmath>
+#include <fstream>
+#include <iostream>
+#include <map>
+#include <regex>
 
 std::vector<Point> generateCircle(Point center, float radius, int slices) {
   std::vector<Point> ans;
-  
+
   for (int i = 0; i < slices; i++) {
     float angle = 2 * PI * i / slices;
-    Vector v = { radius * cos(angle), 0, radius * sin(angle) };
+    Vector v = {radius * cos(angle), 0, radius * sin(angle)};
     ans.push_back(addVector(center, v));
   }
 
@@ -23,14 +25,15 @@ std::vector<Point> generateCircle(Point center, float radius, int slices) {
 }
 
 void generateSquare(Point p1, Point p2, Point p3, Point p4,
-                           std::vector<Triangle> &triangles) {
+                    std::vector<Triangle> &triangles) {
   triangles.push_back({p1, p2, p3});
   triangles.push_back({p1, p3, p4});
 }
 
-void generatePolygon(std::vector<Point> vertices, std::vector<Triangle> &triangles) {
+void generatePolygon(std::vector<Point> vertices,
+                     std::vector<Triangle> &triangles) {
   for (int i = 2; i < (int)vertices.size(); i++)
-    triangles.push_back({ vertices.at(0), vertices.at(i - 1), vertices.at(i) });
+    triangles.push_back({vertices.at(0), vertices.at(i - 1), vertices.at(i)});
 }
 
 std::unique_ptr<Shape> generatePlane(float length, int divisions) {
@@ -73,9 +76,9 @@ std::unique_ptr<Shape> generateCube(float length, int divisions) {
   for (int i = 0; i < divisions; i++) {
     for (int j = 0; j < divisions; j++) {
       generateSquare({-mid, -mid + i * step, -mid + j * step},
-                      {-mid, -mid + i * step, -mid + (j + 1) * step},
-                      {-mid, -mid + (i + 1) * step, -mid + (j + 1) * step},
-                      {-mid, -mid + (i + 1) * step, -mid + j * step}, triangles);
+                     {-mid, -mid + i * step, -mid + (j + 1) * step},
+                     {-mid, -mid + (i + 1) * step, -mid + (j + 1) * step},
+                     {-mid, -mid + (i + 1) * step, -mid + j * step}, triangles);
     }
   }
 
@@ -127,30 +130,30 @@ std::unique_ptr<Shape> generateCube(float length, int divisions) {
   return std::make_unique<Shape>(triangles);
 }
 
-
 std::unique_ptr<Shape> generateCone(float radius, float height, int slices,
                                     int stacks) {
-  
+
   std::vector<Triangle> ans;
   std::vector<Point> prev;
 
   for (int i = 0; i <= stacks; i++) {
     float r = radius * (stacks - i) / stacks;
 
-    std::vector<Point> cur = generateCircle({0, height * i / stacks, 0}, r, slices);
+    std::vector<Point> cur =
+        generateCircle({0, height * i / stacks, 0}, r, slices);
 
     if (i == 0)
       generatePolygon(cur, ans);
     else
       for (int j = 0; j < slices; j++)
-        generateSquare(prev.at((j + 1) % slices), prev.at(j), cur.at(j), cur.at((j + 1) % slices), ans);
+        generateSquare(prev.at((j + 1) % slices), prev.at(j), cur.at(j),
+                       cur.at((j + 1) % slices), ans);
 
     prev = cur;
   }
 
   return std::make_unique<Shape>(ans);
 }
-
 
 std::unique_ptr<Shape> generateSphere(float radius, int slices, int stacks) {
   std::vector<Triangle> ans;
@@ -164,10 +167,50 @@ std::unique_ptr<Shape> generateSphere(float radius, int slices, int stacks) {
 
     if (i != 0)
       for (int j = 0; j < slices; j++)
-        generateSquare(prev.at((j + 1) % slices), prev.at(j), cur.at(j), cur.at((j + 1) % slices), ans);
+        generateSquare(prev.at((j + 1) % slices), prev.at(j), cur.at(j),
+                       cur.at((j + 1) % slices), ans);
 
     prev = cur;
   }
 
   return std::make_unique<Shape>(ans);
+}
+
+std::unique_ptr<Shape> generateFromObj(std::string srcFile) {
+  // We add one dummy vertex at the start as to shift indices by 1,
+  // as vectors start at 0 but OBJ files start at 1
+  auto vertices = std::vector<Point>({{0, 0, 0}});
+  auto triangles = std::vector<Triangle>();
+
+  std::ifstream file = std::ifstream(srcFile);
+
+  std::string line = "";
+  const std::regex vertex("v (-?\\d+.?\\d*) (-?\\d+.?\\d*) (-?\\d+.?\\d*)");
+  const std::regex face("f ((\\d+)(\\/\\/\\d+)? ){2,}((\\d+)(\\/\\/\\d+)?)");
+  const std::regex face_vertice("(\\d+)(\\/\\/\\d+)");
+  while (std::getline(file, line)) {
+    // std::cout << count << std::endl;
+    std::smatch match;
+    if (std::regex_match(line, match, vertex)) { // Is a vertex
+      float x = std::stof(match[1].str());
+      float y = std::stof(match[2].str());
+      float z = std::stof(match[3].str());
+      vertices.push_back({x, y, z});
+
+      // std::cout << "V " << x << " " << y << " " << z << std::endl;
+    } else if (std::regex_match(line, match, face)) { // Is a face
+      auto temp = std::vector<Point>();
+      while (std::regex_search(line, match, face_vertice)) {
+        int index = std::stoi(match[1]);
+        temp.push_back(vertices[index]);
+        line = match.suffix().str();
+      }
+
+      generatePolygon(temp, triangles);
+    } // We ignore everything else
+  }
+
+  file.close();
+
+  return std::make_unique<Shape>(triangles);
 }

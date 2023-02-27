@@ -7,6 +7,7 @@
 #pragma once
 #include "shape.hpp"
 #include <memory>
+#include <string>
 
 /**
  * @brief Generates a sphere centered in the origin
@@ -41,6 +42,7 @@ std::unique_ptr<Shape> generateCone(float radius, float height, int slices,
  * @return          the requested cube
  */
 std::unique_ptr<Shape> generateCube(float length, int divisions);
+
 /**
  * @brief Generates a plane centered in the origin in the 0xz axis
  *
@@ -50,3 +52,16 @@ std::unique_ptr<Shape> generateCube(float length, int divisions);
  * @return          the requested plane
  */
 std::unique_ptr<Shape> generatePlane(float length, int divisions);
+
+/**
+ * @brief Generates a shape based on the given OBJ file.
+ *
+ * As of now, no texture / normal information is kept when generating
+ * a shape like this. Only the coordinates of the vertices and faces
+ * is parsed
+ *
+ * @param srcFile the .obj file to read from
+ *
+ * @return        the corresponding shape
+ */
+std::unique_ptr<Shape> generateFromObj(std::string srcFile);
