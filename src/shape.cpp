@@ -21,7 +21,6 @@ Shape::Shape() { this->triangles = std::vector<Triangle>(); }
 Shape::Shape(std::vector<Triangle> triangles) { this->triangles = triangles; }
 
 Shape::Shape(std::string filePath) {
-  std::cout << filePath << std::endl;
   std::ifstream file(filePath);
   int n;
   file >> n;

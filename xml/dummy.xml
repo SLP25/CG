@@ -10,8 +10,7 @@
 
     <group>
         <models>
-            <model file="plane.3d" />
-            <model file="cone.3d" />
+            <model file="models/bugatti.3d" />
         </models>
     </group>
 

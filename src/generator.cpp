@@ -62,6 +62,9 @@ std::unique_ptr<Shape> generateShape(int argc, char *argv[]) {
   case shapetoint((char *)"plane"):
     ASSERT_ARG_LENGTH(5);
     return generatePlane(std::stof(argv[2]), std::stoi(argv[3]));
+  case shapetoint((char *)"obj"):
+    ASSERT_ARG_LENGTH(4);
+    return generateFromObj(argv[2]);
   default:
     throw std::invalid_argument("No such shape");
   }
