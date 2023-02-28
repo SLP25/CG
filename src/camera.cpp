@@ -11,9 +11,10 @@
 
 Camera::Camera() { }
 
-Camera::Camera(Point position, Point lookAt, Vector up, float fov, float near, float far) {
+Camera::Camera(Point position, float angleXZ,float angleZY, Vector up, float fov, float near, float far) {
     this->position = position;
-    this->lookAt = lookAt;
+    this->angleXZ = angleXZ;
+    this->angleZY = angleZY;
     this->up = up;
     this->fov = fov;
     this->near = near;
@@ -22,13 +23,20 @@ Camera::Camera(Point position, Point lookAt, Vector up, float fov, float near, f
 
 Camera::Camera(XMLParser parser) {
     position = parser.get_node("position").as_tuple<float,float,float>({"x","y","z"});
-    lookAt = parser.get_node("lookAt").as_tuple<float,float,float>({"x","y","z"});
+    Point lookAt = parser.get_node("lookAt").as_tuple<float,float,float>({"x","y","z"});
+    Vector lookAtVector=difference(lookAt,position);
+    angleXZ = angle({0,0,1},{std::get<0>(lookAtVector),0,std::get<2>(lookAtVector)});
+    angleZY = (PI/4) - angle({0,1,0},{0,std::get<1>(lookAtVector),std::get<2>(lookAtVector)});
     up = parser.get_node("up").as_tuple<float,float,float>({"x","y","z"});
 
     XMLParser projection = parser.get_node("projection");
     fov = projection.get_attr<float>("fov");
     near = projection.get_attr<float>("near");
     far = projection.get_attr<float>("far");
+}
+
+Vector Camera::getLookAtVector(){
+    return addVector(position,{cos(angleXZ),sin(angleZY),sin(angleXZ)});
 }
 
 void Camera::initScene(WindowSize windowSize) {
@@ -64,6 +72,7 @@ void Camera::changeSize(int width, int height) {
 void Camera::setupScene() {
     // set camera
     glLoadIdentity();
+    Point lookAt=getLookAtVector();
     gluLookAt(std::get<0>(position), std::get<1>(position), std::get<2>(position), 
               std::get<0>(lookAt), std::get<1>(lookAt), std::get<2>(lookAt),
               std::get<0>(up), std::get<1>(up), std::get<2>(up));
@@ -73,52 +82,54 @@ void Camera::handleKey(__attribute__((unused)) unsigned char key, __attribute__(
     switch (key) {
         case 'w':
             position = addVector(position, {0, 0, -1});
-            lookAt = addVector(lookAt,{0, 0, -1});
             glutPostRedisplay();
             break;
         case 's':
             position = addVector(position, {0, 0, 1});
-            lookAt = addVector(lookAt,{0, 0, 1});
             glutPostRedisplay();
             break;
         case 'a':
             position = addVector(position, {-1, 0, 0});
-            lookAt = addVector(lookAt,{-1, 0, 0});
             glutPostRedisplay();
             break;
         case 'd':
             position = addVector(position, {1, 0, 0});
-            lookAt = addVector(lookAt,{1, 0, 0});
             glutPostRedisplay();
+            break;
+        case 'z':
+            position = addVector(position,{0,0.1,0});
+            glutPostRedisplay();
+            break;
+        case 'x':
+            position = addVector(position,{0,-0.1,0});
+            glutPostRedisplay();
+            break;
+        default:
             break;
     }
 }
 
 void Camera::handleSpecialKey(int key, __attribute__((unused)) int x, __attribute__((unused)) int y) {
-    float a = 0.1;
-
     switch (key) {
-        case GLUT_KEY_UP:
-            position = addVector(position, {0, 0.1, 0});
+        case GLUT_KEY_DOWN:
+            if (angleZY>-(PI/2))
+                angleZY-=ONERAD;
             glutPostRedisplay();
             break;
 
-        case GLUT_KEY_DOWN:
-            position = addVector(position, {0, -0.1, 0});
+        case GLUT_KEY_UP:
+            if (angleZY<(PI/2))
+                angleZY+=ONERAD;
             glutPostRedisplay();
             break;
 
         case GLUT_KEY_LEFT:
-            position = { cos(a) * std::get<0>(position) - sin(a) * std::get<2>(position),
-                         std::get<1>(position),
-                         cos(a) * std::get<2>(position) + sin(a) * std::get<0>(position) };
+            angleXZ-=ONERAD;
             glutPostRedisplay();
             break;
 
         case GLUT_KEY_RIGHT:
-            position = { cos(-a) * std::get<0>(position) - sin(-a) * std::get<2>(position),
-                         std::get<1>(position),
-                         cos(-a) * std::get<2>(position) + sin(-a) * std::get<0>(position) };
+            angleXZ+=ONERAD;
             glutPostRedisplay();
             break;
     }

@@ -17,7 +17,8 @@ typedef std::tuple<float, float, float> Point; ///< Tuple of three coordinate co
 
 class Camera {
     Point position;
-    Point lookAt;
+    float angleXZ;
+    float angleZY;
     Vector up;
     float fov;
     float near;
@@ -34,7 +35,8 @@ class Camera {
         void handleSpecialKey(int key, int x, int y);
 
     private:
-        Camera(Point,Point,Vector,float,float,float);
+        Camera(Point,float,float,Vector,float,float,float);
+        Vector getLookAtVector();
 };
 
 /**

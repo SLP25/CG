@@ -31,6 +31,10 @@ Vector normalize(Vector v) {
   return scale(1 / length(v), v);
 }
 
+float angle(Vector u,Vector v){
+  return acos(dotProduct(u,v)/(length(u)*length(v)));
+}
+
 //returns the vector from p1 to p2 (p2 - p1)
 Vector difference(Point p1, Point p2) {
   return {std::get<0>(p2) - std::get<0>(p1),
