@@ -70,7 +70,28 @@ void Camera::setupScene() {
 }
 
 void Camera::handleKey(__attribute__((unused)) unsigned char key, __attribute__((unused)) int x, __attribute__((unused)) int y) {
-
+    switch (key) {
+        case 'w':
+            position = addVector(position, {0, 0, 1});
+            lookAt = addVector(lookAt,{0, 0, 1});
+            glutPostRedisplay();
+            break;
+        case 's':
+            position = addVector(position, {0, 0, -1});
+            lookAt = addVector(lookAt,{0, 0, -1});
+            glutPostRedisplay();
+            break;
+        case 'a':
+            position = addVector(position, {-1, 0, 0});
+            lookAt = addVector(lookAt,{-1, 0, 0});
+            glutPostRedisplay();
+            break;
+        case 'd':
+            position = addVector(position, {1, 0, 0});
+            lookAt = addVector(lookAt,{1, 0, 0});
+            glutPostRedisplay();
+            break;
+    }
 }
 
 void Camera::handleSpecialKey(int key, __attribute__((unused)) int x, __attribute__((unused)) int y) {
