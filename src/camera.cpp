@@ -72,13 +72,13 @@ void Camera::setupScene() {
 void Camera::handleKey(__attribute__((unused)) unsigned char key, __attribute__((unused)) int x, __attribute__((unused)) int y) {
     switch (key) {
         case 'w':
-            position = addVector(position, {0, 0, 1});
-            lookAt = addVector(lookAt,{0, 0, 1});
+            position = addVector(position, {0, 0, -1});
+            lookAt = addVector(lookAt,{0, 0, -1});
             glutPostRedisplay();
             break;
         case 's':
-            position = addVector(position, {0, 0, -1});
-            lookAt = addVector(lookAt,{0, 0, -1});
+            position = addVector(position, {0, 0, 1});
+            lookAt = addVector(lookAt,{0, 0, 1});
             glutPostRedisplay();
             break;
         case 'a':
