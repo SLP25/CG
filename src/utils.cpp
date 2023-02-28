@@ -8,4 +8,6 @@ Point addVector(Point p, Vector v) {
           std::get<2>(p) + std::get<2>(v)};
 }
 
-  
+float randomFloat() {
+  return (float)rand()/(float)(RAND_MAX);
+}

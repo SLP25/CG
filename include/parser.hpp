@@ -5,61 +5,79 @@
 
 #pragma once
 
+#include <memory>
+#include <sstream>
 #include <string>
 #include "config.hpp"
+#include "model.hpp"
 #include <rapidxml/rapidxml.hpp>
+#include "exceptions/invalid_xml_file.hpp"
+
+using namespace std;
+using namespace rapidxml;
+
+class XMLParser;
+
+template<typename... Ts> struct aux {
+    static tuple<Ts...> as_tuple(XMLParser* parser, initializer_list<string>::iterator attrs);
+};
 
 /**
  * @brief A class representing a XML parser using rapidxml lib.
  */
 class XMLParser {
-
-    std::string file_path;
+    shared_ptr<string> content;
+    shared_ptr<xml_document<>> doc;
+    xml_node<> *node;
 
 public:
     /**
      * Default parser constructor.
      * @param file_path Path of the XML file to be parsed.
      */
-    explicit XMLParser(std::string file_path);
+    explicit XMLParser(string file_path);
 
-    /**
-     * Parses the file passed on the constructor.
-     * @return World object with the parsed information.
-     */
-    World parse();
+    XMLParser get_node(string name);
+    vector<XMLParser> get_nodes();
+    vector<XMLParser> get_nodes(string name);
+
+
+    template<typename T> T get_attr(string name) {
+        for (xml_attribute<> *attr = node->first_attribute(); attr; attr = attr->next_attribute()) {
+            if (string(attr->name()) == name) {
+                stringstream convert(attr->value());
+                T value;
+                convert >> value;
+                return value;
+            }
+        }
+
+        throw InvalidXMLStructure("engine:get_attr : No such attribute exists in the node.");
+    }
+
+    template<typename... Ts> tuple<Ts...> as_tuple(initializer_list<string> attrs) {
+        return aux<Ts...>::as_tuple(this, attrs.begin());
+    }
+
+    template<typename T, typename... Args> T as_object(initializer_list<string> attrs) {
+        return make_from_tuple<T>(as_tuple<Args...>(attrs));
+    }
 
 private:
+    XMLParser(shared_ptr<string> content, shared_ptr<xml_document<>> doc, xml_node<> *node);
+};
 
-    /**
-     * Parses the 'window' node section.
-     * @param root_node Main node of the XML file ('world').
-     * @return WindowSize object with the information of the width (0) and height (1).
-     */
-    static WindowSize parse_window(rapidxml::xml_node<> *root_node);
+template<typename T, typename... Ts> struct aux<T, Ts...> {
+    static tuple<T,Ts...> as_tuple(XMLParser* parser, initializer_list<string>::iterator attrs) {      
+        T head = parser->get_attr<T>(*attrs);
+        tuple<Ts...> tail = aux<Ts...>::as_tuple(parser, attrs + 1);
 
-    /**
-     * Parses the 'camera' node section.
-     * @param root_node Main node of the XML file ('world').
-     * @return Camera object with the information of the points Position, LookAt, Up and Projection.
-     */
-    static Camera parse_camera(rapidxml::xml_node<> *root_node);
+        return tuple_cat(make_tuple(head), tail);
+    }
+};
 
-    /**
-     * Parses the 'group' node section (containing the models).
-     * @param root_node Main node of the XML file ('world').
-     * @return Models object with the information of the models parsed.
-     */
-    static Models parse_group(rapidxml::xml_node<> *root_node);
-
-    /**
-     * Get a point from a node with three attributes indicating a point.
-     * @param node Node to parse the attributes.
-     * @param label_a X coordinate label.
-     * @param label_b Y coordinate label.
-     * @param label_c Z coordinate label.
-     * @return Point struct.
-     */
-    static Point get_attr_as_point(rapidxml::xml_node<> *node, const std::string& label_a, const std::string& label_b, const std::string& label_c);
-
+template<> struct aux<> {
+    static tuple<> as_tuple(__attribute__((unused)) XMLParser*, __attribute__((unused)) initializer_list<string>::iterator) {
+        return { };
+    }
 };

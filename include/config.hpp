@@ -9,15 +9,33 @@
 #include <string>
 #include <tuple>
 #include <vector>
-#include "shape.hpp"
+#include "model.hpp"
+#include "parser.hpp"
 
 typedef std::tuple<int, int> WindowSize; ///< Tuple of a width and a height, both integers.
 typedef std::tuple<float, float, float> Point; ///< Tuple of three coordinate components, all floats.
 
-typedef Point Position, LookAt, Up, Projection;
+class Camera {
+    Point position;
+    Point lookAt;
+    Vector up;
+    float fov;
+    float near;
+    float far;
 
-typedef std::tuple<Position, LookAt, Up, Projection> Camera; ///< Camera object.
-typedef std::vector<Shape> Models; ///< Vector of shapes that constitutes the models.
+    public:
+        Camera();
+        Camera(XMLParser parser);
+
+        void initScene(WindowSize windowSize);
+        void changeSize(int width, int height);
+        void setupScene();
+        void handleKey(unsigned char key, int x, int y);
+        void handleSpecialKey(int key, int x, int y);
+
+    private:
+        Camera(Point,Point,Vector,float,float,float);
+};
 
 /**
  * @class World
@@ -27,29 +45,22 @@ class World {
 
     WindowSize windowSize; ///< The size of the window.
     Camera camera; ///< The camera to use for rendering the scene.
-    Models models; ///< The models to display in the scene.
+    std::vector<Model> models; ///< The models to display in the scene.
 
 public:
-
-    /**
-     * @brief Constructs a World object with the given window size, camera, and models.
-     * @param windowSize The size of the window to create.
-     * @param camera The camera to use for rendering the scene.
-     * @param models The models to display in the scene.
-     */
-    World(WindowSize windowSize, Camera camera, Models models);
-
     /**
      * @brief Constructs a World object with default values.
      */
     World();
+
+    World(XMLParser parser);
 
     /**
      * @brief Initializes the OpenGL and GLUT environment.
      * @param argc A pointer to the number of command-line arguments.
      * @param argv An array of command-line argument strings.
      */
-    void initScene(int* argc, char** argv);
+    void initScene();
 
     /**
      * @brief Handles a change in the window size.
@@ -80,6 +91,14 @@ public:
     void handleSpecialKey(int key, int x, int y);
 
 private:
+
+    /**
+     * @brief Constructs a World object with the given window size, camera, and models.
+     * @param windowSize The size of the window to create.
+     * @param camera The camera to use for rendering the scene.
+     * @param models The models to display in the scene.
+     */
+    World(WindowSize windowSize, Camera camera, std::vector<Model> models);
 
     /**
      * @brief Draws the x, y, and z axes.

@@ -1,3 +1,5 @@
+#pragma once
+
 #include "config.hpp"
 
 #define PI 3.141592654f

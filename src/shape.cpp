@@ -13,6 +13,7 @@
 #include "shape.hpp"
 #include <fstream>
 #include <tuple>
+#include <iostream>
 
 
 Shape::Shape() { this->triangles = std::vector<Triangle>(); }
@@ -20,6 +21,7 @@ Shape::Shape() { this->triangles = std::vector<Triangle>(); }
 Shape::Shape(std::vector<Triangle> triangles) { this->triangles = triangles; }
 
 Shape::Shape(std::string filePath) {
+  std::cout << filePath << std::endl;
   std::ifstream file(filePath);
   int n;
   file >> n;
@@ -38,23 +40,19 @@ Shape::Shape(std::string filePath) {
   file.close();
 }
 
-inline float randomFloat() {
-  return (float)rand()/(float)(RAND_MAX);
-}
-
 void Shape::draw(){
   for (Triangle &triangle : this->triangles){
       Point p1 = std::get<0>(triangle);
       Point p2 = std::get<1>(triangle);
       Point p3 = std::get<2>(triangle);
-      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+      
       glBegin(GL_TRIANGLES);
-      glColor3f(1, 1, 1);
+  
       glVertex3f(std::get<0>(p1),std::get<1>(p1),std::get<2>(p1));
       glVertex3f(std::get<0>(p2),std::get<1>(p2),std::get<2>(p2));
       glVertex3f(std::get<0>(p3),std::get<1>(p3),std::get<2>(p3));
       glEnd();
-    }
+  }
 }
 
 bool Shape::exportToFile(std::string filePath) {

@@ -48,15 +48,17 @@ int main(int argc, char **argv) {
 
     /* Parse the configuration file. */
     XMLParser parser = XMLParser(arg);
-    world = parser.parse(); /* Set up the world. */
+    world = World(parser.get_node("world")); /* Set up the world. */
 
-    world.initScene(&argc, argv);
+    glutInit(&argc, argv);
+    world.initScene();
+
+    glutInitWindowPosition(100, 100);
     glutCreateWindow("Model Viewer 3000");
 
     /* Put callback registry here. */
     glutReshapeFunc(changeSize);
     glutDisplayFunc(renderScene);
-
     glutKeyboardFunc(handleKey);
     glutSpecialFunc(handleSpecialKey);
 
