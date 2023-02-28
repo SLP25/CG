@@ -37,10 +37,20 @@ public:
      */
     explicit XMLParser(string file_path);
 
+    string name();
+
+    //throws exception if a child node is found with a name not in names
+    void validate_node(initializer_list<string> names);
+
+    //throws exception if more than max child nodes with a name in names are found
+    void validate_max_nodes(int max, initializer_list<string> names);
+
     XMLParser get_node(string name);
     vector<XMLParser> get_nodes();
     vector<XMLParser> get_nodes(string name);
 
+    //throws exception if an attribute with a name not specified in attrs is found
+    void validate_attrs(initializer_list<string> attrs);
 
     template<typename T> T get_attr(string name) {
         for (xml_attribute<> *attr = node->first_attribute(); attr; attr = attr->next_attribute()) {

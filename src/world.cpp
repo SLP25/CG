@@ -19,7 +19,7 @@ World::World(WindowSize windowSize, Camera camera, std::vector<Model> models) {
 World::World(XMLParser parser) {
 
     windowSize = parser.get_node("window").as_tuple<int,int>({"width", "height"});
-    camera = Camera(parser.get_node("camera"));
+    camera = Camera(parser.get_node({"camera"}));
     models = std::vector<Model>();
 
     XMLParser aux = parser.get_node("group").get_node("models");
