@@ -18,3 +18,5 @@ float dotProduct(Vector u, Vector v);
 Vector crossProduct(Vector u, Vector v);
 Vector projectToVector(Vector u, Vector v);
 Vector projectToPlane(Vector n, Vector v);
+Vector PerpendicularClockWiseByYAxis(Vector u);
+Vector PerpendicularAntiClockWiseByYAxis(Vector u);

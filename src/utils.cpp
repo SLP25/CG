@@ -69,6 +69,12 @@ Vector projectToVector(Vector u, Vector v) {
 Vector projectToPlane(Vector n, Vector v) {
   return addVector(v, inverse(projectToVector(n, v)));
 }
+Vector PerpendicularClockWiseByYAxis(Vector u){
+  return {std::get<2>(u),std::get<1>(u),-std::get<0>(u)};
+}
+Vector PerpendicularAntiClockWiseByYAxis(Vector u){
+  return {-std::get<2>(u),std::get<1>(u),std::get<0>(u)};
+}
 
 float randomFloat() {
   return (float)rand()/(float)(RAND_MAX);

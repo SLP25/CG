@@ -36,7 +36,7 @@ Camera::Camera(XMLParser parser) {
 }
 
 Vector Camera::getLookAtVector(){
-    return addVector(position,{cos(angleXZ),sin(angleZY),sin(angleXZ)});
+    return {cos(angleXZ),sin(angleZY),sin(angleXZ)};
 }
 
 void Camera::initScene(WindowSize windowSize) {
@@ -72,28 +72,29 @@ void Camera::changeSize(int width, int height) {
 void Camera::setupScene() {
     // set camera
     glLoadIdentity();
-    Point lookAt=getLookAtVector();
+    Point lookAt=addVector(position,getLookAtVector());
     gluLookAt(std::get<0>(position), std::get<1>(position), std::get<2>(position), 
               std::get<0>(lookAt), std::get<1>(lookAt), std::get<2>(lookAt),
               std::get<0>(up), std::get<1>(up), std::get<2>(up));
 }
 
 void Camera::handleKey(__attribute__((unused)) unsigned char key, __attribute__((unused)) int x, __attribute__((unused)) int y) {
+    Vector fowardsVector = normalize(getLookAtVector());
     switch (key) {
         case 'w':
-            position = addVector(position, {0, 0, -1});
+            position = addVector(position, fowardsVector);
             glutPostRedisplay();
             break;
         case 's':
-            position = addVector(position, {0, 0, 1});
+            position = addVector(position, inverse(fowardsVector));
             glutPostRedisplay();
             break;
         case 'a':
-            position = addVector(position, {-1, 0, 0});
+            position = addVector(position, PerpendicularClockWiseByYAxis(fowardsVector));
             glutPostRedisplay();
             break;
         case 'd':
-            position = addVector(position, {1, 0, 0});
+            position = addVector(position, PerpendicularAntiClockWiseByYAxis(fowardsVector));
             glutPostRedisplay();
             break;
         case 'z':
@@ -111,13 +112,13 @@ void Camera::handleKey(__attribute__((unused)) unsigned char key, __attribute__(
 
 void Camera::handleSpecialKey(int key, __attribute__((unused)) int x, __attribute__((unused)) int y) {
     switch (key) {
-        case GLUT_KEY_DOWN:
+        case GLUT_KEY_UP:
             if (angleZY>-(PI/2))
                 angleZY-=ONERAD;
             glutPostRedisplay();
             break;
 
-        case GLUT_KEY_UP:
+        case GLUT_KEY_DOWN:
             if (angleZY<(PI/2))
                 angleZY+=ONERAD;
             glutPostRedisplay();
