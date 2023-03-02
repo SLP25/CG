@@ -1,5 +1,5 @@
 /**
- * @file config.hpp
+ * @file world.hpp
  * @brief Defines the World class and its methods.
  */
 
@@ -11,31 +11,7 @@
 #include <vector>
 #include "model.hpp"
 #include "parser.hpp"
-
-typedef std::tuple<int, int> WindowSize; ///< Tuple of a width and a height, both integers.
-typedef std::tuple<float, float, float> Point; ///< Tuple of three coordinate components, all floats.
-
-class Camera {
-    Point position;
-    Point lookAt;
-    Vector up;
-    float fov;
-    float near;
-    float far;
-
-    public:
-        Camera();
-        Camera(XMLParser parser);
-
-        void initScene(WindowSize windowSize);
-        void changeSize(int width, int height);
-        void setupScene();
-        void handleKey(unsigned char key, int x, int y);
-        void handleSpecialKey(int key, int x, int y);
-
-    private:
-        Camera(Point,Point,Vector,float,float,float);
-};
+#include "camera.hpp"
 
 /**
  * @class World
@@ -44,7 +20,7 @@ class Camera {
 class World {
 
     WindowSize windowSize; ///< The size of the window.
-    Camera camera; ///< The camera to use for rendering the scene.
+    std::unique_ptr<Camera> camera; ///< The camera to use for rendering the scene.
     std::vector<Model> models; ///< The models to display in the scene.
 
 public:
@@ -98,7 +74,7 @@ private:
      * @param camera The camera to use for rendering the scene.
      * @param models The models to display in the scene.
      */
-    World(WindowSize windowSize, Camera camera, std::vector<Model> models);
+    World(WindowSize windowSize, Camera* camera, std::vector<Model> models);
 
     /**
      * @brief Draws the x, y, and z axes.

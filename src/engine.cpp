@@ -6,7 +6,8 @@
 
 #endif
 
-#include "config.hpp"
+#include "utils.hpp"
+#include "world.hpp"
 #include "parser.hpp"
 
 using namespace std;

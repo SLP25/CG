@@ -8,7 +8,7 @@
 #include <memory>
 #include <sstream>
 #include <string>
-#include "config.hpp"
+#include "utils.hpp"
 #include "model.hpp"
 #include <rapidxml/rapidxml.hpp>
 #include "exceptions/invalid_xml_file.hpp"

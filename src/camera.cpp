@@ -4,44 +4,32 @@
 #include <GL/glut.h>
 #endif
 
-#include "config.hpp"
+#include "camera.hpp"
+#include "world.hpp"
 #include "utils.hpp"
 #define _USE_MATH_DEFINES
 #include <math.h>
+#include <iostream>
 
-Camera::Camera() { }
 
-Camera::Camera(Point position, Point lookAt, Vector up, float fov, float near, float far) {
-    this->position = position;
-    this->lookAt = lookAt;
-    this->up = up;
-    this->fov = fov;
-    this->near = near;
-    this->far = far;
+std::unique_ptr<Camera> Camera::parse(XMLParser parser) {
+    string type;
+    if (!parser.get_opt_attr("type", type))
+        return std::make_unique<PolarCamera>(parser);
+
+    return Camera::parseCamera<PolarCamera,FPSCamera>(type, parser);
 }
 
-Camera::Camera(XMLParser parser) {
-    position = parser.get_node("position").as_tuple<float,float,float>({"x","y","z"});
-    lookAt = parser.get_node("lookAt").as_tuple<float,float,float>({"x","y","z"});
-    up = parser.get_node("up").as_tuple<float,float,float>({"x","y","z"});
+Camera::~Camera() { }
 
-    XMLParser projection = parser.get_node("projection");
-    fov = projection.get_attr<float>("fov");
-    near = projection.get_attr<float>("near");
-    far = projection.get_attr<float>("far");
-}
+void Camera::handleKey(__attribute__((unused)) unsigned char key, __attribute__((unused)) int x, __attribute__((unused)) int y) { }
 
-void Camera::initScene(WindowSize windowSize) {
+void Camera::handleSpecialKey(__attribute__((unused)) int key, __attribute__((unused)) int x, __attribute__((unused)) int y) { }
+
+void Camera::defaultInitScene(WindowSize windowSize, float fov, float near, float far) {
     int width = std::get<0>(windowSize);
     int height = std::get<1>(windowSize);
-
-    float ratio = width * 1.0f / height;
-
-    gluPerspective(fov, ratio, near, far);
-    glutInitWindowSize(width, height);
-}
-
-void Camera::changeSize(int width, int height) {
+    
     // Prevent a divide by zero, when window is too short
 	// (you can't make a window with zero width).
 	if (height == 0)
@@ -61,42 +49,30 @@ void Camera::changeSize(int width, int height) {
     glMatrixMode(GL_MODELVIEW);
 }
 
-void Camera::setupScene() {
-    // set camera
+
+PolarCamera::PolarCamera(XMLParser parser) {
+    position = parser.get_node("position").as_tuple<float,float,float>({"x","y","z"});
+    lookAt = parser.get_node("lookAt").as_tuple<float,float,float>({"x","y","z"});
+    up = parser.get_node("up").as_tuple<float,float,float>({"x","y","z"});
+
+    XMLParser projection = parser.get_node("projection");
+    fov = projection.get_attr<float>("fov");
+    near = projection.get_attr<float>("near");
+    far = projection.get_attr<float>("far");
+}
+
+void PolarCamera::initScene(WindowSize windowSize) {
+    Camera::defaultInitScene(windowSize, fov, near, far);
+}
+
+void PolarCamera::setupScene() {
     glLoadIdentity();
     gluLookAt(std::get<0>(position), std::get<1>(position), std::get<2>(position), 
               std::get<0>(lookAt), std::get<1>(lookAt), std::get<2>(lookAt),
               std::get<0>(up), std::get<1>(up), std::get<2>(up));
 }
 
-void Camera::handleKey(__attribute__((unused)) unsigned char key, __attribute__((unused)) int x, __attribute__((unused)) int y) {
-    switch (key) {
-        case 'w':
-            position = addVector(position, {0, 0, -1});
-            lookAt = addVector(lookAt,{0, 0, -1});
-            glutPostRedisplay();
-            break;
-        case 's':
-            position = addVector(position, {0, 0, 1});
-            lookAt = addVector(lookAt,{0, 0, 1});
-            glutPostRedisplay();
-            break;
-        case 'a':
-            position = addVector(position, {-1, 0, 0});
-            lookAt = addVector(lookAt,{-1, 0, 0});
-            glutPostRedisplay();
-            break;
-        case 'd':
-            position = addVector(position, {1, 0, 0});
-            lookAt = addVector(lookAt,{1, 0, 0});
-            glutPostRedisplay();
-            break;
-    }
-}
-
-void Camera::handleSpecialKey(int key, __attribute__((unused)) int x, __attribute__((unused)) int y) {
-    float a = 0.1;
-
+void PolarCamera::handleSpecialKey(int key, __attribute__((unused)) int x, __attribute__((unused)) int y) {
     switch (key) {
         case GLUT_KEY_UP:
             position = addVector(position, {0, 0.1, 0});
@@ -109,16 +85,117 @@ void Camera::handleSpecialKey(int key, __attribute__((unused)) int x, __attribut
             break;
 
         case GLUT_KEY_LEFT:
-            position = { cos(a) * std::get<0>(position) - sin(a) * std::get<2>(position),
+            position = { cos(ONERAD) * std::get<0>(position) - sin(ONERAD) * std::get<2>(position),
                          std::get<1>(position),
-                         cos(a) * std::get<2>(position) + sin(a) * std::get<0>(position) };
+                         cos(ONERAD) * std::get<2>(position) + sin(ONERAD) * std::get<0>(position) };
             glutPostRedisplay();
             break;
 
         case GLUT_KEY_RIGHT:
-            position = { cos(-a) * std::get<0>(position) - sin(-a) * std::get<2>(position),
+            position = { cos(-ONERAD) * std::get<0>(position) - sin(-ONERAD) * std::get<2>(position),
                          std::get<1>(position),
-                         cos(-a) * std::get<2>(position) + sin(-a) * std::get<0>(position) };
+                         cos(-ONERAD) * std::get<2>(position) + sin(-ONERAD) * std::get<0>(position) };
+            glutPostRedisplay();
+            break;
+    }
+}
+
+
+
+
+FPSCamera::FPSCamera(Point position, float angleXZ,float angleZY, Vector up, float fov, float near, float far) {
+    this->position = position;
+    this->angleXZ = angleXZ;
+    this->angleZY = angleZY;
+    this->up = up;
+    this->fov = fov;
+    this->near = near;
+    this->far = far;
+}
+
+FPSCamera::FPSCamera(XMLParser parser) {
+    position = parser.get_node("position").as_tuple<float,float,float>({"x","y","z"});
+    Point lookAt = parser.get_node("lookAt").as_tuple<float,float,float>({"x","y","z"});
+    Vector lookAtVector=difference(lookAt,position);
+    angleXZ = angle({0,0,1},{std::get<0>(lookAtVector),0,std::get<2>(lookAtVector)});
+    angleZY = (M_PI/4) - angle({0,1,0},{0,std::get<1>(lookAtVector),std::get<2>(lookAtVector)});
+    up = parser.get_node("up").as_tuple<float,float,float>({"x","y","z"});
+
+    XMLParser projection = parser.get_node("projection");
+    fov = projection.get_attr<float>("fov");
+    near = projection.get_attr<float>("near");
+    far = projection.get_attr<float>("far");
+}
+
+Vector FPSCamera::getLookAtVector(){
+    return {cos(angleXZ),sin(angleZY),sin(angleXZ)};
+}
+
+void FPSCamera::initScene(WindowSize windowSize) {
+    Camera::defaultInitScene(windowSize, fov, near, far);
+}
+
+void FPSCamera::setupScene() {
+    glLoadIdentity();
+    Point lookAt=addVector(position,getLookAtVector());
+    gluLookAt(std::get<0>(position), std::get<1>(position), std::get<2>(position), 
+              std::get<0>(lookAt), std::get<1>(lookAt), std::get<2>(lookAt),
+              std::get<0>(up), std::get<1>(up), std::get<2>(up));
+}
+
+void FPSCamera::handleKey(__attribute__((unused)) unsigned char key, __attribute__((unused)) int x, __attribute__((unused)) int y) {
+    Vector fowardsVector = normalize(getLookAtVector());
+    switch (key) {
+        case 'w':
+            position = addVector(position, fowardsVector);
+            glutPostRedisplay();
+            break;
+        case 's':
+            position = addVector(position, inverse(fowardsVector));
+            glutPostRedisplay();
+            break;
+        case 'a':
+            position = addVector(position, inverse(crossProduct(fowardsVector, up)));
+            glutPostRedisplay();
+            break;
+        case 'd':
+            position = addVector(position, crossProduct(fowardsVector, up));
+            glutPostRedisplay();
+            break;
+        case 'z':
+            position = addVector(position,{0,0.1,0});
+            glutPostRedisplay();
+            break;
+        case 'x':
+            position = addVector(position,{0,-0.1,0});
+            glutPostRedisplay();
+            break;
+        default:
+            break;
+    }
+}
+
+void FPSCamera::handleSpecialKey(int key, __attribute__((unused)) int x, __attribute__((unused)) int y) {
+    switch (key) {
+        case GLUT_KEY_UP:
+            if (angleZY>-(M_PI))
+                angleZY-=ONERAD;
+            glutPostRedisplay();
+            break;
+
+        case GLUT_KEY_DOWN:
+            if (angleZY<(M_PI))
+                angleZY+=ONERAD;
+            glutPostRedisplay();
+            break;
+
+        case GLUT_KEY_LEFT:
+            angleXZ-=ONERAD;
+            glutPostRedisplay();
+            break;
+
+        case GLUT_KEY_RIGHT:
+            angleXZ+=ONERAD;
             glutPostRedisplay();
             break;
     }

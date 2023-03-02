@@ -204,8 +204,8 @@ std::unique_ptr<Shape> generateFromObj(std::string srcFile) {
   std::ifstream file = std::ifstream(srcFile);
 
   std::string line = "";
-  const std::regex vertex("v (-?\\d+.?\\d*) (-?\\d+.?\\d*) (-?\\d+.?\\d*)");
-  const std::regex face("f ((\\d+)(\\/\\/\\d+)? ){2,}((\\d+)(\\/\\/\\d+)?)");
+  const std::regex vertex(R"(v (-?\d+\.?\d*) (-?\d+\.?\d*) (-?\d+\.?\\d*))");
+  const std::regex face(R"(f ((\d+)(\/\/\d+)? ){2,}((\d+)(\/\/\d+)?))");
   const std::regex face_vertice("(\\d+)(\\/\\/\\d+)");
   while (std::getline(file, line)) {
     // std::cout << count << std::endl;

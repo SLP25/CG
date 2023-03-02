@@ -8,16 +8,9 @@
 #include <string>
 #include <tuple>
 #include <vector>
+#include "utils.hpp"
 
 // TODO: Refactor to class if needed
-/**
- * @brief A tuple representing a point in 3D space
- */
-typedef std::tuple<float, float, float> Point;
-
-typedef std::tuple<Point, Point, Point> Triangle;
-
-typedef Point Vector;
 
 /**
  * @brief A class representing a shape in 3D space.

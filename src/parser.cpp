@@ -12,7 +12,7 @@
 #include <memory>
 #include <set>
 
-#include "config.hpp"
+#include "utils.hpp"
 #include "parser.hpp"
 #include "exceptions/invalid_xml_file.hpp"
 

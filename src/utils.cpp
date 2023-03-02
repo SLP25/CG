@@ -7,6 +7,10 @@ Vector zero() {
   return {0,0,0};
 }
 
+Vector one() {
+  return {1,1,1};
+}
+
 Vector inverse(Vector v) {
   return {-std::get<0>(v),
           -std::get<1>(v),
@@ -29,6 +33,10 @@ float square_length(Vector v) {
 
 Vector normalize(Vector v) {
   return scale(1 / length(v), v);
+}
+
+float angle(Vector u,Vector v){
+  return acos(dotProduct(u,v)/(length(u)*length(v)));
 }
 
 //returns the vector from p1 to p2 (p2 - p1)
@@ -64,6 +72,12 @@ Vector projectToVector(Vector u, Vector v) {
 //projects vector v to plane defined by normal vector n
 Vector projectToPlane(Vector n, Vector v) {
   return addVector(v, inverse(projectToVector(n, v)));
+}
+Vector PerpendicularClockWiseByYAxis(Vector u){
+  return {std::get<2>(u),std::get<1>(u),-std::get<0>(u)};
+}
+Vector PerpendicularAntiClockWiseByYAxis(Vector u){
+  return {-std::get<2>(u),std::get<1>(u),std::get<0>(u)};
 }
 
 float randomFloat() {

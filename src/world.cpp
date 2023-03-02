@@ -4,22 +4,22 @@
 #include <GL/glut.h>
 #endif
 
-#include "config.hpp"
 #include "utils.hpp"
+#include "world.hpp"
 #include <iostream>
 
 World::World() {};
 
-World::World(WindowSize windowSize, Camera camera, std::vector<Model> models) {
+World::World(WindowSize windowSize, Camera* camera, std::vector<Model> models) {
     this->windowSize = windowSize;
-    this->camera = camera;
+    this->camera = std::unique_ptr<Camera>(camera);
     this->models = models;
 }
 
 World::World(XMLParser parser) {
 
     windowSize = parser.get_node("window").as_tuple<int,int>({"width", "height"});
-    camera = Camera(parser.get_node({"camera"}));
+    camera = Camera::parse(parser.get_node({"camera"}));
     models = std::vector<Model>();
 
     XMLParser aux = parser.get_node("group").get_node("models");
@@ -33,23 +33,23 @@ void World::initScene() {
     // put GLUT's init here
     glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
 
-    camera.initScene(windowSize);
+    camera->initScene(windowSize);
+    glutInitWindowSize(std::get<0>(windowSize), std::get<1>(windowSize));
 
     // some OpenGL settings
     glEnable(GL_DEPTH_TEST);
-    //glEnable(GL_CULL_FACE);
-    //glCullFace(GL_FRONT);
+    glEnable(GL_CULL_FACE);
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 }
 
 void World::changeSize(int width, int height) {
-    camera.changeSize(width, height);
+    camera->initScene({width, height});
 }
 
 void World::renderScene() {
   // clear buffers
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  camera.setupScene();
+  camera->setupScene();
 
   drawAxis();
 
@@ -61,11 +61,11 @@ void World::renderScene() {
 }
 
 void World::handleKey(__attribute__((unused)) unsigned char key, __attribute__((unused)) int x, __attribute__((unused)) int y) {
-    camera.handleKey(key, x, y);
+    camera->handleKey(key, x, y);
 }
 
 void World::handleSpecialKey(int key, int x, int y) {
-    camera.handleSpecialKey(key, x, y);
+    camera->handleSpecialKey(key, x, y);
 }
 
 void World::drawAxis() {
