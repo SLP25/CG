@@ -34,6 +34,17 @@ std::unique_ptr<Shape> generateCone(float radius, float height, int slices,
                                     int stacks);
 
 /**
+ * @brief Generates a cylinder with its base on the 0xz axis
+ *
+ * @param radius the radius of the base of the cylinder
+ * @param height the height of the cylinder
+ * @param slices the number of slices of the cylinder
+ *
+ * @return       the requested cylinder
+ */
+std::unique_ptr<Shape> generateCylinder(float radius, float height, int slices);
+
+/**
  * @brief Generates a cube centered in the origin
  *
  * @param length    the length of the side of the cube

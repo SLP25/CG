@@ -12,11 +12,12 @@
 #include <map>
 #include <regex>
 
-std::vector<Point> generateCircle(Point center, float radius, int slices) {
+//displacement is a fraction of the angle of slicing. 0.5 displacement means the circle is offset by PI/slices rad
+std::vector<Point> generateCircle(Point center, float radius, int slices, float displacement) {
   std::vector<Point> ans;
 
   for (int i = 0; i < slices; i++) {
-    float angle = 2 * PI * i / slices;
+    float angle = 2 * M_PI * (i + displacement) / slices;
     Vector v = {radius * cos(angle), 0, radius * sin(angle)};
     ans.push_back(addVector(center, v));
   }
@@ -130,6 +131,24 @@ std::unique_ptr<Shape> generateCube(float length, int divisions) {
   return std::make_unique<Shape>(triangles);
 }
 
+std::unique_ptr<Shape> generateCylinder(float radius, float height, int slices) {
+  std::vector<Point> top = generateCircle({0,height,0}, radius, slices, 0);
+  std::vector<Point> bottom = generateCircle({0,0,0}, radius, slices, 0.5);
+  std::vector<Triangle> ans;
+
+  for (int i = 0; i < slices; i++) {
+    int i2 = (i + 1) % slices;
+    ans.push_back({top[i], top[i2], bottom[i]});
+    ans.push_back({bottom[i2], bottom[i], top[i2]});
+  }
+
+  reverse(top.begin(), top.end());
+  generatePolygon(top, ans);
+  generatePolygon(bottom, ans);
+
+  return std::make_unique<Shape>(ans);
+}
+
 std::unique_ptr<Shape> generateCone(float radius, float height, int slices,
                                     int stacks) {
 
@@ -140,7 +159,7 @@ std::unique_ptr<Shape> generateCone(float radius, float height, int slices,
     float r = radius * (stacks - i) / stacks;
 
     std::vector<Point> cur =
-        generateCircle({0, height * i / stacks, 0}, r, slices);
+        generateCircle({0, height * i / stacks, 0}, r, slices, 0);
 
     if (i == 0)
       generatePolygon(cur, ans);
@@ -163,7 +182,7 @@ std::unique_ptr<Shape> generateSphere(float radius, int slices, int stacks) {
     float h = radius * (2.0f * i / stacks - 1);
     float r = sqrt(radius * radius - h * h);
 
-    std::vector<Point> cur = generateCircle({0, h, 0}, r, slices);
+    std::vector<Point> cur = generateCircle({0, h, 0}, r, slices, 0);
 
     if (i != 0)
       for (int j = 0; j < slices; j++)

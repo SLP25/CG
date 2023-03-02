@@ -2,8 +2,6 @@
 
 #include "config.hpp"
 
-#define PI 3.141592654f
-
 Vector zero();
 Vector inverse(Vector v);
 Vector scale(float n, Vector v);
