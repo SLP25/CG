@@ -55,6 +55,7 @@ class PolarCamera : public Camera {
     Point position;
     Point lookAt;
     Vector up;
+    float radius;
     float fov;
     float near;
     float far;
@@ -67,6 +68,8 @@ class PolarCamera : public Camera {
         void initScene(WindowSize windowSize);
         void setupScene();
         void handleSpecialKey(int key, int x, int y);
+        void handleKey(unsigned char key ,int x, int y);
+    
 };
 
 class FPSCamera : public Camera {

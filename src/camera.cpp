@@ -54,7 +54,8 @@ PolarCamera::PolarCamera(XMLParser parser) {
     position = parser.get_node("position").as_tuple<float,float,float>({"x","y","z"});
     lookAt = parser.get_node("lookAt").as_tuple<float,float,float>({"x","y","z"});
     up = parser.get_node("up").as_tuple<float,float,float>({"x","y","z"});
-
+    radius=length(difference(position,lookAt));
+    position=normalize(position);
     XMLParser projection = parser.get_node("projection");
     fov = projection.get_attr<float>("fov");
     near = projection.get_attr<float>("near");
@@ -67,7 +68,7 @@ void PolarCamera::initScene(WindowSize windowSize) {
 
 void PolarCamera::setupScene() {
     glLoadIdentity();
-    gluLookAt(std::get<0>(position), std::get<1>(position), std::get<2>(position), 
+    gluLookAt(radius*std::get<0>(position), radius*std::get<1>(position), radius*std::get<2>(position), 
               std::get<0>(lookAt), std::get<1>(lookAt), std::get<2>(lookAt),
               std::get<0>(up), std::get<1>(up), std::get<2>(up));
 }
@@ -95,6 +96,20 @@ void PolarCamera::handleSpecialKey(int key, __attribute__((unused)) int x, __att
             position = { cos(-ONERAD) * std::get<0>(position) - sin(-ONERAD) * std::get<2>(position),
                          std::get<1>(position),
                          cos(-ONERAD) * std::get<2>(position) + sin(-ONERAD) * std::get<0>(position) };
+            glutPostRedisplay();
+            break;
+    }
+}
+void PolarCamera::handleKey(unsigned char key ,__attribute__((unused)) int x, __attribute__((unused)) int y) {
+    switch (key) {
+        case 'w':
+            if (radius>0){
+                radius-=0.1;
+                glutPostRedisplay();
+            }
+            break;
+        case 's':
+            radius+=0.1;
             glutPostRedisplay();
             break;
     }
@@ -143,7 +158,7 @@ void FPSCamera::setupScene() {
               std::get<0>(up), std::get<1>(up), std::get<2>(up));
 }
 
-void FPSCamera::handleKey(__attribute__((unused)) unsigned char key, __attribute__((unused)) int x, __attribute__((unused)) int y) {
+void FPSCamera::handleKey(unsigned char key, __attribute__((unused)) int x, __attribute__((unused)) int y) {
     Vector fowardsVector = normalize(getLookAtVector());
     switch (key) {
         case 'w':
