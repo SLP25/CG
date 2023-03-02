@@ -10,6 +10,8 @@
 #include <vector>
 #include "utils.hpp"
 
+typedef std::tuple<int,int,int> TriangleByPosition;
+
 // TODO: Refactor to class if needed
 
 /**
@@ -44,5 +46,6 @@ private:
   /**
    * The vertices of the shape
    */
-  std::vector<Triangle> triangles;
+  std::vector<Point> points;
+  std::vector<TriangleByPosition> trianglesByPos;
 };
