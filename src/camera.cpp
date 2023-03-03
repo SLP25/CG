@@ -84,14 +84,12 @@ void PolarCamera::handleSpecialKey(int key, __attribute__((unused)) int x, __att
         case GLUT_KEY_UP:
             if (angleZY>-M_PI/2)
                 angleZY-=ONERAD;
-            printf("%f\n",angleZY);
             glutPostRedisplay();
             break;
 
         case GLUT_KEY_DOWN:
             if (angleZY<M_PI/2)
                 angleZY+=ONERAD;
-            printf("%f\n",angleZY);
             glutPostRedisplay();
             break;
 
