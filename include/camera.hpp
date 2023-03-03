@@ -17,13 +17,13 @@ class Camera {
 
         virtual ~Camera();
 
-        virtual void initScene(WindowSize windowSize) = 0;
+        virtual void changeSize(WindowSize windowSize) = 0;
         virtual void setupScene() = 0;
         virtual void handleKey(unsigned char key, int x, int y);
         virtual void handleSpecialKey(int key, int x, int y);
 
     protected:
-        static void defaultInitScene(WindowSize windowSize, float fov, float near, float far);
+        static void defaultChangeSize(WindowSize windowSize, float fov, float near, float far);
 
     private:
         template<class... Cameras>
@@ -61,11 +61,11 @@ class PolarCamera : public Camera {
     float far;
 
     public:
-        static string className() { return "PolarCamera"; }
+        static string className() { return "polar"; }
 
         PolarCamera(XMLParser parser);
 
-        void initScene(WindowSize windowSize);
+        void changeSize(WindowSize windowSize);
         void setupScene();
         void handleSpecialKey(int key, int x, int y);
         void handleKey(unsigned char key ,int x, int y);
@@ -82,11 +82,11 @@ class FPSCamera : public Camera {
     float far;
 
     public:
-        static string className() { return "FPSCamera"; }
+        static string className() { return "fps"; }
 
         FPSCamera(XMLParser parser);
 
-        void initScene(WindowSize windowSize);
+        void changeSize(WindowSize windowSize);
         void setupScene();
         void handleKey(unsigned char key, int x, int y);
         void handleSpecialKey(int key, int x, int y);

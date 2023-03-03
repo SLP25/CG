@@ -56,9 +56,6 @@ int main(int argc, char **argv) {
     glutInit(&argc, argv);
     world.initScene();
 
-    glutInitWindowPosition(100, 100);
-    glutCreateWindow("Model Viewer 3000");
-
     /* Put callback registry here. */
     glutReshapeFunc(changeSize);
     glutDisplayFunc(renderScene);

@@ -26,7 +26,7 @@ void Camera::handleKey(__attribute__((unused)) unsigned char key, __attribute__(
 
 void Camera::handleSpecialKey(__attribute__((unused)) int key, __attribute__((unused)) int x, __attribute__((unused)) int y) { }
 
-void Camera::defaultInitScene(WindowSize windowSize, float fov, float near, float far) {
+void Camera::defaultChangeSize(WindowSize windowSize, float fov, float near, float far) {
     int width = std::get<0>(windowSize);
     int height = std::get<1>(windowSize);
     
@@ -62,8 +62,8 @@ PolarCamera::PolarCamera(XMLParser parser) {
     far = projection.get_attr<float>("far");
 }
 
-void PolarCamera::initScene(WindowSize windowSize) {
-    Camera::defaultInitScene(windowSize, fov, near, far);
+void PolarCamera::changeSize(WindowSize windowSize) {
+    Camera::defaultChangeSize(windowSize, fov, near, far);
 }
 
 void PolarCamera::setupScene() {
@@ -146,8 +146,8 @@ Vector FPSCamera::getLookAtVector(){
     return {cos(angleXZ),sin(angleZY),sin(angleXZ)};
 }
 
-void FPSCamera::initScene(WindowSize windowSize) {
-    Camera::defaultInitScene(windowSize, fov, near, far);
+void FPSCamera::changeSize(WindowSize windowSize) {
+    Camera::defaultChangeSize(windowSize, fov, near, far);
 }
 
 void FPSCamera::setupScene() {

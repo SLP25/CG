@@ -32,9 +32,10 @@ void World::initScene() {
 
     // put GLUT's init here
     glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
-
-    camera->initScene(windowSize);
     glutInitWindowSize(std::get<0>(windowSize), std::get<1>(windowSize));
+
+    glutInitWindowPosition(100, 100);
+    glutCreateWindow("Model Viewer 3000");
 
     // some OpenGL settings
     glEnable(GL_DEPTH_TEST);
@@ -43,7 +44,7 @@ void World::initScene() {
 }
 
 void World::changeSize(int width, int height) {
-    camera->initScene({width, height});
+    camera->changeSize({width, height});
 }
 
 void World::renderScene() {
