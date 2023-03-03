@@ -83,3 +83,33 @@ Vector PerpendicularAntiClockWiseByYAxis(Vector u){
 float randomFloat() {
   return (float)rand()/(float)(RAND_MAX);
 }
+Vector RotateAroundXAxis(Vector u,float angle){
+  float x,y,z;
+  x=std::get<0>(u);
+  y=std::get<1>(u);
+  z=std::get<2>(u);
+  return {x,
+          y*cos(angle)+z*sin(angle),
+          y*(-sin(angle))+z*cos(angle)
+          };
+}
+Vector RotateAroundYAxis(Vector u,float angle){
+  float x,y,z;
+  x=std::get<0>(u);
+  y=std::get<1>(u);
+  z=std::get<2>(u);
+  return {x*cos(angle)-z*sin(angle),
+          y,
+          x*sin(angle)+z*cos(angle)
+          };
+}
+Vector RotateAroundZAxis(Vector u,float angle){
+  float x,y,z;
+  x=std::get<0>(u);
+  y=std::get<1>(u);
+  z=std::get<2>(u);
+  return {x*cos(angle)+y*sin(angle),
+          -x*sin(angle)+y*cos(angle),
+          z
+          };
+}
