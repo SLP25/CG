@@ -12,8 +12,10 @@
 #include <map>
 #include <regex>
 
-//displacement is a fraction of the angle of slicing. 0.5 displacement means the circle is offset by PI/slices rad
-std::vector<Point> generateCircle(Point center, float radius, int slices, float displacement) {
+// displacement is a fraction of the angle of slicing. 0.5 displacement means
+// the circle is offset by PI/slices rad
+std::vector<Point> generateCircle(Point center, float radius, int slices,
+                                  float displacement) {
   std::vector<Point> ans;
 
   for (int i = 0; i < slices; i++) {
@@ -131,9 +133,10 @@ std::unique_ptr<Shape> generateCube(float length, int divisions) {
   return std::make_unique<Shape>(triangles);
 }
 
-std::unique_ptr<Shape> generateCylinder(float radius, float height, int slices) {
-  std::vector<Point> top = generateCircle({0,height,0}, radius, slices, 0);
-  std::vector<Point> bottom = generateCircle({0,0,0}, radius, slices, 0.5);
+std::unique_ptr<Shape> generateCylinder(float radius, float height,
+                                        int slices) {
+  std::vector<Point> top = generateCircle({0, height, 0}, radius, slices, 0);
+  std::vector<Point> bottom = generateCircle({0, 0, 0}, radius, slices, 0.5);
   std::vector<Triangle> ans;
 
   for (int i = 0; i < slices; i++) {
@@ -204,21 +207,21 @@ std::unique_ptr<Shape> generateFromObj(std::string srcFile) {
   std::ifstream file = std::ifstream(srcFile);
 
   std::string line = "";
-  const std::regex vertex(R"(v (-?\d+\.?\d*) (-?\d+\.?\d*) (-?\d+\.?\\d*))");
-  const std::regex face(R"(f ((\d+)(\/\/\d+)? ){2,}((\d+)(\/\/\d+)?))");
-  const std::regex face_vertice("(\\d+)(\\/\\/\\d+)");
+  const std::regex vertex(R"(v +(-?\d+\.?\d*) (-?\d+\.?\d*) (-?\d+\.?\d*))");
+  const std::regex face(
+      R"(f +((\d+)(\/?\d*\/?\d*)? ){2,}((\d+)(\/?\d*\/?\d*)?))");
+  const std::regex face_vertice(R"((\d+)(\/?\d*\/?\d*))");
+
   while (std::getline(file, line)) {
-    // std::cout << count << std::endl;
     std::smatch match;
-    if (std::regex_match(line, match, vertex)) { // Is a vertex
+    if (std::regex_search(line, match, vertex)) { // Is a vertex
       float x = std::stof(match[1].str());
       float y = std::stof(match[2].str());
       float z = std::stof(match[3].str());
       vertices.push_back({x, y, z});
-
-      // std::cout << "V " << x << " " << y << " " << z << std::endl;
-    } else if (std::regex_match(line, match, face)) { // Is a face
+    } else if (std::regex_search(line, match, face)) { // Is a face
       auto temp = std::vector<Point>();
+
       while (std::regex_search(line, match, face_vertice)) {
         int index = std::stoi(match[1]);
         temp.push_back(vertices[index]);
@@ -228,8 +231,6 @@ std::unique_ptr<Shape> generateFromObj(std::string srcFile) {
       generatePolygon(temp, triangles);
     } // We ignore everything else
   }
-
   file.close();
-
   return std::make_unique<Shape>(triangles);
 }
