@@ -53,7 +53,7 @@ void Camera::defaultChangeSize(WindowSize windowSize, float fov, float near, flo
 PolarCamera::PolarCamera(XMLParser parser) {
     Point position = parser.get_node("position").as_tuple<float,float,float>({"x","y","z"});
     lookAt = parser.get_node("lookAt").as_tuple<float,float,float>({"x","y","z"});
-    Vector lookAtVector=difference(lookAt,position);
+    Vector lookAtVector=difference(position,lookAt);
     radius = length(lookAtVector);
     angleXZ = angle({0,0,1},{std::get<0>(lookAtVector),0,std::get<2>(lookAtVector)});
     angleZY = (M_PI/2) - angle({0,1,0},{0,std::get<1>(lookAtVector),std::get<2>(lookAtVector)});
