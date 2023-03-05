@@ -66,6 +66,11 @@ std::unique_ptr<Shape> generateShape(int argc, char *argv[]) {
     ASSERT_ARG_LENGTH(6);
     return generateCylinder(std::stof(argv[2]), std::stof(argv[3]),
                             std::stof(argv[4]));
+  case shapetoint((char *)"donut"):
+    ASSERT_ARG_LENGTH(8);
+    return generateDonut(std::stof(argv[2]), std::stof(argv[3]),
+                         std::stof(argv[4]), std::stoi(argv[5]),
+                         std::stoi(argv[6]));
   case shapetoint((char *)"obj"):
     ASSERT_ARG_LENGTH(4);
     return generateFromObj(argv[2]);

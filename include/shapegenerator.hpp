@@ -76,3 +76,19 @@ std::unique_ptr<Shape> generatePlane(float length, int divisions);
  * @return        the corresponding shape
  */
 std::unique_ptr<Shape> generateFromObj(std::string srcFile);
+
+/**
+ * @brief Generates a donut centered in the 0xz axis
+ *
+ * @param radius the radius of the donut (all the empty space
+ * + half the donut's length)
+ * @param length the length of the donut (the diameter of the edible
+ * part)
+ * @param height the height of the donut
+ * @param stacks the number of stacks of the donut
+ * @param slices the number of slices of the donut
+ *
+ * @return       the requested donut
+ */
+std::unique_ptr<Shape> generateDonut(float radius, float length, float height,
+                                     int stacks, int slices);

@@ -2,6 +2,8 @@ bin/
 obj/
 docs/
 tests/
+xml/
 .vscode/
 *.obj
 *.3d
+*.xml
