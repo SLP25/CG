@@ -238,13 +238,13 @@ std::unique_ptr<Shape> generateFromObj(std::string srcFile) {
 std::unique_ptr<Shape> generateDonut(float radius, float length, float height,
                                      int stacks, int slices) {
   std::vector<Point> *circles[2];
-  circles[0] = new std::vector<Point>[stacks];
-  circles[1] = new std::vector<Point>[stacks];
+  circles[0] = new std::vector<Point>[stacks + 1];
+  circles[1] = new std::vector<Point>[stacks + 1];
 
   const float stack_height = height / (float)stacks;
   const float min_y = -height / 2.0;
   const float angle_step = 2 * M_PI / slices;
-  for (int i = 0; i < stacks; i++) {
+  for (int i = 0; i <= stacks; i++) {
     float y = min_y + stack_height * i;
     float horizontal_gap =
         sqrt(1 - (4 * y * y) / (height * height)) * (length / 2.0);
@@ -264,23 +264,23 @@ std::unique_ptr<Shape> generateDonut(float radius, float length, float height,
 
   std::vector<Triangle> triangles = std::vector<Triangle>();
 
-  for (int i = 0; i < stacks - 1; i++) {
+  for (int i = 0; i < stacks; i++) {
     for (int j = 0; j < slices; j++) {
       Point p1 = circles[0][i][j];
       Point p2 = circles[0][i][(j + 1) % slices];
       Point p3 = circles[0][i + 1][j];
       Point p4 = circles[0][i + 1][(j + 1) % slices];
 
-      triangles.push_back({p3, p2, p1});
-      triangles.push_back({p4, p3, p2});
+      triangles.push_back({p1, p2, p3});
+      triangles.push_back({p3, p2, p4});
 
       p1 = circles[1][i][j];
       p2 = circles[1][i][(j + 1) % slices];
       p3 = circles[1][i + 1][j];
       p4 = circles[1][i + 1][(j + 1) % slices];
 
-      triangles.push_back({p3, p1, p2});
-      triangles.push_back({p3, p4, p2});
+      triangles.push_back({p1, p3, p2});
+      triangles.push_back({p2, p3, p4});
     }
   }
 
