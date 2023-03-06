@@ -1,6 +1,7 @@
 #pragma once
 
 #include <tuple>
+#include <initializer_list>
 
 #define ONERAD 0.0174532925f
 
@@ -16,6 +17,22 @@ typedef std::tuple<Point, Point, Point> Triangle;
 typedef Point Vector;
 
 
+template<typename Iter> Point average(Iter begin, Iter end) {
+  Point ans = {0,0,0};
+  int n = 0;
+  for (Iter it = begin; it != end; it++) {
+    n++;
+    ans = { std::get<0>(ans) + std::get<0>(*it),
+            std::get<1>(ans) + std::get<1>(*it),
+            std::get<2>(ans) + std::get<2>(*it)};
+  }
+  
+  return { std::get<0>(ans) / n,
+           std::get<1>(ans) / n,
+           std::get<2>(ans) / n};
+}
+
+Point average(std::initializer_list<Point> points);
 Vector zero();
 Vector one();
 Vector inverse(Vector v);

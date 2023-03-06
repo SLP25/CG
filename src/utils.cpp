@@ -3,6 +3,10 @@
 
 //Este ficheiro é a vergonha do Vasques
 
+Point average(std::initializer_list<Point> points) {
+  return average(points.begin(), points.end());
+}
+
 Vector zero() {
   return {0,0,0};
 }

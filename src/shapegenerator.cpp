@@ -35,8 +35,10 @@ void generateSquare(Point p1, Point p2, Point p3, Point p4,
 
 void generatePolygon(std::vector<Point> vertices,
                      std::vector<Triangle> &triangles) {
-  for (int i = 2; i < (int)vertices.size(); i++)
-    triangles.push_back({vertices.at(0), vertices.at(i - 1), vertices.at(i)});
+  Point center = average(vertices.begin(), vertices.end());
+
+  for (int i = 0; i < (int)vertices.size(); i++)
+    triangles.push_back({vertices.at(i), vertices.at((i + 1) % vertices.size()), center});
 }
 
 std::unique_ptr<Shape> generatePlane(float length, int divisions) {
