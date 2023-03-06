@@ -74,7 +74,7 @@ Vector PolarCamera::getPositionVector(){
 void PolarCamera::setupScene() {
     glLoadIdentity();
     Point position = getPositionVector();
-    gluLookAt(radius*std::get<0>(position), radius*std::get<1>(position), radius*std::get<2>(position), 
+    gluLookAt(std::get<0>(position), std::get<1>(position), std::get<2>(position), 
               std::get<0>(lookAt), std::get<1>(lookAt), std::get<2>(lookAt),
               std::get<0>(up), std::get<1>(up), std::get<2>(up));
 }
