@@ -7,13 +7,17 @@
 #include "camera.hpp"
 #include "world.hpp"
 #include "utils.hpp"
+
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <iostream>
+#include <memory>
 
 
 std::unique_ptr<Camera> Camera::parse(XMLParser parser) {
+
     string type;
+
     if (!parser.get_opt_attr("type", type))
         return std::make_unique<PolarCamera>(parser);
 
@@ -51,6 +55,11 @@ void Camera::defaultChangeSize(WindowSize windowSize, float fov, float near, flo
 
 
 PolarCamera::PolarCamera(XMLParser parser) {
+
+    parser.validate_node({"position", "lookAt", "up" "projection"});
+    parser.validate_max_nodes(1, {"position", "lookAt", "up" "projection"});
+    parser.validate_attrs({});
+
     Point position = parser.get_node("position").as_tuple<float,float,float>({"x","y","z"});
     lookAt = parser.get_node("lookAt").as_tuple<float,float,float>({"x","y","z"});
     Vector lookAtVector=difference(position,lookAt);
@@ -133,6 +142,11 @@ FPSCamera::FPSCamera(Point position, float angleXZ,float angleZY, Vector up, flo
 }
 
 FPSCamera::FPSCamera(XMLParser parser) {
+
+    parser.validate_node({"position", "lookAt", "up", "projection"});
+    parser.validate_max_nodes(1, {"position", "lookAt", "up", "projection"});
+    parser.validate_attrs({});
+
     position = parser.get_node("position").as_tuple<float,float,float>({"x","y","z"});
     Point lookAt = parser.get_node("lookAt").as_tuple<float,float,float>({"x","y","z"});
     Vector lookAtVector=difference(lookAt,position);
