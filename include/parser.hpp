@@ -10,7 +10,10 @@
 #include <string>
 #include "utils.hpp"
 #include "model.hpp"
-#include <rapidxml/rapidxml.hpp>
+
+//#include <rapidxml/rapidxml.hpp>
+#include "rapidxml.h"
+
 #include "exceptions/invalid_xml_file.hpp"
 
 using namespace std;
