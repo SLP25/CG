@@ -16,7 +16,6 @@ std::unique_ptr<Camera> Camera::parse(XMLParser parser) {
     string type;
     if (!parser.get_opt_attr("type", type))
         return std::make_unique<PolarCamera>(parser);
-
     return Camera::parseCamera<PolarCamera,FPSCamera>(type, parser);
 }
 
@@ -135,11 +134,10 @@ FPSCamera::FPSCamera(Point position, float angleXZ,float angleZY, Vector up, flo
 FPSCamera::FPSCamera(XMLParser parser) {
     position = parser.get_node("position").as_tuple<float,float,float>({"x","y","z"});
     Point lookAt = parser.get_node("lookAt").as_tuple<float,float,float>({"x","y","z"});
-    Vector lookAtVector=difference(lookAt,position);
-    angleXZ = angle({0,0,1},{std::get<0>(lookAtVector),0,std::get<2>(lookAtVector)});
-    angleZY = (M_PI/4) - angle({0,1,0},{0,std::get<1>(lookAtVector),std::get<2>(lookAtVector)});
+    Vector lookAtVector=difference(position,lookAt);
+    angleXZ = angle({1,0,0},{std::get<0>(lookAtVector),0,std::get<2>(lookAtVector)});
+    angleZY = 2*M_PI -angle({0,1,0},{0,std::get<1>(lookAtVector),std::get<2>(lookAtVector)});
     up = parser.get_node("up").as_tuple<float,float,float>({"x","y","z"});
-
     XMLParser projection = parser.get_node("projection");
     fov = projection.get_attr<float>("fov");
     near = projection.get_attr<float>("near");
@@ -147,7 +145,7 @@ FPSCamera::FPSCamera(XMLParser parser) {
 }
 
 Vector FPSCamera::getLookAtVector(){
-    return {cos(angleXZ),sin(angleZY),sin(angleXZ)};
+    return {cos(angleXZ),sin(angleZY),-sin(angleXZ)};
 }
 
 void FPSCamera::changeSize(WindowSize windowSize) {
@@ -166,19 +164,19 @@ void FPSCamera::handleKey(unsigned char key, __attribute__((unused)) int x, __at
     Vector fowardsVector = normalize(getLookAtVector());
     switch (key) {
         case 'w':
-            position = addVector(position, fowardsVector);
+            position = addVector(position, {std::get<0>(fowardsVector),0,std::get<2>(fowardsVector)});
             glutPostRedisplay();
             break;
         case 's':
-            position = addVector(position, inverse(fowardsVector));
+            position = addVector(position, inverse({std::get<0>(fowardsVector),0,std::get<2>(fowardsVector)}));
             glutPostRedisplay();
             break;
         case 'a':
-            position = addVector(position, inverse(crossProduct(fowardsVector, up)));
+            position = addVector(position, RotateAroundYAxis({std::get<0>(fowardsVector),0,std::get<2>(fowardsVector)},-M_PI/2));
             glutPostRedisplay();
             break;
         case 'd':
-            position = addVector(position, crossProduct(fowardsVector, up));
+            position = addVector(position, RotateAroundYAxis({std::get<0>(fowardsVector),0,std::get<2>(fowardsVector)},M_PI/2));
             glutPostRedisplay();
             break;
         case 'z':
@@ -197,24 +195,24 @@ void FPSCamera::handleKey(unsigned char key, __attribute__((unused)) int x, __at
 void FPSCamera::handleSpecialKey(int key, __attribute__((unused)) int x, __attribute__((unused)) int y) {
     switch (key) {
         case GLUT_KEY_UP:
-            if (angleZY>-(M_PI))
+            if (angleZY>M_PI/2)
                 angleZY-=ONERAD;
             glutPostRedisplay();
             break;
 
         case GLUT_KEY_DOWN:
-            if (angleZY<(M_PI))
+            if (angleZY<(M_PI+M_PI/2))
                 angleZY+=ONERAD;
             glutPostRedisplay();
             break;
 
         case GLUT_KEY_LEFT:
-            angleXZ-=ONERAD;
+            angleXZ+=ONERAD;
             glutPostRedisplay();
             break;
 
         case GLUT_KEY_RIGHT:
-            angleXZ+=ONERAD;
+            angleXZ-=ONERAD;
             glutPostRedisplay();
             break;
     }
