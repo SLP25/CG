@@ -64,6 +64,5 @@ int main(int argc, char **argv) {
 
     /* Enter GLUT's main loop. */
     glutMainLoop();
-
     return 1;
 }
