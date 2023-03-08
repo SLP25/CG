@@ -28,7 +28,7 @@ World::World(XMLParser parser) {
 
   for (XMLParser &p : aux.get_nodes("model")) {
 
-    string file_name = p.get_attr<string>("file");
+    std::string file_name = p.get_attr<std::string>("file");
 
     std::ifstream file(file_name);
 
@@ -40,7 +40,7 @@ World::World(XMLParser parser) {
       throw InvalidXMLStructure(exception_message.str());
     }
     file.close();
-    models.emplace_back(p.as_object<Shape, string>({"file"}));
+    models.emplace_back(p.as_object<Shape, std::string>({"file"}));
   }
 }
 
