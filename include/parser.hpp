@@ -11,8 +11,11 @@
 #include "utils.hpp"
 #include "model.hpp"
 
-// #include "rapidxml.h"
-#include <rapidxml/rapidxml.hpp>
+#ifdef FEDORA
+    #include "rapidxml.h"
+#else
+    #include <rapidxml/rapidxml.hpp>
+#endif
 
 #include "exceptions/invalid_xml_file.hpp"
 

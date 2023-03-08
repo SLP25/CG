@@ -41,7 +41,6 @@ World::World(XMLParser parser) {
         models.emplace_back(p.as_object<Shape,string>({"file"}));
 
     }
-
 }
 
 void World::initScene() {

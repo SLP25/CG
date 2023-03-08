@@ -3,6 +3,10 @@ rwildcard=$(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(su
 CC = g++
 CFLAGS = -O3 -g -Wall -Wextra --pedantic-errors -Werror
 
+ifdef FEDORA
+	CFLAGS+=-DFEDORA
+endif
+
 LIBS = -lGL -lGLU -lglut -Iinclude/
 
 HEADERS = $(call rwildcard,include,*.hpp)
