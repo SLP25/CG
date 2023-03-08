@@ -7,6 +7,7 @@
 #include "utils.hpp"
 #include "world.hpp"
 #include <iostream>
+#include <fstream>
 
 World::World() {};
 
@@ -24,8 +25,23 @@ World::World(XMLParser parser) {
 
     XMLParser aux = parser.get_node("group").get_node("models");
 
-    for (XMLParser& p : aux.get_nodes("model"))
+    for (XMLParser& p : aux.get_nodes("model")) {
+
+        string file_name = p.get_attr<string>("file");
+
+        std::ifstream file(file_name);
+
+        if (!file) {
+
+            std::stringstream exception_message;
+            exception_message << "XMLParser@model: The file '" << file_name << "' does not exits.";
+            throw InvalidXMLStructure(exception_message.str());
+        } 
+
         models.emplace_back(p.as_object<Shape,string>({"file"}));
+
+    }
+
 }
 
 void World::initScene() {

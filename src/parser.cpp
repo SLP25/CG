@@ -28,9 +28,10 @@ XMLParser::XMLParser(shared_ptr<string> content, shared_ptr<xml_document<>> doc,
 }
 
 XMLParser::XMLParser(string file_path) {
+
     ifstream file(file_path);
 
-    if (!file)
+    if (!file) 
         throw InvalidXMLStructure("engine:XMLParser : The XML file provided does not exits.");
 
     stringstream buffer;
