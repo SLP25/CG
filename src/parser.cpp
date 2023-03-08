@@ -45,7 +45,7 @@ XMLParser::XMLParser(string file_path) {
 }
 
 string XMLParser::name() {
-    return doc->name();
+    return node->name();
 }
 
 void XMLParser::validate_node(initializer_list<string> names) {
@@ -57,7 +57,7 @@ void XMLParser::validate_node(initializer_list<string> names) {
 
         if (aux.find(string(n->name())) == aux.end()) {
 
-            exception_message << "XMLParser: The node '" << string(n->name()) << "' is not valid.";
+            exception_message << "XMLParser: The node '" << string(n->name()) << "' is not valid in node '" << name() << "'.";
             throw InvalidXMLStructure(exception_message.str());
 
         }
@@ -76,7 +76,7 @@ void XMLParser::validate_max_nodes(int max, initializer_list<string> names) {
 
         if (++aux[name] > max) {
         
-            exception_message << "XMLParser: Expected at max " << std::to_string(max) << ", but got " << std::to_string(aux[name]) << ".";
+            exception_message << "XMLParser: Expected at max " << std::to_string(max) << ", but got " << std::to_string(aux[name]) << " in node '" << this->name() << "'.";
             throw InvalidXMLStructure(exception_message.str());
         }
     }
@@ -109,7 +109,7 @@ XMLParser XMLParser::get_node(string name) {
         if (string(n->name()) == name) 
             return XMLParser(content, doc, n);
 
-    exception_message << "XMLParser: The child node '" << name << "' does not exist.";
+    exception_message << "XMLParser: The child node '" << name << "' of node '" << this->name() << "' does not exist.";
     throw InvalidXMLStructure(exception_message.str());
 }
 
@@ -122,24 +122,8 @@ void XMLParser::validate_attrs(initializer_list<string> attrs) {
 
         if (aux.find(string(attr->name())) == aux.end()) {
 
-            exception_message << "XMLParser: The argument '" << attr->name() << "' is not valid for the node '" << node->name() << "'.";
+            exception_message << "XMLParser: The attribute '" << attr->name() << "' is not valid for the node '" << name() << "'.";
             throw InvalidXMLStructure(exception_message.str());
 
         }
 }
-
-// void XMLParser::validate_attrs(initializer_list<string> attrs, xml_node<> *from) {
-
-//     set<string> aux(attrs);
-//     std::stringstream exception_message;
-    
-//     for (xml_attribute<> *attr = from->first_attribute(); attr; attr = attr->next_attribute())
-
-//         if (aux.find(string(attr->name())) == aux.end()) {
-
-//             exception_message << "XMLParser: The argument '" << attr->name() << "' is not valid for the node '" << from->name() << "'.";
-//             throw InvalidXMLStructure(exception_message.str());
-
-//         }
-// }
-

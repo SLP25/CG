@@ -55,8 +55,8 @@ void Camera::defaultChangeSize(WindowSize windowSize, float fov, float near, flo
 
 PolarCamera::PolarCamera(XMLParser parser) {
 
-    parser.validate_node({"position", "lookAt", "up" "projection"});
-    parser.validate_max_nodes(1, {"position", "lookAt", "up" "projection"});
+    parser.validate_node({"position", "lookAt", "up", "projection"});
+    parser.validate_max_nodes(1, {"position", "lookAt", "up", "projection"});
     parser.validate_attrs({});
 
     Point position = parser.get_node("position").as_tuple<float,float,float>({"x","y","z"});

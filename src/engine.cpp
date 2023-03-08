@@ -1,9 +1,9 @@
 #ifdef __APPLE__
+#include <GLUT/glew.h>
 #include <GLUT/glut.h>
 #else
+#include <GL/glew.h>
 #include <GL/glut.h>
-#include <iostream>
-
 #endif
 
 #include "utils.hpp"
@@ -53,8 +53,12 @@ int main(int argc, char **argv) {
     parser.validate_max_nodes(1, {"world"});
     world = World(parser.get_node("world")); /* Set up the world. */
 
+    // put GLUT's init here
     glutInit(&argc, argv);
+    
     world.initScene();
+
+    //glewInit(); after createWindow and before any other glut funcs
 
     /* Put callback registry here. */
     glutReshapeFunc(changeSize);
