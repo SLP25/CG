@@ -4,101 +4,130 @@
  * @brief File implementing the XMLParser class.
  */
 
-#include <fstream>
-#include <tuple>
 #include <cstring>
-#include <sstream>
+#include <fstream>
 #include <iostream>
 #include <memory>
 #include <set>
+#include <sstream>
+#include <tuple>
 
-#include "utils.hpp"
-#include "parser.hpp"
+#include "../include/parser.hpp"
 #include "exceptions/invalid_xml_file.hpp"
+#include "parser.hpp"
+#include "utils.hpp"
 
-using namespace std;
-using namespace rapidxml;
-
-XMLParser::XMLParser(shared_ptr<string> content, shared_ptr<xml_document<>> doc, xml_node<> *node) {
-    this->content = content;
-    this->doc = doc;
-    this->node = node;
+XMLParser::XMLParser(std::shared_ptr<std::string> content,
+                     std::shared_ptr<rapidxml::xml_document<>> doc,
+                     rapidxml::xml_node<> *node) {
+  this->content = content;
+  this->doc = doc;
+  this->node = node;
 }
 
-XMLParser::XMLParser(string file_path) {
-    ifstream file(file_path);
+XMLParser::XMLParser(std::string file_path) {
 
-    if (!file)
-        throw InvalidXMLStructure("engine:XMLParser : The XML file provided does not exits.");
+  std::ifstream file(file_path);
 
-    stringstream buffer;
-    buffer << file.rdbuf();
-    file.close();
+  if (!file)
+    throw InvalidXMLStructure(
+        "engine:XMLParser : The XML file provided does not exits.");
 
-    content = make_shared<string>(buffer.str());
-    doc = make_shared<xml_document<>>();
-    
-    doc->parse<0>(&(*content)[0]);
-    node = &(*doc);
+  std::stringstream buffer;
+  buffer << file.rdbuf();
+  file.close();
+
+  content = std::make_shared<std::string>(buffer.str());
+  doc = std::make_shared<rapidxml::xml_document<>>();
+
+  doc->parse<0>(&(*content)[0]);
+  node = &(*doc);
 }
 
-string XMLParser::name() {
-    return doc->name();
-}
+std::string XMLParser::name() { return node->name(); }
 
-void XMLParser::validate_node(initializer_list<string> names) {
-    set<string> aux(names);
+void XMLParser::validate_node(std::initializer_list<std::string> names) {
 
-    for (xml_node<> *n = node->first_node(); n; n = n->next_sibling())
-        if (aux.find(string(n->name())) == aux.end())
-            throw InvalidXMLStructure("Illegal xml node found");
-}
+  std::set<std::string> aux(names);
+  std::stringstream exception_message;
 
-void XMLParser::validate_max_nodes(int max, initializer_list<string> names) {
-    std::map<string,int> aux;
+  for (rapidxml::xml_node<> *n = node->first_node(); n; n = n->next_sibling())
 
-    for (string name : names)
-        aux[name] = 0;
+    if (aux.find(std::string(n->name())) == aux.end()) {
 
-    for (xml_node<> *n = node->first_node(); n; n = n->next_sibling()) {
-        string name(n->name());
-
-        if (++aux[name] > max)
-            throw InvalidXMLStructure("More than max xml nodes found");
+      exception_message << "XMLParser: The node '" << std::string(n->name())
+                        << "' is not valid in node '" << name() << "'.";
+      throw InvalidXMLStructure(exception_message.str());
     }
 }
 
-vector<XMLParser> XMLParser::get_nodes() {
-    vector<XMLParser> ans;
-    
-    for (xml_node<> *n = node->first_node(); n; n = n->next_sibling())
-        ans.push_back(XMLParser(content, doc, n));
+void XMLParser::validate_max_nodes(int max,
+                                   std::initializer_list<std::string> names) {
 
-    return ans;
+  std::map<std::string, int> aux;
+  std::stringstream exception_message;
+
+  for (std::string name : names)
+    aux[name] = 0;
+
+  for (rapidxml::xml_node<> *n = node->first_node(); n; n = n->next_sibling()) {
+
+    std::string name(n->name());
+
+    if (++aux[name] > max) {
+
+      exception_message << "XMLParser: Expected at max " << std::to_string(max)
+                        << ", but got " << std::to_string(aux[name])
+                        << " in node '" << this->name() << "'.";
+      throw InvalidXMLStructure(exception_message.str());
+    }
+  }
 }
 
-vector<XMLParser> XMLParser::get_nodes(string name) {
-    vector<XMLParser> ans;
-    
-    for (xml_node<> *n = node->first_node(); n; n = n->next_sibling())
-        if (string(n->name()) == name)
-            ans.push_back(XMLParser(content, doc, n));
+std::vector<XMLParser> XMLParser::get_nodes() {
+  std::vector<XMLParser> ans;
 
-    return ans;
+  for (rapidxml::xml_node<> *n = node->first_node(); n; n = n->next_sibling())
+    ans.push_back(XMLParser(content, doc, n));
+
+  return ans;
 }
 
-XMLParser XMLParser::get_node(string name) {
-    for (xml_node<> *n = node->first_node(); n; n = n->next_sibling())
-        if (string(n->name()) == name)
-            return XMLParser(content, doc, n);
+std::vector<XMLParser> XMLParser::get_nodes(std::string name) {
+  std::vector<XMLParser> ans;
 
-    throw InvalidXMLStructure("No child node exists with the specified name");
+  for (rapidxml::xml_node<> *n = node->first_node(); n; n = n->next_sibling())
+    if (std::string(n->name()) == name)
+      ans.push_back(XMLParser(content, doc, n));
+
+  return ans;
 }
 
-void XMLParser::validate_attrs(initializer_list<string> attrs) {
-    set<string> aux(attrs);
-    
-    for (xml_attribute<> *attr = node->first_attribute(); attr; attr = attr->next_attribute())
-        if (aux.find(string(attr->name())) == aux.end())
-            throw InvalidXMLStructure("Illegal argument found in xml node");
+XMLParser XMLParser::get_node(std::string name) {
+
+  std::stringstream exception_message;
+
+  for (rapidxml::xml_node<> *n = node->first_node(); n; n = n->next_sibling())
+    if (std::string(n->name()) == name)
+      return XMLParser(content, doc, n);
+
+  exception_message << "XMLParser: The child node '" << name << "' of node '"
+                    << this->name() << "' does not exist.";
+  throw InvalidXMLStructure(exception_message.str());
+}
+
+void XMLParser::validate_attrs(std::initializer_list<std::string> attrs) {
+
+  std::set<std::string> aux(attrs);
+  std::stringstream exception_message;
+
+  for (rapidxml::xml_attribute<> *attr = node->first_attribute(); attr;
+       attr = attr->next_attribute())
+
+    if (aux.find(std::string(attr->name())) == aux.end()) {
+
+      exception_message << "XMLParser: The attribute '" << attr->name()
+                        << "' is not valid for the node '" << name() << "'.";
+      throw InvalidXMLStructure(exception_message.str());
+    }
 }

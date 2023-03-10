@@ -7,3 +7,4 @@ xml/
 *.obj
 *.3d
 *.xml
+/models/

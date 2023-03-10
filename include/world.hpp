@@ -29,6 +29,11 @@ public:
      */
     World();
 
+    /**
+     * @brief Constructs a new World object from a xml node
+     * 
+     * @param parser The xml node
+     */
     World(XMLParser parser);
 
     /**
