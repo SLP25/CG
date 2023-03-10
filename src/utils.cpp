@@ -84,11 +84,13 @@ float randomFloat() {
 
 
 Vector rotate(Vector around,Vector v,float angle){
-  Vector axis= normalize(crossProduct(around,v));
+  Vector axis= normalize(around);
   float cossine = cos(angle);
   float sinne = sin(angle);
   float dot = dotProduct(v,axis);
-  return addVector(
-              addVector(scale(cossine,v),scale(sinne,axis)),
-              scale((1 - cossine) * dot,axis));
+  Vector cross = crossProduct(axis, v);
+  return addVector(addVector(
+          scale(cossine,v),
+          scale(sinne,cross)),
+          scale((1 - cossine) * dot,axis));
 }

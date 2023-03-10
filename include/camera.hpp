@@ -120,9 +120,7 @@ template <> struct helper<> {
  */
 class PolarCamera : public Camera {
   Point lookAt;
-  float angleXZ;
-  float angleZY;
-  float radius;
+  Point position;
   Vector up;
   float fov;
   float near;
@@ -137,9 +135,6 @@ public:
   void setupScene();
   void handleSpecialKey(int key, int x, int y);
   void handleKey(unsigned char key, int x, int y);
-
-private:
-  Vector getPositionVector();
 };
 
 /**

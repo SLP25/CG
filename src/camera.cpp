@@ -13,6 +13,9 @@
 #include <math.h>
 #include <memory>
 
+#define ON_READ_ANG 0.1f
+#define ON_READ_DIST 0.5f
+
 std::unique_ptr<Camera> Camera::parse(XMLParser parser) {
 
   std::string type;
@@ -56,12 +59,14 @@ void Camera::defaultChangeSize(WindowSize windowSize, float fov, float near,
   glMatrixMode(GL_MODELVIEW);
 }
 
+
+
 PolarCamera::PolarCamera(XMLParser parser) {
 
   /* Validating the camera node. */
   parser.validate_node({"position", "lookAt", "up", "projection"});
   parser.validate_max_nodes(1, {"position", "lookAt", "up", "projection"});
-  parser.validate_attrs({});
+  parser.validate_attrs({"type"});
 
   /* Parsing and validating the position node. */
   XMLParser positionNode = parser.get_node("position");
@@ -69,7 +74,7 @@ PolarCamera::PolarCamera(XMLParser parser) {
   positionNode.validate_attrs({"x", "y", "z"});
   positionNode.validate_node({});
 
-  Point position = positionNode
+  position = positionNode
                        .as_tuple<float, float, float>({"x", "y", "z"});
 
 
@@ -80,11 +85,6 @@ PolarCamera::PolarCamera(XMLParser parser) {
   lookAtNode.validate_node({});
 
   lookAt = lookAtNode.as_tuple<float, float, float>({"x", "y", "z"});
-
-  Vector lookAtVector = difference(position, lookAt);
-  radius = length(lookAtVector);
-  angleXZ = angle({0, 0, 1}, {std::get<0>(lookAtVector), 0, std::get<2>(lookAtVector)});
-  angleZY = (M_PI / 2) - angle({0, 1, 0}, {0, std::get<1>(lookAtVector), std::get<2>(lookAtVector)});
 
   /* Parsing and validating the up node. */
   XMLParser upNode = parser.get_node("up");
@@ -108,14 +108,9 @@ PolarCamera::PolarCamera(XMLParser parser) {
 void PolarCamera::changeSize(WindowSize windowSize) {
   Camera::defaultChangeSize(windowSize, fov, near, far);
 }
-Vector PolarCamera::getPositionVector() {
-  return {-cos(angleXZ) * radius, -sin(angleZY) * radius,
-          -sin(angleXZ) * radius};
-}
 
 void PolarCamera::setupScene() {
   glLoadIdentity();
-  Point position = getPositionVector();
   gluLookAt(std::get<0>(position), std::get<1>(position), std::get<2>(position),
             std::get<0>(lookAt), std::get<1>(lookAt), std::get<2>(lookAt),
             std::get<0>(up), std::get<1>(up), std::get<2>(up));
@@ -123,41 +118,60 @@ void PolarCamera::setupScene() {
 
 void PolarCamera::handleSpecialKey(int key, __attribute__((unused)) int x,
                                    __attribute__((unused)) int y) {
+  Vector aux, perp;
+  
   switch (key) {
-  case GLUT_KEY_UP:
-    if (angleZY > -M_PI / 2)
-      angleZY -= ONERAD;
+  case GLUT_KEY_UP: 
+    aux = difference(lookAt, position);
+    perp = normalize(crossProduct(up, aux));
+    aux = rotate(perp, aux, -ON_READ_ANG);
+    position = addVector(lookAt, aux);
     glutPostRedisplay();
     break;
 
   case GLUT_KEY_DOWN:
-    if (angleZY < M_PI / 2)
-      angleZY += ONERAD;
+    aux = difference(lookAt, position);
+    perp = normalize(crossProduct(up, aux));
+    aux = rotate(perp, aux, ON_READ_ANG);
+    position = addVector(lookAt, aux);
     glutPostRedisplay();
     break;
 
   case GLUT_KEY_LEFT:
-    angleXZ += ONERAD;
+    aux = difference(lookAt, position);
+    aux = rotate(up, aux, -ON_READ_ANG);
+    position = addVector(lookAt, aux);
     glutPostRedisplay();
     break;
 
   case GLUT_KEY_RIGHT:
-    angleXZ -= ONERAD;
+    aux = difference(lookAt, position);
+    aux = rotate(up, aux, ON_READ_ANG);
+    position = addVector(lookAt, aux);
     glutPostRedisplay();
     break;
   }
 }
 void PolarCamera::handleKey(unsigned char key, __attribute__((unused)) int x,
                             __attribute__((unused)) int y) {
+  Vector aux, transf;
+  
   switch (key) {
   case 'w':
-    if (radius > 0) {
-      radius -= 1;
+
+    aux = difference(lookAt, position);
+    transf = scale(length(aux) - ON_READ_DIST, normalize(aux));
+    
+    if (dotProduct(aux, transf) > 0) {
+      position = addVector(lookAt, transf);
       glutPostRedisplay();
     }
+
     break;
   case 's':
-    radius += 1;
+    aux = difference(lookAt, position);
+    transf = scale(length(aux) + ON_READ_DIST, normalize(aux));
+    position = addVector(lookAt, transf);
     glutPostRedisplay();
     break;
   }
@@ -202,27 +216,27 @@ void FPSCamera::setupScene() {
 void FPSCamera::handleKey(unsigned char key, __attribute__((unused)) int x, __attribute__((unused)) int y) {
     switch (key) {
         case 'w':
-            position = addVector(position, normalize(projectToPlane(up,lookAtVector)));
+            position = addVector(position, scale(ON_READ_DIST, normalize(projectToPlane(up,lookAtVector))));
             glutPostRedisplay();
             break;
         case 's':
-            position = addVector(position, inverse(normalize(projectToPlane(up,lookAtVector))));
+            position = addVector(position, scale(-ON_READ_DIST, normalize(projectToPlane(up,lookAtVector))));
             glutPostRedisplay();
             break;
         case 'a':
-            position = addVector(position, normalize(crossProduct(up,lookAtVector)));
+            position = addVector(position, scale(ON_READ_DIST, normalize(crossProduct(up,lookAtVector))));
             glutPostRedisplay();
             break;
         case 'd':
-            position = addVector(position, inverse(normalize(crossProduct(up,lookAtVector))));
+            position = addVector(position, scale(-ON_READ_DIST, normalize(crossProduct(up,lookAtVector))));
             glutPostRedisplay();
             break;
         case 'z':
-            position = addVector(position,normalize(up));
+            position = addVector(position,scale(ON_READ_DIST, normalize(up)));
             glutPostRedisplay();
             break;
         case 'x':
-            position = addVector(position,normalize(inverse(up)));
+            position = addVector(position,scale(-ON_READ_DIST, normalize(up)));
             glutPostRedisplay();
             break;
         default:
@@ -233,26 +247,26 @@ void FPSCamera::handleKey(unsigned char key, __attribute__((unused)) int x, __at
 void FPSCamera::handleSpecialKey(int key, __attribute__((unused)) int x, __attribute__((unused)) int y) {
     switch (key) {
         case GLUT_KEY_UP:
-            if (angle(up,lookAtVector)-ONERAD>0){
-                lookAtVector=rotate(crossProduct(up,lookAtVector),lookAtVector,-ONERAD);
+            if (angle(up,lookAtVector)-ON_READ_ANG>0){
+                lookAtVector=rotate(crossProduct(up,lookAtVector),lookAtVector,-ON_READ_ANG);
             }
             glutPostRedisplay();
             break;
 
         case GLUT_KEY_DOWN:
-            if (angle(inverse(up),lookAtVector)-ONERAD>0){
-                lookAtVector=rotate(crossProduct(up,lookAtVector),lookAtVector,ONERAD);
+            if (angle(inverse(up),lookAtVector)-ON_READ_ANG>0){
+                lookAtVector=rotate(crossProduct(up,lookAtVector),lookAtVector,ON_READ_ANG);
             }
             glutPostRedisplay();
             break;
 
         case GLUT_KEY_LEFT:
-            lookAtVector=rotate(up,lookAtVector,ONERAD);
+            lookAtVector=rotate(up,lookAtVector,ON_READ_ANG);
             glutPostRedisplay();
             break;
 
         case GLUT_KEY_RIGHT:
-            lookAtVector=rotate(up,lookAtVector,-ONERAD);
+            lookAtVector=rotate(up,lookAtVector,-ON_READ_ANG);
             glutPostRedisplay();
             break;
     }

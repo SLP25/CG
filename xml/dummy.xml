@@ -1,16 +1,16 @@
 <world>
     <window width="512" height="512" />
 
-    <camera>
+    <camera type="polar">
         <position x="3" y="2" z="1" />
         <lookAt x="0" y="0" z="0" />
-        <up x="0" y="1" z="0" />
+        <up x="1" y="0" z="0" />
         <projection fov="60" near="1" far="1000" />
     </camera>
 
     <group>
         <models>
-            <model file="models/2b.3d" />
+            <model file="models/donut.3d" />
         </models>
     </group>
 

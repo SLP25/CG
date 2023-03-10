@@ -3,8 +3,6 @@
 #include <tuple>
 #include <initializer_list>
 
-#define ONERAD 0.0174532925f
-
 typedef std::tuple<int, int> WindowSize; ///< Tuple of a width and a height, both integers.
 
 /**
