@@ -28,18 +28,24 @@ public:
   Shape();
   Shape(std::vector<Triangle> triangles);
   Shape(std::string filePath);
+
   /**
    * @brief Exports the shape to a 3D file
    *
-   * The file follows the <a
-   * href="https://en.wikipedia.org/wiki/Wavefront_.obj_file">Wavefront .obj</a>
-   * file format
+   * The file follows the Wavefront .obj
+   * (https://en.wikipedia.org/wiki/Wavefront_.obj_file) file format
    *
    * @param filePath the path of the file to write to
    *
    * @return whether the operation was successful
    */
   bool exportToFile(std::string filePath);
+
+  /**
+   * @brief Draws the shape by calling glut's static functions. No color or texture
+   * is set, only the shape is drawn.
+   * 
+   */
   void draw();
 
 private:

@@ -10,6 +10,7 @@
 #include <memory>
 #include <sstream>
 #include <string>
+#include <iostream>
 
 #ifdef FEDORA
 #include "rapidxml.h"
@@ -19,15 +20,15 @@
 
 #include "exceptions/invalid_xml_file.hpp"
 
-typedef std::initializer_list<std::string> attrs;
+typedef std::initializer_list<std::string> params;
 
 class XMLParser;
 
 template <typename... Ts> struct aux {
-  static std::tuple<Ts...> as_tuple(XMLParser &parser, attrs &attrs,
-                                    attrs::iterator a);
-  static std::tuple<Ts...> as_tuple_opt(XMLParser &parser, attrs &attrs,
-                                        attrs::iterator a);
+  static std::tuple<Ts...> as_tuple(XMLParser &parser, params &attrs,
+                                    params::iterator a);
+  static std::tuple<Ts...> as_tuple_opt(XMLParser &parser, params &attrs,
+                                        params::iterator a);
 };
 
 /**
@@ -40,28 +41,77 @@ class XMLParser {
 
 public:
   /**
-   * Default parser constructor.
+   * @brief Default parser constructor.
    * @param file_path Path of the XML file to be parsed.
    */
   explicit XMLParser(std::string file_path);
 
+  /**
+   * @brief Returns the name of the current node
+   * 
+   * @return std::string 
+   */
   std::string name();
 
-  // throws exception if a child node is found with a name not in names
-  void validate_node(attrs names);
+  /**
+   * @brief Throws an error if any of the subnodes of the current node aren't in the specified list of node names
+   * 
+   * @param names The specified list
+   */
+  void validate_node(params names);
 
-  // throws exception if more than max child nodes with a name in names are
-  // found
-  void validate_max_nodes(int max, attrs names);
 
+  /**
+   * @brief Throws an error if any of the specified node names are found more than max times
+   * 
+   * @param max   The max number of allowed times for the nodes
+   * @param names The names of subnodes to check
+   */
+  void validate_max_nodes(int max, params names);
+
+  /**
+   * @brief Returns an XMLParser object for the first subnode of the current node with the specified name
+   * 
+   * @param name The specified name
+   * @return XMLParser The XMLParser object
+   */
   XMLParser get_node(std::string name);
+
+  /**
+   * @brief Returns a vector of XMLParser objects corresponding to the subnodes of the current node, in the order
+   * they appear in the file
+   * 
+   * @return std::vector<XMLParser> A vector of XMLParser objects corresponding to the subnodes of the current node, in the order
+   * they appear in the file
+   */
   std::vector<XMLParser> get_nodes();
+
+  /**
+   * @brief Returns a vector of XMLParser objects corresponding to the subnodes of the current node with the
+   * specified name, in the order they appear in the file
+   * 
+   * @return std::vector<XMLParser> A vector of XMLParser objects corresponding to the subnodes of the current
+   * node with the specified name, in the order they appear in the file
+   */
   std::vector<XMLParser> get_nodes(std::string name);
 
-  // throws exception if an attribute with a name not specified in attrs is
-  // found
-  void validate_attrs(attrs attrs);
+  /**
+   * @brief Throws an exception if any of the attributes of the current node aren't in the list of allowed attributes
+   * 
+   * Ex: <up x="0" y="1" z="0" w="0">.validate_node({"z, x, y"}) will throw an error since w isn't on the list
+   *     <up x="0" y="1" z="0">.validate_node({"x, w, y, z"}) will not throw an error
+   * 
+   * @param names The names of the allowed attributes for this node
+   */
+  void validate_attrs(params attrs);
 
+  /**
+   * @brief Gets the specified attribute of the current node, cast to the specified type
+   * 
+   * @tparam T    The type to cast the attribute to
+   * @param name  The name of the attribute to retrieve
+   * @return T    The attribute, cast to the specified type
+   */
   template <typename T> T get_attr(std::string name) {
     for (rapidxml::xml_attribute<> *attr = node->first_attribute(); attr;
          attr = attr->next_attribute()) {
@@ -77,6 +127,15 @@ public:
         "engine:get_attr : No such attribute exists in the node.");
   }
 
+  /**
+   * @brief Optionally retrieves the specified attribute, cast to the given type
+   * 
+   * @tparam T    The type to cast the attribute to
+   * @param name  The name of the attribute to retrieve
+   * @param ans   A reference to write the attribute, if found
+   * @return true   The attribute exists in the current node and was written to ans
+   * @return false  The attribute doesn't exist
+   */
   template <typename T> bool get_opt_attr(std::string name, T &ans) {
     for (rapidxml::xml_attribute<> *attr = node->first_attribute(); attr;
          attr = attr->next_attribute()) {
@@ -90,31 +149,73 @@ public:
     return false;
   }
 
-  template <typename... Ts> std::tuple<Ts...> as_tuple(attrs attrs) {
+  /**
+   * @brief Returns a tuple of the specified attributes, cast to the given types
+   * 
+   * @tparam Ts   The types to cast the attributes to
+   * @param attrs The names of the attributes
+   * @return std::tuple<Ts...> A tuple containing the attributes
+   */
+  template <typename... Ts> std::tuple<Ts...> as_tuple(params attrs) {
     return aux<Ts...>::as_tuple(*this, attrs, attrs.begin());
   }
 
-  template <typename... Ts> std::tuple<Ts...> as_tuple_opt(attrs attrs) {
-    return aux<Ts...>::as_tuple_opt(*this, attrs, attrs.begin());
-  }
+  /**
+   * @brief Returns a tuple containing the existing attributes from among the given list of attribute
+   * names, cast to the specified types. The types are specified per given attribute, not per found attribute
+   * ex: <up x="0" y="1" z="0">.as_tuple_opt<string, int, float>({"y", "w", "x"}) -> { "1", 0.0f }
+   * 
+   * @tparam Ts 
+   * @param attrs 
+   * @return std::tuple<Ts...> 
+   */
+  //template <typename... Ts> std::tuple<Ts...> as_tuple_opt(params attrs) {
+  //  return aux<Ts...>::as_tuple_opt(*this, attrs, attrs.begin());
+  //}
 
-  template <typename T, typename... Args> T as_object(attrs attrs) {
+  /**
+   * @brief Returns an object constructed from the specified attributes of the current node. If no
+   * constructor of the given type accepts the specified parameters, a compile-time error is thrown
+   * 
+   * @tparam T    The type of the object to return
+   * @tparam Args The arguments to the object constructor
+   * @param attrs The attributes to fetch
+   * @return T    The constructed object
+   */
+  template <typename T, typename... Args> T as_object(params attrs) {
     return std::make_from_tuple<T>(as_tuple<Args...>(attrs));
   }
 
-  template <typename T, typename... Args> T as_object_opt(attrs attrs) {
-    return std::make_from_tuple<T>(as_tuple_opt<Args...>(attrs));
-  }
+  /**
+   * @brief Returns an object constructed from the specified attributes of the current node. If no
+   * constructor of the given type accepts the retrieved parameters, an exception is thrown
+   * 
+   * @tparam T    The type of the object to return
+   * @tparam Args The arguments to the object constructor
+   * @param attrs The attributes to fetch
+   * @return T    The constructed object
+   */
+  //template <typename T, typename... Args> T as_object_opt(params attrs) {
+  //  return std::make_from_tuple<T>(as_tuple_opt<Args...>(attrs));
+  //}
 
 private:
+
+  /**
+   * @brief Creates a XMLParser
+   * 
+   * @param content The content of the xml file to parse
+   * @param doc     The xml document, constructed from the content
+   * @param node    The node of the XMLParser object
+   */
   XMLParser(std::shared_ptr<std::string> content,
             std::shared_ptr<rapidxml::xml_document<>> doc,
             rapidxml::xml_node<> *node);
 };
 
 template <typename T, typename... Ts> struct aux<T, Ts...> {
-  static std::tuple<T, Ts...> as_tuple(XMLParser &parser, attrs &attrs,
-                                       attrs::iterator a) {
+  static std::tuple<T, Ts...> as_tuple(XMLParser &parser, params &attrs,
+                                       params::iterator a) {
     if (a == attrs.end())
       throw InvalidXMLStructure(
           "as_tuple: Too few arguments in initializer list.");
@@ -125,8 +226,8 @@ template <typename T, typename... Ts> struct aux<T, Ts...> {
     return tuple_cat(std::make_tuple(head), tail);
   }
 
-  static std::tuple<T, Ts...> as_tuple_opt(XMLParser &parser, attrs &attrs,
-                                           attrs::iterator a) {
+  static std::tuple<T, Ts...> as_tuple_opt(XMLParser &parser, params &attrs,
+                                           params::iterator a) {
     if (a == attrs.end())
       throw InvalidXMLStructure(
           "as_tuple_opt: Too few arguments in initializer list.");
@@ -144,7 +245,7 @@ template <typename T, typename... Ts> struct aux<T, Ts...> {
 
 template <> struct aux<> {
   static std::tuple<> as_tuple(__attribute__((unused)) XMLParser &,
-                               attrs &attrs, attrs::iterator a) {
+                               params &attrs, params::iterator a) {
     if (a != attrs.end())
       throw InvalidXMLStructure(
           "as_tuple: Too many arguments in initializer list.");
@@ -153,7 +254,7 @@ template <> struct aux<> {
   }
 
   static std::tuple<> as_tuple_opt(__attribute__((unused)) XMLParser &,
-                                   attrs &attrs, attrs::iterator a) {
+                                   params &attrs, params::iterator a) {
     if (a != attrs.end())
       throw InvalidXMLStructure(
           "as_tuple_opt: Too many arguments in initializer list.");
