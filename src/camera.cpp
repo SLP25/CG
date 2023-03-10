@@ -233,14 +233,14 @@ void FPSCamera::handleKey(unsigned char key, __attribute__((unused)) int x, __at
 void FPSCamera::handleSpecialKey(int key, __attribute__((unused)) int x, __attribute__((unused)) int y) {
     switch (key) {
         case GLUT_KEY_UP:
-            if (normalize(lookAtVector)!=up){
+            if (angle(up,lookAtVector)-ONERAD>0){
                 lookAtVector=rotate(crossProduct(up,lookAtVector),lookAtVector,-ONERAD);
             }
             glutPostRedisplay();
             break;
 
         case GLUT_KEY_DOWN:
-            if (normalize(lookAtVector)!=inverse(up)){
+            if (angle(inverse(up),lookAtVector)-ONERAD>0){
                 lookAtVector=rotate(crossProduct(up,lookAtVector),lookAtVector,ONERAD);
             }
             glutPostRedisplay();
