@@ -19,15 +19,37 @@ World::World(WindowSize windowSize, Camera *camera, std::vector<Model> models) {
 
 World::World(XMLParser parser) {
 
-  windowSize =
-      parser.get_node("window").as_tuple<int, int>({"width", "height"});
+  /* World node validation. */
+  parser.validate_attrs({});
+  parser.validate_node({"window", "camera", "group"});
+  parser.validate_max_nodes(1, {"window", "camera", "group"});
+
+  /* Window node validation. */
+  XMLParser windowParser = parser.get_node("window");
+
+  windowParser.validate_attrs({"width", "height"});
+  windowParser.validate_node({});
+
+  windowSize = windowParser.as_tuple<int, int>({"width", "height"});
+
+  /* Camera validation done in its constructor. */
   camera = Camera::parse(parser.get_node({"camera"}));
+  
+  /* Models parsing and validation. */
   models = std::vector<Model>();
 
-  XMLParser aux = parser.get_node("group").get_node("models");
+  XMLParser groupNode = parser.get_node("group");
 
-  for (XMLParser &p : aux.get_nodes("model")) {
+  groupNode.validate_attrs({});
+  groupNode.validate_node({"models"});
+  groupNode.validate_max_nodes(1, {"models"});
 
+  XMLParser modelsNode = groupNode.get_node("models");
+  modelsNode.validate_node({"model"});
+
+  for (XMLParser &p : modelsNode.get_nodes("model")) {
+
+    p.validate_attrs({"file"});
     std::string file_name = p.get_attr<std::string>("file");
 
     std::ifstream file(file_name);
