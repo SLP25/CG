@@ -77,8 +77,7 @@ class PolarCamera : public Camera {
 
 class FPSCamera : public Camera {
     Point position;
-    float angleXZ;
-    float angleZY;
+    Vector lookAtVector;
     Vector up;
     float fov;
     float near;
@@ -95,6 +94,5 @@ class FPSCamera : public Camera {
         void handleSpecialKey(int key, int x, int y);
 
     private:
-        FPSCamera(Point,float,float,Vector,float,float,float);
-        Vector getLookAtVector();
+        FPSCamera(Point,Vector,Vector,float,float,float);
 };

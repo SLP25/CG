@@ -49,6 +49,4 @@ Vector projectToVector(Vector u, Vector v);
 Vector projectToPlane(Vector n, Vector v);
 Vector PerpendicularClockWiseByYAxis(Vector u);
 Vector PerpendicularAntiClockWiseByYAxis(Vector u);
-Vector RotateAroundXAxis(Vector u,float angle);
-Vector RotateAroundYAxis(Vector u,float angle);
-Vector RotateAroundZAxis(Vector u,float angle);
+Vector rotate(Vector around,Vector v,float angle);

@@ -52,7 +52,7 @@ void Camera::defaultChangeSize(WindowSize windowSize, float fov, float near, flo
 PolarCamera::PolarCamera(XMLParser parser) {
     Point position = parser.get_node("position").as_tuple<float,float,float>({"x","y","z"});
     lookAt = parser.get_node("lookAt").as_tuple<float,float,float>({"x","y","z"});
-    Vector lookAtVector=difference(position,lookAt);
+    Vector lookAtVector=normalize(difference(position,lookAt));
     radius = length(lookAtVector);
     angleXZ = angle({0,0,1},{std::get<0>(lookAtVector),0,std::get<2>(lookAtVector)});
     angleZY = (M_PI/2) - angle({0,1,0},{0,std::get<1>(lookAtVector),std::get<2>(lookAtVector)});
@@ -121,10 +121,9 @@ void PolarCamera::handleKey(unsigned char key ,__attribute__((unused)) int x, __
 
 
 
-FPSCamera::FPSCamera(Point position, float angleXZ,float angleZY, Vector up, float fov, float near, float far) {
+FPSCamera::FPSCamera(Point position, Vector lookAtVector, Vector up, float fov, float near, float far) {
     this->position = position;
-    this->angleXZ = angleXZ;
-    this->angleZY = angleZY;
+    this->lookAtVector = lookAtVector;
     this->up = up;
     this->fov = fov;
     this->near = near;
@@ -134,9 +133,7 @@ FPSCamera::FPSCamera(Point position, float angleXZ,float angleZY, Vector up, flo
 FPSCamera::FPSCamera(XMLParser parser) {
     position = parser.get_node("position").as_tuple<float,float,float>({"x","y","z"});
     Point lookAt = parser.get_node("lookAt").as_tuple<float,float,float>({"x","y","z"});
-    Vector lookAtVector=difference(position,lookAt);
-    angleXZ = angle({1,0,0},{std::get<0>(lookAtVector),0,std::get<2>(lookAtVector)});
-    angleZY = 2*M_PI -angle({0,1,0},{0,std::get<1>(lookAtVector),std::get<2>(lookAtVector)});
+    lookAtVector=difference(position,lookAt);
     up = parser.get_node("up").as_tuple<float,float,float>({"x","y","z"});
     XMLParser projection = parser.get_node("projection");
     fov = projection.get_attr<float>("fov");
@@ -144,9 +141,6 @@ FPSCamera::FPSCamera(XMLParser parser) {
     far = projection.get_attr<float>("far");
 }
 
-Vector FPSCamera::getLookAtVector(){
-    return {cos(angleXZ),sin(angleZY),-sin(angleXZ)};
-}
 
 void FPSCamera::changeSize(WindowSize windowSize) {
     Camera::defaultChangeSize(windowSize, fov, near, far);
@@ -154,37 +148,36 @@ void FPSCamera::changeSize(WindowSize windowSize) {
 
 void FPSCamera::setupScene() {
     glLoadIdentity();
-    Point lookAt=addVector(position,getLookAtVector());
+    Point lookAt = addVector(position,lookAtVector);
     gluLookAt(std::get<0>(position), std::get<1>(position), std::get<2>(position), 
               std::get<0>(lookAt), std::get<1>(lookAt), std::get<2>(lookAt),
               std::get<0>(up), std::get<1>(up), std::get<2>(up));
 }
 
 void FPSCamera::handleKey(unsigned char key, __attribute__((unused)) int x, __attribute__((unused)) int y) {
-    Vector fowardsVector = normalize(getLookAtVector());
     switch (key) {
         case 'w':
-            position = addVector(position, {std::get<0>(fowardsVector),0,std::get<2>(fowardsVector)});
+            position = addVector(position, normalize(projectToPlane(up,lookAtVector)));
             glutPostRedisplay();
             break;
         case 's':
-            position = addVector(position, inverse({std::get<0>(fowardsVector),0,std::get<2>(fowardsVector)}));
+            position = addVector(position, inverse(normalize(projectToPlane(up,lookAtVector))));
             glutPostRedisplay();
             break;
         case 'a':
-            position = addVector(position, RotateAroundYAxis({std::get<0>(fowardsVector),0,std::get<2>(fowardsVector)},-M_PI/2));
+            position = addVector(position, normalize(crossProduct(up,lookAtVector)));
             glutPostRedisplay();
             break;
         case 'd':
-            position = addVector(position, RotateAroundYAxis({std::get<0>(fowardsVector),0,std::get<2>(fowardsVector)},M_PI/2));
+            position = addVector(position, inverse(normalize(crossProduct(up,lookAtVector))));
             glutPostRedisplay();
             break;
         case 'z':
-            position = addVector(position,{0,0.1,0});
+            position = addVector(position,normalize(up));
             glutPostRedisplay();
             break;
         case 'x':
-            position = addVector(position,{0,-0.1,0});
+            position = addVector(position,normalize(inverse(up)));
             glutPostRedisplay();
             break;
         default:
@@ -195,24 +188,26 @@ void FPSCamera::handleKey(unsigned char key, __attribute__((unused)) int x, __at
 void FPSCamera::handleSpecialKey(int key, __attribute__((unused)) int x, __attribute__((unused)) int y) {
     switch (key) {
         case GLUT_KEY_UP:
-            if (angleZY>M_PI/2)
-                angleZY-=ONERAD;
+            if (normalize(lookAtVector)!=up){
+                lookAtVector=rotate(crossProduct(up,lookAtVector),lookAtVector,-ONERAD);
+            }
             glutPostRedisplay();
             break;
 
         case GLUT_KEY_DOWN:
-            if (angleZY<(M_PI+M_PI/2))
-                angleZY+=ONERAD;
+            if (normalize(lookAtVector)!=inverse(up)){
+                lookAtVector=rotate(crossProduct(up,lookAtVector),lookAtVector,ONERAD);
+            }
             glutPostRedisplay();
             break;
 
         case GLUT_KEY_LEFT:
-            angleXZ+=ONERAD;
+            lookAtVector=rotate(up,lookAtVector,ONERAD);
             glutPostRedisplay();
             break;
 
         case GLUT_KEY_RIGHT:
-            angleXZ-=ONERAD;
+            lookAtVector=rotate(up,lookAtVector,-ONERAD);
             glutPostRedisplay();
             break;
     }

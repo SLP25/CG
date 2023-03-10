@@ -77,43 +77,18 @@ Vector projectToVector(Vector u, Vector v) {
 Vector projectToPlane(Vector n, Vector v) {
   return addVector(v, inverse(projectToVector(n, v)));
 }
-Vector PerpendicularClockWiseByYAxis(Vector u){
-  return {std::get<2>(u),std::get<1>(u),-std::get<0>(u)};
-}
-Vector PerpendicularAntiClockWiseByYAxis(Vector u){
-  return {-std::get<2>(u),std::get<1>(u),std::get<0>(u)};
-}
 
 float randomFloat() {
   return (float)rand()/(float)(RAND_MAX);
 }
-Vector RotateAroundXAxis(Vector u,float angle){
-  float x,y,z;
-  x=std::get<0>(u);
-  y=std::get<1>(u);
-  z=std::get<2>(u);
-  return {x,
-          y*cos(angle)+z*sin(angle),
-          y*(-sin(angle))+z*cos(angle)
-          };
-}
-Vector RotateAroundYAxis(Vector u,float angle){
-  float x,y,z;
-  x=std::get<0>(u);
-  y=std::get<1>(u);
-  z=std::get<2>(u);
-  return {x*cos(angle)-z*sin(angle),
-          y,
-          x*sin(angle)+z*cos(angle)
-          };
-}
-Vector RotateAroundZAxis(Vector u,float angle){
-  float x,y,z;
-  x=std::get<0>(u);
-  y=std::get<1>(u);
-  z=std::get<2>(u);
-  return {x*cos(angle)+y*sin(angle),
-          -x*sin(angle)+y*cos(angle),
-          z
-          };
+
+
+Vector rotate(Vector around,Vector v,float angle){
+  Vector axis= normalize(crossProduct(around,v));
+  float cossine = cos(angle);
+  float sinne = sin(angle);
+  float dot = dotProduct(v,axis);
+  return addVector(
+              addVector(scale(cossine,v),scale(sinne,axis)),
+              scale((1 - cossine) * dot,axis));
 }
