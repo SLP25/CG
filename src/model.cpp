@@ -5,13 +5,17 @@
 #endif
 
 #include "model.hpp"
+#include "parser.hpp"
 
-Model::Model(Shape shape) {
-    this->shape = shape;
+Model::Model(Shape shape) { this->shape = shape; }
+
+Model::Model(XMLParser parser) {
+  parser.validate_attrs({"file"});
+  this->shape = Shape(parser.get_attr<std::string>("file"));
 }
 
 void Model::draw() {
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    glColor3f(1, 1, 1);
-    shape.draw();
+  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  glColor3f(1, 1, 1);
+  shape.draw();
 }
