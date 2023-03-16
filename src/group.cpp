@@ -6,8 +6,8 @@
 #include <GL/glut.h>
 #endif
 
-#include "group.hpp"
-#include "model.hpp"
+#include "../include/group.hpp"
+#include "../include/model.hpp"
 
 Group::Group(XMLParser parser) {
   this->subgroups = std::vector<std::unique_ptr<Group>>();

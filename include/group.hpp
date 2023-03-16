@@ -1,5 +1,5 @@
 #pragma once
-
+#include "model.hpp"
 #include "parser.hpp"
 
 class Group {
