@@ -1,6 +1,7 @@
 #pragma once
 #include "model.hpp"
 #include "parser.hpp"
+#include "transformation.hpp"
 
 class Group {
 public:
@@ -16,5 +17,5 @@ private:
 private:
   std::vector<std::unique_ptr<Group>> subgroups;
   std::vector<std::unique_ptr<Model>> models;
-  std::vector<int> transformations;
+  std::vector<std::unique_ptr<Transformation>> transformations;
 };

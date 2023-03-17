@@ -6,13 +6,14 @@
 #include <GL/glut.h>
 #endif
 
-#include "../include/group.hpp"
-#include "../include/model.hpp"
+#include "group.hpp"
+#include "model.hpp"
+#include "transformation.hpp"
 
 Group::Group(XMLParser parser) {
   this->subgroups = std::vector<std::unique_ptr<Group>>();
   this->models = std::vector<std::unique_ptr<Model>>();
-  this->transformations = std::vector<int>();
+  this->transformations = std::vector<std::unique_ptr<Transformation>>();
 
   assertValidXML(parser);
 
@@ -58,6 +59,6 @@ void Group::constructTransformations(XMLParser parser) {
   XMLParser transformationTags = parser.get_node("transform");
   std::vector<XMLParser> transformTags = transformationTags.get_nodes();
   for (XMLParser transformTag : transformTags) {
-    // this->transformations.push_back(Transformation.parse(transformTag));
+    this->transformations.push_back(Transformation::parse(transformTag));
   }
 }
