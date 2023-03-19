@@ -12,8 +12,6 @@
 
 typedef std::tuple<int,int,int> TriangleByPosition;
 
-// TODO: Refactor to class if needed
-
 /**
  * @brief A class representing a shape in 3D space.
  *

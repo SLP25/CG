@@ -5,7 +5,14 @@
 
 class Group {
 public:
+  Group();
+  Group(const Group& group);
+  Group(Group&& group);
   Group(XMLParser parser);
+
+  Group& operator=(const Group& group);
+  Group& operator=(Group&& other);
+
   void draw();
 
 private:
@@ -15,7 +22,7 @@ private:
   inline void constructTransformations(XMLParser parser);
 
 private:
-  std::vector<std::unique_ptr<Group>> subgroups;
-  std::vector<std::unique_ptr<Model>> models;
+  std::vector<Group> subgroups;
+  std::vector<Model> models;
   std::vector<std::unique_ptr<Transformation>> transformations;
 };

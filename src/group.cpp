@@ -6,15 +6,32 @@
 #include <GL/glut.h>
 #endif
 
+#include <iostream>
+
 #include "group.hpp"
 #include "model.hpp"
 #include "transformation.hpp"
 
-Group::Group(XMLParser parser) {
-  this->subgroups = std::vector<std::unique_ptr<Group>>();
-  this->models = std::vector<std::unique_ptr<Model>>();
-  this->transformations = std::vector<std::unique_ptr<Transformation>>();
+Group::Group() { }
 
+Group::Group(const Group& group) :
+  subgroups(group.subgroups),
+  models(group.models)
+{
+  for (auto& t : group.transformations) {
+    Transformation* copy = t->clone();
+    std::unique_ptr<Transformation> ptr(copy);
+    this->transformations.push_back(std::move(ptr));
+  }
+}
+
+Group::Group(Group&& group) :
+  subgroups(std::move(group.subgroups)),
+  models(std::move(group.models)),
+  transformations(std::move(group.transformations))
+{}
+
+Group::Group(XMLParser parser) {
   assertValidXML(parser);
 
   constructSubGroups(parser);
@@ -22,14 +39,39 @@ Group::Group(XMLParser parser) {
   constructTransformations(parser);
 }
 
+Group& Group::operator=(const Group& group) {
+  this->subgroups = group.subgroups;
+  this->models = group.models;
+
+  for (auto& t : group.transformations) {
+    Transformation* copy = t->clone();
+    std::unique_ptr<Transformation> ptr(copy);
+    this->transformations.push_back(std::move(ptr));
+  }
+
+  return *this;
+}
+
+Group& Group::operator=(Group&& group) {
+  this->subgroups = std::move(group.subgroups);
+  this->models = std::move(group.models);
+  this->transformations = std::move(group.transformations);
+  return *this;
+}
+
 void Group::draw() {
   glPushMatrix();
+
+  for (auto &t : this->transformations) {
+    t->apply();
+  }
+
   for (auto &m : this->models) {
-    m->draw();
+    m.draw();
   }
 
   for (auto &g : this->subgroups) {
-    g->draw();
+    g.draw();
   }
   glPopMatrix();
 }
@@ -43,7 +85,7 @@ void Group::assertValidXML(XMLParser parser) {
 void Group::constructSubGroups(XMLParser parser) {
   std::vector<XMLParser> groups = parser.get_nodes("group");
   for (XMLParser group : groups) {
-    this->subgroups.push_back(std::make_unique<Group>(group));
+    this->subgroups.push_back(group);
   }
 }
 
@@ -51,7 +93,7 @@ void Group::constructModels(XMLParser parser) {
   XMLParser modelsTag = parser.get_node("models");
   std::vector<XMLParser> modelTags = modelsTag.get_nodes("model");
   for (XMLParser model : modelTags) {
-    this->models.push_back(std::make_unique<Model>(model));
+    this->models.push_back(model);
   }
 }
 
@@ -59,6 +101,6 @@ void Group::constructTransformations(XMLParser parser) {
   XMLParser transformationTags = parser.get_node("transform");
   std::vector<XMLParser> transformTags = transformationTags.get_nodes();
   for (XMLParser transformTag : transformTags) {
-    this->transformations.push_back(Transformation::parse(transformTag));
+    this->transformations.push_back(std::move(Transformation::parse(transformTag)));
   }
 }

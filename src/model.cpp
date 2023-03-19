@@ -11,7 +11,7 @@ Model::Model(Shape shape) { this->shape = shape; }
 
 Model::Model(XMLParser parser) {
   parser.validate_attrs({"file"});
-  this->shape = Shape(parser.get_attr<std::string>("file"));
+  this->shape = parser.as_object<Shape, std::string>({"file"});
 }
 
 void Model::draw() {

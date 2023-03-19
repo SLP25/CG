@@ -55,7 +55,7 @@ void XMLParser::validate_node(std::initializer_list<std::string> names) {
   for (rapidxml::xml_node<> *n = node->first_node(); n; n = n->next_sibling())
 
     if (aux.find(std::string(n->name())) == aux.end()) {
-
+      std::cout << *names.begin() << *(names.begin() + 1) << std::endl;
       exception_message << "XMLParser: The node '" << std::string(n->name())
                         << "' is not valid in node '" << name() << "'.";
       throw InvalidXMLStructure(exception_message.str());

@@ -9,8 +9,9 @@
 #include "parser.hpp"
 #include "transformation.hpp"
 
-std::unique_ptr<Transformation> Transformation::parse(XMLParser parser) {
+std::unique_ptr<Transformation> Transformation::parse(__attribute__((unused)) XMLParser parser) {
   // TODO: BACE REFACTOR THIS
+
   if (parser.name() == "translate") {
     return std::make_unique<Translation>(parser);
   } else if (parser.name() == "rotate") {
@@ -31,6 +32,10 @@ Translation::Translation(XMLParser parser) {
   this->z = parser.get_attr<float>("z");
 }
 
+Transformation* Translation::clone() {
+  return new Translation(*this);
+}
+
 void Translation::apply() { glTranslatef(this->x, this->y, this->z); }
 
 Rotation::Rotation(XMLParser parser) {
@@ -40,6 +45,10 @@ Rotation::Rotation(XMLParser parser) {
   this->y = parser.get_attr<float>("y");
   this->z = parser.get_attr<float>("z");
   this->angle = parser.get_attr<float>("angle");
+}
+
+Transformation* Rotation::clone() {
+  return new Rotation(*this);
 }
 
 void Rotation::apply() { glRotatef(this->angle, this->x, this->y, this->z); }
@@ -52,6 +61,10 @@ Scale::Scale(XMLParser parser) {
   this->x = parser.get_attr<float>("x");
   this->y = parser.get_attr<float>("y");
   this->z = parser.get_attr<float>("z");
+}
+
+Transformation* Scale::clone() {
+  return new Scale(*this);
 }
 
 void Scale::apply() { glScalef(this->x, this->y, this->z); }

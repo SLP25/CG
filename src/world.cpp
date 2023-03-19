@@ -9,15 +9,18 @@
 #include <fstream>
 #include <iostream>
 
-World::World(){};
+World::World() { }
 
-World::World(WindowSize windowSize, Camera *camera, std::vector<Model> models) {
-  this->windowSize = windowSize;
-  this->camera = std::unique_ptr<Camera>(camera);
-  this->models = models;
-}
+World::World(WindowSize windowSize, Camera *camera, Group&& root) :
+  windowSize(windowSize),
+  camera(std::unique_ptr<Camera>(camera)),
+  root(std::move(root))
+{}
 
-World::World(XMLParser parser) {
+World::World(XMLParser parser) :
+  camera(Camera::parse(parser.get_node({"camera"}))),
+  root(parser.get_node("group"))
+{
 
   /* World node validation. */
   parser.validate_attrs({});
@@ -31,39 +34,6 @@ World::World(XMLParser parser) {
   windowParser.validate_node({});
 
   windowSize = windowParser.as_tuple<int, int>({"width", "height"});
-
-  /* Camera validation done in its constructor. */
-  camera = Camera::parse(parser.get_node({"camera"}));
-  
-  /* Models parsing and validation. */
-  models = std::vector<Model>();
-
-  XMLParser groupNode = parser.get_node("group");
-
-  groupNode.validate_attrs({});
-  groupNode.validate_node({"models"});
-  groupNode.validate_max_nodes(1, {"models"});
-
-  XMLParser modelsNode = groupNode.get_node("models");
-  modelsNode.validate_node({"model"});
-
-  for (XMLParser &p : modelsNode.get_nodes("model")) {
-
-    p.validate_attrs({"file"});
-    std::string file_name = p.get_attr<std::string>("file");
-
-    std::ifstream file(file_name);
-
-    if (!file) {
-
-      std::stringstream exception_message;
-      exception_message << "XMLParser@model: The file '" << file_name
-                        << "' does not exist.";
-      throw InvalidXMLStructure(exception_message.str());
-    }
-    file.close();
-    models.emplace_back(p.as_object<Shape, std::string>({"file"}));
-  }
 }
 
 void World::initScene() {
@@ -91,9 +61,7 @@ void World::renderScene() {
   camera->setupScene();
 
   drawAxis();
-
-  for (Model &model : models)
-    model.draw();
+  root.draw();
 
   // End of frame
   glutSwapBuffers();

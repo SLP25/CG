@@ -13,6 +13,8 @@
 #include "shape.hpp"
 #include <fstream>
 #include <iostream>
+#include <sstream>
+#include "exceptions/invalid_xml_file.hpp"
 #include <map>
 #include <tuple>
 
@@ -48,6 +50,15 @@ Shape::Shape(std::vector<Triangle> triangles) {
 
 Shape::Shape(std::string filePath) {
   std::ifstream file(filePath);
+
+  if (!file) {
+
+    std::stringstream exception_message;
+    exception_message << "XMLParser@model: The file '" << filePath
+                      << "' does not exist.";
+    throw InvalidXMLStructure(exception_message.str());
+  }
+
   int n;
   file >> n;
   this->points = std::vector<Point>();

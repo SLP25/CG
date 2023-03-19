@@ -12,6 +12,7 @@
 #include "model.hpp"
 #include "parser.hpp"
 #include "camera.hpp"
+#include "group.hpp"
 
 /**
  * @class World
@@ -21,7 +22,7 @@ class World {
 
     WindowSize windowSize; ///< The size of the window.
     std::unique_ptr<Camera> camera; ///< The camera to use for rendering the scene.
-    std::vector<Model> models; ///< The models to display in the scene.
+    Group root; ///< The root group of the scene.
 
 public:
     /**
@@ -74,12 +75,12 @@ public:
 private:
 
     /**
-     * @brief Constructs a World object with the given window size, camera, and models.
+     * @brief Constructs a World object with the given window size, camera, and group.
      * @param windowSize The size of the window to create.
      * @param camera The camera to use for rendering the scene.
-     * @param models The models to display in the scene.
+     * @param models The root group of the scene.
      */
-    World(WindowSize windowSize, Camera* camera, std::vector<Model> models);
+    World(WindowSize windowSize, Camera* camera, Group&& root);
 
     /**
      * @brief Draws the x, y, and z axes.
