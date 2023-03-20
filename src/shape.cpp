@@ -18,14 +18,9 @@
 #include <map>
 #include <tuple>
 
-Shape::Shape() {
-  this->points = std::vector<Point>();
-  this->trianglesByPos = std::vector<TriangleByPosition>();
-}
+Shape::Shape() {}
 
 Shape::Shape(std::vector<Triangle> triangles) {
-  this->points = std::vector<Point>();
-  this->trianglesByPos = std::vector<TriangleByPosition>();
   std::map<Point, int> pointsFound;
   Point points[3];
   int pos[3];
@@ -61,14 +56,12 @@ Shape::Shape(std::string filePath) {
 
   int n;
   file >> n;
-  this->points = std::vector<Point>();
   for (int i = 0; i < n; i++) {
     float x, y, z;
     file >> x >> y >> z;
     this->points.push_back({x, y, z});
   }
   file >> n;
-  this->trianglesByPos = std::vector<TriangleByPosition>();
   for (int i = 0; i < n; i++) {
     int t1, t2, t3;
     file >> t1 >> t2 >> t3;

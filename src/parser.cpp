@@ -68,17 +68,17 @@ void XMLParser::validate_max_nodes(int max,
   std::map<std::string, int> aux;
   std::stringstream exception_message;
 
-  for (std::string name : names)
-    aux[name] = 0;
-
   for (rapidxml::xml_node<> *n = node->first_node(); n; n = n->next_sibling()) {
-
     std::string name(n->name());
+    aux[name]++;
+  }
 
-    if (++aux[name] > max) {
+  for (std::string name : names) {
+    if (aux[name] > max) {
 
       exception_message << "XMLParser: Expected at max " << std::to_string(max)
-                        << ", but got " << std::to_string(aux[name])
+                        << " subnodes '" << name
+                        << "', but got " << std::to_string(aux[name])
                         << " in node '" << this->name() << "'.";
       throw InvalidXMLStructure(exception_message.str());
     }
