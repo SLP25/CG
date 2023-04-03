@@ -56,11 +56,20 @@ void Rotation::apply() { glRotatef(this->angle, this->x, this->y, this->z); }
 Transformation::~Transformation() {}
 
 Scale::Scale(XMLParser parser) {
-  parser.validate_attrs({"x", "y", "z"});
 
-  this->x = parser.get_attr<float>("x");
-  this->y = parser.get_attr<float>("y");
-  this->z = parser.get_attr<float>("z");
+  float s;
+  if (parser.get_opt_attr<float>("s", s))
+  {
+    parser.validate_attrs({"s"});
+    this->x = this->y = this->z = s;
+  }
+  else
+  {
+    parser.validate_attrs({"x", "y", "z"});
+    this->x = parser.get_attr<float>("x");
+    this->y = parser.get_attr<float>("y");
+    this->z = parser.get_attr<float>("z");
+  }
 }
 
 Transformation* Scale::clone() {
