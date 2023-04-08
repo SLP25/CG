@@ -71,7 +71,10 @@
         </group>
 
         <group> <!-- Saturno -->
-            <models><model file="models/sphere.3d" /></models>
+            <models>
+                <model file="models/sphere.3d" />
+                <model file="models/donut.3d" />
+            </models>
             <transform>
                 <translate x="40.21" y="0" z="0"/>
                 <scale s="0.4180"/>
