@@ -19,10 +19,11 @@
  * @brief Represents a 3D world using OpenGL and GLUT.
  */
 class World {
-
+private:
     WindowSize windowSize; ///< The size of the window.
     std::unique_ptr<Camera> camera; ///< The camera to use for rendering the scene.
     Group root; ///< The root group of the scene.
+    bool axis; ///< Whether to draw the axis
 
 public:
     /**

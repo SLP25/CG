@@ -30,10 +30,25 @@ World::World(XMLParser parser) :
   /* Window node validation. */
   XMLParser windowParser = parser.get_node("window");
 
-  windowParser.validate_attrs({"width", "height"});
+  windowParser.validate_attrs({"width", "height", "axis"});
   windowParser.validate_node({});
 
   windowSize = windowParser.as_tuple<int, int>({"width", "height"});
+  std::string axisStr = "true";
+  windowParser.get_opt_attr("axis", axisStr);
+
+  //Convert to lowercase
+  for(int i = 0; i < (int)axisStr.size(); i++)
+    axisStr[i] = tolower(axisStr[i]);
+
+  if(axisStr== "true") {
+    this->axis = true;
+  } else if(axisStr == "false") {
+    this->axis = false;
+  } else {
+    this->axis = true;
+    std::cout << "Warning: Invalid attribute for axis property of world. Defaulting to true" << std::endl;
+  }
 }
 
 void World::initScene() {
@@ -60,7 +75,8 @@ void World::renderScene() {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   camera->setupScene();
 
-  drawAxis();
+  if(this->axis)
+    drawAxis();
   root.draw();
 
   // End of frame
