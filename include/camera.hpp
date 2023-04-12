@@ -6,7 +6,18 @@
 
 class Camera;
 
+/**
+ * @brief A helper struct to parse different types of cameras using the XML parser.
+ * @tparam Cameras Variadic template parameter pack of camera types.
+*/
 template <class... Cameras> struct helper {
+
+  /**
+   * @brief Parses a camera of a given type using the provided XML parser.
+   * @param type The type of camera to parse
+   * @param parser The XML parser to use for parsing
+   * @return A unique pointer to the parsed camera object
+  */
   static std::unique_ptr<Camera> parseCamera(std::string type,
                                              XMLParser parser);
 };
@@ -28,6 +39,9 @@ public:
    */
   static std::unique_ptr<Camera> parse(XMLParser parser);
 
+  /**
+  * @brief A virtual destructor for the Camera class.
+  */
   virtual ~Camera();
 
   /**
@@ -91,7 +105,19 @@ private:
   }
 };
 
+/**
+ * @brief A helper struct to parse different types of cameras using an XML parser
+ * @tparam Derived The derived camera type to be parsed
+ * @tparam Cameras Variadic template parameter pack of camera types
+ */
 template <class Derived, class... Cameras> struct helper<Derived, Cameras...> {
+
+ /**
+ * @brief Parses a camera of a given type using the provided XML parser
+ * @param type The type of camera to parse
+ * @param parser The XML parser to use for parsing
+ * @return A unique pointer to the parsed camera object
+ */
   static std::unique_ptr<Camera> parseCamera(std::string type,
                                              XMLParser parser) {
 
@@ -103,7 +129,17 @@ template <class Derived, class... Cameras> struct helper<Derived, Cameras...> {
   }
 };
 
+/**
+ * @brief A specialization of the helper struct for when there are no camera types provided
+ */
 template <> struct helper<> {
+
+  /**
+   * @brief Throws an exception since no camera types are listed
+   * @param type Unused attribute
+   * @param parser Unused attribute
+   * @return Throws an exception
+   */
   static std::unique_ptr<Camera> parseCamera(__attribute__((unused))
                                              std::string type,
                                              __attribute__((unused))
@@ -119,21 +155,55 @@ template <> struct helper<> {
  * 
  */
 class PolarCamera : public Camera {
+
   Point lookAt;
   Point position;
+
   Vector up;
+
   float fov;
   float near;
   float far;
 
 public:
+
+  /**
+   * @brief Returns the class name of the PolarCamera
+   * @return The class name "polar"
+   */
   static std::string className() { return "polar"; }
 
+  /**
+   * @brief Constructs a new PolarCamera object from the provided XML parser
+   * @param parser The XML parser used for constructing the camera
+   */
   PolarCamera(XMLParser parser);
 
+  /**
+   * @brief Changes the size of the camera viewport
+   * @param windowSize The new size of the window
+   */
   void changeSize(WindowSize windowSize);
+
+  /**
+   * @brief Sets up the camera view and projection matrices for the current scene
+   */
   void setupScene();
+
+  /**
+   * @brief Handles special keyboard keys for camera movement
+   * @param key The special key code
+   * @param x The x-coordinate of the mouse
+   * @param y The y-coordinate of the mouse
+   */
   void handleSpecialKey(int key, int x, int y);
+
+  /**
+   * @brief Handles keyboard keys for camera movement
+   * @param key The key code
+   * @param x The x-coordinate of the mouse
+   * @param y The y-coordinate of the mouse
+   */
   void handleKey(unsigned char key, int x, int y);
 };
 
@@ -143,23 +213,66 @@ public:
  * 
  */
 class FPSCamera : public Camera {
+
     Point position;
     Vector lookAtVector;
     Vector up;
+
     float fov;
     float near;
     float far;
 
 public:
-  static std::string className() { return "fps"; }
 
-  FPSCamera(XMLParser parser);
+    /**
+     * @brief Returns the class name of the FPSCamera
+     * @return The class name "fps"
+     */
+    static std::string className() { return "fps"; }
 
-  void changeSize(WindowSize windowSize);
-  void setupScene();
-  void handleKey(unsigned char key, int x, int y);
-  void handleSpecialKey(int key, int x, int y);
+    /**
+     * @brief Constructs a new FPSCamera object from the provided XML parser
+     * @param parser The XML parser used for constructing the camera
+     */
+    FPSCamera(XMLParser parser);
 
-    private:
-        FPSCamera(Point,Vector,Vector,float,float,float);
+    /**
+     * @brief Changes the size of the camera viewport
+     * @param windowSize The new size of the window
+     */
+    void changeSize(WindowSize windowSize);
+
+    /**
+     * @brief Sets up the camera view and projection matrices for the current scene
+     */
+    void setupScene();
+
+    /**
+     * @brief Handles keyboard keys for camera movement
+     * @param key The key code
+     * @param x The x-coordinate of the mouse
+     * @param y The y-coordinate of the mouse
+     */
+    void handleKey(unsigned char key, int x, int y);
+
+    /**
+     * @brief Handles special keyboard keys for camera movement
+     * @param key The special key code
+     * @param x The x-coordinate of the mouse
+     * @param y The y-coordinate of the mouse
+     */
+    void handleSpecialKey(int key, int x, int y);
+
+private:
+
+    /**
+     * @brief Constructs an FPSCamera object with the provided parameters
+     * @param position The initial position of the camera
+     * @param lookAtVector The initial look-at vector of the camera
+     * @param up The up vector of the camera
+     * @param fov The field of view of the camera
+     * @param near The near plane distance of the camera
+     * @param far The far plane distance of the camera
+     */
+    FPSCamera(Point, Vector, Vector, float, float, float);
 };
