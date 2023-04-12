@@ -8,8 +8,9 @@
  *
  */
 class Model {
+private:
   Shape shape;
-
+  std::tuple<float, float, float> color;
 public:
   /**
    * @brief Constructs a new Model object from a given Shape
@@ -24,4 +25,7 @@ public:
    *
    */
   void draw();
+
+private:
+  std::tuple<float, float, float> parseHexColor(std::string color);
 };
