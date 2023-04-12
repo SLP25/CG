@@ -17,10 +17,14 @@
 #define ON_READ_DIST 0.5f
 
 std::unique_ptr<Camera> Camera::parse(XMLParser parser) {
+  /**
+   * @brief parses the camera atribute from the xml parser into a Camera object
+   * 
+   */
 
   std::string type;
 
-  if (!parser.get_opt_attr("type", type))
+  if (!parser.get_opt_attr("type", type)) // Verify the camera type (Polar) if the type isn't specified
     return std::make_unique<PolarCamera>(parser);
   return Camera::parseCamera<PolarCamera, FPSCamera>(type, parser);
 }
@@ -37,6 +41,10 @@ void Camera::handleSpecialKey(__attribute__((unused)) int key,
 
 void Camera::defaultChangeSize(WindowSize windowSize, float fov, float near,
                                float far) {
+  /**
+   * @brief ajustes the camera to the size of the window
+   * 
+   */
   int width = std::get<0>(windowSize);
   int height = std::get<1>(windowSize);
 
@@ -62,6 +70,10 @@ void Camera::defaultChangeSize(WindowSize windowSize, float fov, float near,
 
 
 PolarCamera::PolarCamera(XMLParser parser) {
+  /**
+   * @brief parses the camera atribute from the xml parser into a PolarCamera object
+   * 
+   */
 
   /* Validating the camera node. */
   parser.validate_node({"position", "lookAt", "up", "projection"});
@@ -106,10 +118,18 @@ PolarCamera::PolarCamera(XMLParser parser) {
 }
 
 void PolarCamera::changeSize(WindowSize windowSize) {
+  /**
+   * @brief ajustes the camera to the size of the window
+   * 
+   */
   Camera::defaultChangeSize(windowSize, fov, near, far);
 }
 
 void PolarCamera::setupScene() {
+  /**
+   * @brief loads the camera into the world
+   * 
+   */
   glLoadIdentity();
   gluLookAt(std::get<0>(position), std::get<1>(position), std::get<2>(position),
             std::get<0>(lookAt), std::get<1>(lookAt), std::get<2>(lookAt),
@@ -118,12 +138,16 @@ void PolarCamera::setupScene() {
 
 void PolarCamera::handleSpecialKey(int key, __attribute__((unused)) int x,
                                    __attribute__((unused)) int y) {
+  /**
+   * @brief handles special keys events like the arrow keys for rotational movement of the camera
+   * 
+   */
   Vector aux, perp, trasf;
   
   switch (key) {
-  case GLUT_KEY_UP: 
+  case GLUT_KEY_UP: //look down
     aux = difference(lookAt, position);
-    if (angle(up, aux) - ON_READ_ANG > 0) {
+    if (angle(up, aux) - ON_READ_ANG > 0) { //don't allow to look past the directly down plane
       perp = normalize(crossProduct(up, aux));
       trasf = rotate(perp, aux, -ON_READ_ANG);
       position = addVector(lookAt, trasf);
@@ -131,9 +155,9 @@ void PolarCamera::handleSpecialKey(int key, __attribute__((unused)) int x,
     }
     break;
 
-  case GLUT_KEY_DOWN:
+  case GLUT_KEY_DOWN://look up
     aux = difference(lookAt, position);
-    if (angle(inverse(up), aux) - ON_READ_ANG > 0) {
+    if (angle(inverse(up), aux) - ON_READ_ANG > 0) {//don't allow to look past the directly up plane
       perp = normalize(crossProduct(up, aux));
       trasf = rotate(perp, aux, ON_READ_ANG);
       position = addVector(lookAt, trasf);
@@ -141,14 +165,14 @@ void PolarCamera::handleSpecialKey(int key, __attribute__((unused)) int x,
     }
     break;
 
-  case GLUT_KEY_LEFT:
+  case GLUT_KEY_LEFT: // rotate to the left
     aux = difference(lookAt, position);
     trasf = rotate(up, aux, -ON_READ_ANG);
     position = addVector(lookAt, trasf);
     glutPostRedisplay();
     break;
 
-  case GLUT_KEY_RIGHT:
+  case GLUT_KEY_RIGHT: // rotate to the right
     aux = difference(lookAt, position);
     trasf = rotate(up, aux, ON_READ_ANG);
     position = addVector(lookAt, trasf);
@@ -158,21 +182,27 @@ void PolarCamera::handleSpecialKey(int key, __attribute__((unused)) int x,
 }
 void PolarCamera::handleKey(unsigned char key, __attribute__((unused)) int x,
                             __attribute__((unused)) int y) {
+  
+   /**
+   * @brief handles keys events for distance from the look_at point
+   * 
+   */
   Vector aux, transf;
   
+  
   switch (key) {
-  case 'w':
+  case 'w': //zoom in
 
     aux = difference(lookAt, position);
     transf = scale(length(aux) - ON_READ_DIST, normalize(aux));
     
-    if (dotProduct(aux, transf) > 0) {
+    if (dotProduct(aux, transf) > 0) { //don't let get to close
       position = addVector(lookAt, transf);
       glutPostRedisplay();
     }
 
     break;
-  case 's':
+  case 's': //zoom out
     aux = difference(lookAt, position);
     transf = scale(length(aux) + ON_READ_DIST, normalize(aux));
     position = addVector(lookAt, transf);
@@ -185,6 +215,10 @@ void PolarCamera::handleKey(unsigned char key, __attribute__((unused)) int x,
 
 
 FPSCamera::FPSCamera(Point position, Vector lookAtVector, Vector up, float fov, float near, float far) {
+  /**
+   * @brief create a FPSCamera object from its components
+   * 
+   */
     this->position = position;
     this->lookAtVector = lookAtVector;
     this->up = up;
@@ -194,6 +228,10 @@ FPSCamera::FPSCamera(Point position, Vector lookAtVector, Vector up, float fov, 
 }
 
 FPSCamera::FPSCamera(XMLParser parser) {
+  /**
+   * @brief parses the camera atribute from the xml parser into a FPSCamera object
+   * 
+   */
     position = parser.get_node("position").as_tuple<float,float,float>({"x","y","z"});
     Point lookAt = parser.get_node("lookAt").as_tuple<float,float,float>({"x","y","z"});
     lookAtVector=difference(position,lookAt);
@@ -206,40 +244,52 @@ FPSCamera::FPSCamera(XMLParser parser) {
 
 
 void FPSCamera::changeSize(WindowSize windowSize) {
+  /**
+   * @brief ajustes the camera to the size of the window
+   * 
+   */
   Camera::defaultChangeSize(windowSize, fov, near, far);
 }
 
 void FPSCamera::setupScene() {
-    glLoadIdentity();
-    Point lookAt = addVector(position,lookAtVector);
-    gluLookAt(std::get<0>(position), std::get<1>(position), std::get<2>(position), 
-              std::get<0>(lookAt), std::get<1>(lookAt), std::get<2>(lookAt),
-              std::get<0>(up), std::get<1>(up), std::get<2>(up));
+  /**
+   * @brief loads the camera into the world
+   * 
+   */
+  glLoadIdentity();
+  Point lookAt = addVector(position,lookAtVector);
+  gluLookAt(std::get<0>(position), std::get<1>(position), std::get<2>(position), 
+            std::get<0>(lookAt), std::get<1>(lookAt), std::get<2>(lookAt),
+            std::get<0>(up), std::get<1>(up), std::get<2>(up));
 }
 
 void FPSCamera::handleKey(unsigned char key, __attribute__((unused)) int x, __attribute__((unused)) int y) {
-    switch (key) {
-        case 'w':
+    /**
+     * @brief handles keys events for movement
+     * 
+     */
+	switch (key) {
+        case 'w'://move forwards
             position = addVector(position, scale(ON_READ_DIST, normalize(projectToPlane(up,lookAtVector))));
             glutPostRedisplay();
             break;
-        case 's':
+        case 's'://move backwards
             position = addVector(position, scale(-ON_READ_DIST, normalize(projectToPlane(up,lookAtVector))));
             glutPostRedisplay();
             break;
-        case 'a':
+        case 'a'://move to the left
             position = addVector(position, scale(ON_READ_DIST, normalize(crossProduct(up,lookAtVector))));
             glutPostRedisplay();
             break;
-        case 'd':
+        case 'd'://move to the right
             position = addVector(position, scale(-ON_READ_DIST, normalize(crossProduct(up,lookAtVector))));
             glutPostRedisplay();
             break;
-        case 'z':
+        case 'z'://move upwards
             position = addVector(position,scale(ON_READ_DIST, normalize(up)));
             glutPostRedisplay();
             break;
-        case 'x':
+        case 'x'://move downwards
             position = addVector(position,scale(-ON_READ_DIST, normalize(up)));
             glutPostRedisplay();
             break;
@@ -249,27 +299,31 @@ void FPSCamera::handleKey(unsigned char key, __attribute__((unused)) int x, __at
 }
 
 void FPSCamera::handleSpecialKey(int key, __attribute__((unused)) int x, __attribute__((unused)) int y) {
-    switch (key) {
-        case GLUT_KEY_UP:
-            if (angle(up,lookAtVector)-ON_READ_ANG>0){
+    /**
+     * @brief handles special keys events like the arrow keys for rotational movement of the camera
+     * 
+     */
+	switch (key) {
+        case GLUT_KEY_UP://rotate camera upwards
+            if (angle(up,lookAtVector)-ON_READ_ANG>0){//limit so that the camera doesn't go past directly up
                 lookAtVector=rotate(crossProduct(up,lookAtVector),lookAtVector,-ON_READ_ANG);
             }
             glutPostRedisplay();
             break;
 
-        case GLUT_KEY_DOWN:
-            if (angle(inverse(up),lookAtVector)-ON_READ_ANG>0){
+        case GLUT_KEY_DOWN://rotate camera downwards
+            if (angle(inverse(up),lookAtVector)-ON_READ_ANG>0){//limit so that the camera doesn't go past directly down
                 lookAtVector=rotate(crossProduct(up,lookAtVector),lookAtVector,ON_READ_ANG);
             }
             glutPostRedisplay();
             break;
 
-        case GLUT_KEY_LEFT:
+        case GLUT_KEY_LEFT://rotate camera to the left
             lookAtVector=rotate(up,lookAtVector,ON_READ_ANG);
             glutPostRedisplay();
             break;
 
-        case GLUT_KEY_RIGHT:
+        case GLUT_KEY_RIGHT://rotate camera to the right
             lookAtVector=rotate(up,lookAtVector,-ON_READ_ANG);
             glutPostRedisplay();
             break;
