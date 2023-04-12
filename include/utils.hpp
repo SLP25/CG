@@ -1,5 +1,10 @@
 #pragma once
 
+/**
+ * @file utils.hpp
+ * @brief File declaring useful functions and types for the rest of the program
+*/
+
 #include <tuple>
 #include <initializer_list>
 

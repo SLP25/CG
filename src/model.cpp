@@ -22,7 +22,7 @@ Model::Model(XMLParser parser) {
   std::string colorHex = "#ffffff";
   
   parser.get_opt_attr("color", colorHex);
-  this->color = this->parseHexColor(colorHex);
+  this->color = Model::parseHexColor(colorHex);
 }
 
 void Model::draw() {
