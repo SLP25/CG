@@ -15,6 +15,7 @@
 */
 class Transformation {
 public:
+
   /**
    * @brief Creates a #Transformation from the XML string.
    * 
@@ -52,6 +53,9 @@ public:
 */
 class Translation : public Transformation {
 public:
+
+  static std::string className() { return "translate"; }
+
   Translation(XMLParser parser);
   Transformation* clone();
   void apply();
@@ -76,6 +80,9 @@ private:
 */
 class Rotation : public Transformation {
 public:
+
+  static std::string className() { return "rotate"; }
+
   Rotation(XMLParser parser);
   Transformation* clone();
   void apply();
@@ -104,6 +111,9 @@ private:
 */
 class Scale : public Transformation {
 public:
+
+  static std::string className() { return "scale"; }
+
   Scale(XMLParser parser);
   Transformation* clone();
   void apply();

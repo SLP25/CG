@@ -7,6 +7,11 @@
 
 #include <tuple>
 #include <initializer_list>
+#include <memory>
+#include <string>
+
+#include "parser.hpp"
+#include "exceptions/invalid_xml_file.hpp"
 
 typedef std::tuple<int, int> WindowSize; ///< Tuple of a width and a height, both integers.
 
@@ -190,3 +195,57 @@ Vector projectToPlane(Vector n, Vector v);
 Vector PerpendicularClockWiseByYAxis(Vector u);
 Vector PerpendicularAntiClockWiseByYAxis(Vector u);
 Vector rotate(Vector around,Vector v,float angle);
+
+
+/**
+ * @brief A template struct to parse different types of classes using an XML parser.
+ * @tparam Superclass The superclass of the possible classes
+ * @tparam Subclasses Variadic template parameter pack of possible classes to search.
+*/
+template <class Superclass, class... Subclasses> struct dynamicParser {
+
+  /**
+   * @brief Parses an object of a given class using the provided XML parser.
+   * @param className The name of the class to parse
+   * @param parser The XML parser to use for parsing
+   * @return A unique pointer to the parsed object
+  */
+  static std::unique_ptr<Superclass> parse(std::string className, XMLParser parser);
+};
+
+template <class Superclass, class Subclass, class... Subclasses> struct dynamicParser<Superclass, Subclass, Subclasses...> {
+
+ /**
+ * @brief Parses a camera of a given type using the provided XML parser
+ * @param className The name of the class to parse
+ * @param parser The XML parser to use for parsing
+ * @return A unique pointer to the parsed camera object
+ */
+  static std::unique_ptr<Superclass> parse(std::string className,
+                                             XMLParser parser) {
+
+    if (Subclass::className() == className) {
+      return std::make_unique<Subclass>(parser);
+    }
+
+    return dynamicParser<Superclass, Subclasses...>::parse(className, parser);
+  }
+};
+
+/**
+ * @brief A specialization of the dynamicParser struct for when the search for when no match is found
+ */
+template <class Superclass> struct dynamicParser<Superclass> {
+
+  /**
+   * @brief Throws an exception since no matches were found
+   * @param className Unused attribute
+   * @param parser Unused attribute
+   * @return Throws an exception
+   */
+  static std::unique_ptr<Superclass> parse(__attribute__((unused)) std::string className,
+                                             __attribute__((unused)) XMLParser parser) {
+    throw InvalidXMLStructure(std::string("No listed camera matched the received type '")
+                              + className + std::string("'"));
+  }
+};

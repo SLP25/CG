@@ -86,68 +86,8 @@ protected:
    */
   static void defaultChangeSize(WindowSize windowSize, float fov, float near,
                                 float far);
-
-private:
-
-  /**
-   * @brief Creates an object from the specified subclass of Camera that matches the name
-   * 
-   * @tparam Cameras The subclasses to search from. Must derive Camera and define a public static
-   * std::string className() and a public constructor receiving a XMLParser
-   * @param type    The name of the subclass to create
-   * @param parser  The parser to pass to the constructor
-   * @return std::unique_ptr<Camera> The constructed Camera object
-   */
-  template <class... Cameras>
-  static std::unique_ptr<Camera> parseCamera(std::string type,
-                                             XMLParser parser) {
-    return helper<Cameras...>::parseCamera(type, parser);
-  }
 };
 
-/**
- * @brief A helper struct to parse different types of cameras using an XML parser
- * @tparam Derived The derived camera type to be parsed
- * @tparam Cameras Variadic template parameter pack of camera types
- */
-template <class Derived, class... Cameras> struct helper<Derived, Cameras...> {
-
- /**
- * @brief Parses a camera of a given type using the provided XML parser
- * @param type The type of camera to parse
- * @param parser The XML parser to use for parsing
- * @return A unique pointer to the parsed camera object
- */
-  static std::unique_ptr<Camera> parseCamera(std::string type,
-                                             XMLParser parser) {
-
-    if (Derived::className() == type) {
-      return std::make_unique<Derived>(parser);
-    }
-
-    return helper<Cameras...>::parseCamera(type, parser);
-  }
-};
-
-/**
- * @brief A specialization of the helper struct for when there are no camera types provided
- */
-template <> struct helper<> {
-
-  /**
-   * @brief Throws an exception since no camera types are listed
-   * @param type Unused attribute
-   * @param parser Unused attribute
-   * @return Throws an exception
-   */
-  static std::unique_ptr<Camera> parseCamera(__attribute__((unused))
-                                             std::string type,
-                                             __attribute__((unused))
-                                             XMLParser parser) {
-    throw std::exception(); // string("No listed camera matched the received
-                            // type '") + type + string("'")
-  }
-};
 
 /**
  * @brief A camera that moves in a sphere around the origin. The arrow keys move it around and up and down, and

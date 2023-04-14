@@ -16,7 +16,6 @@
 #include "../include/parser.hpp"
 #include "exceptions/invalid_xml_file.hpp"
 #include "parser.hpp"
-#include "utils.hpp"
 
 XMLParser::XMLParser(std::shared_ptr<std::string> content,
                      std::shared_ptr<rapidxml::xml_document<>> doc,

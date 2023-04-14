@@ -6,22 +6,12 @@
 #include <GL/glut.h>
 #endif
 
+#include "utils.hpp"
 #include "parser.hpp"
 #include "transformation.hpp"
 
-std::unique_ptr<Transformation> Transformation::parse(__attribute__((unused)) XMLParser parser) {
-  // TODO: BACE REFACTOR THIS
-
-  if (parser.name() == "translate") {
-    return std::make_unique<Translation>(parser);
-  } else if (parser.name() == "rotate") {
-    return std::make_unique<Rotation>(parser);
-  } else if (parser.name() == "scale") {
-    return std::make_unique<Scale>(parser);
-  } else {
-    throw InvalidXMLStructure("Invalid transformation with name" +
-                              parser.name() + ".");
-  }
+std::unique_ptr<Transformation> Transformation::parse(XMLParser parser) {
+  return dynamicParser<Transformation,Translation,Rotation,Scale>::parse(parser.name(), parser);
 }
 
 Translation::Translation(XMLParser parser) {

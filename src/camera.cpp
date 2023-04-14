@@ -27,7 +27,7 @@ std::unique_ptr<Camera> Camera::parse(XMLParser parser) {
 
   if (!parser.get_opt_attr("type", type)) // Verify the camera type (Polar) if the type isn't specified
     return std::make_unique<PolarCamera>(parser);
-  return Camera::parseCamera<PolarCamera, FPSCamera>(type, parser);
+  return dynamicParser<Camera,PolarCamera,FPSCamera>::parse(type, parser);
 }
 
 Camera::~Camera() {}
