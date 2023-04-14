@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #ifdef __APPLE__
 #include <GLUT/glut.h>
 #else
@@ -83,9 +84,9 @@ void World::renderScene() {
   glutSwapBuffers();
 }
 
-void World::handleKey(__attribute__((unused)) unsigned char key,
-                      __attribute__((unused)) int x,
-                      __attribute__((unused)) int y) {
+void World::handleKey(unsigned char key,
+                      int x,
+                      int y) {
   // Terminate the engine if 'q' is pressed
   if (key == 'q')
     exit(0); // TODO: More gracious shutdown

@@ -194,6 +194,16 @@ Vector projectToPlane(Vector n, Vector v);
 
 Vector PerpendicularClockWiseByYAxis(Vector u);
 Vector PerpendicularAntiClockWiseByYAxis(Vector u);
+
+/**
+* @brief calculate the resulting vector of rotating a vector around another vector by a given angle
+*
+* @param around the vector to rotate around
+* @param v the vector to rotate
+* @param angle the angle to rotate by in degrees
+*
+* @return the vector resulting of rotating v angle degrees around around
+*/
 Vector rotate(Vector around,Vector v,float angle);
 
 

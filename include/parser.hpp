@@ -10,11 +10,12 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <tuple>
 
 #ifdef FEDORA
 #include "rapidxml.h"
 #else
-#include <rapidxml/rapidxml.hpp>
+#include "../toolkits/rapidxml/rapidxml.hpp"
 #endif
 
 #include "exceptions/invalid_xml_file.hpp"
@@ -223,6 +224,16 @@ private:
 };
 
 template <typename T, typename... Ts> struct aux<T, Ts...> {
+
+    /**
+    * @brief Takes a vector of XML attribute names and returns a tuple of
+    * corresponding values.
+    *
+    * @param parser The XML parser.
+    * @param attrs The vector of attribute names.
+    * @param a The current iterator in the vector of attribute names.
+    * @return std::tuple<T, Ts...> The tuple of corresponding values.
+    */
   static std::tuple<T, Ts...> as_tuple(XMLParser &parser, params &attrs,
                                        params::iterator a) {
     if (a == attrs.end())
@@ -235,6 +246,14 @@ template <typename T, typename... Ts> struct aux<T, Ts...> {
     return tuple_cat(std::make_tuple(head), tail);
   }
 
+    /**
+     * @brief Converts an optional parameter list into a tuple.
+     * @param parser The XML parser object used to extract parameter values.
+     * @param attrs The parameter list to convert into a tuple.
+     * @param a An iterator pointing to the current parameter being processed.
+     * @return A tuple of parameter values.
+     * @throws InvalidXMLStructure If the number of parameters does not match the number of types in the template parameters.
+     */
   static std::tuple<T, Ts...> as_tuple_opt(XMLParser &parser, params &attrs,
                                            params::iterator a) {
     if (a == attrs.end())
@@ -253,7 +272,16 @@ template <typename T, typename... Ts> struct aux<T, Ts...> {
 };
 
 template <> struct aux<> {
-  static std::tuple<> as_tuple(__attribute__((unused)) XMLParser &,
+
+    /**
+   * @brief Converts an empty parameter list to an empty tuple
+   * @param[in] parser XMLParser object to parse XML
+   * @param[in] attrs parameters to be converted
+   * @param[in] a iterator to the start of the parameter list
+   * @return an empty tuple
+   * @throws InvalidXMLStructure if there are too many arguments in the parameter list
+   */
+  static std::tuple<> as_tuple(XMLParser &,
                                params &attrs, params::iterator a) {
     if (a != attrs.end())
       throw InvalidXMLStructure(
@@ -262,7 +290,15 @@ template <> struct aux<> {
     return {};
   }
 
-  static std::tuple<> as_tuple_opt(__attribute__((unused)) XMLParser &,
+    /**
+     * @brief Converts an empty parameter list to an empty tuple
+     * @param[in] parser XMLParser object to parse XML
+     * @param[in] attrs parameters to be converted
+     * @param[in] a iterator to the start of the parameter list
+     * @return an empty tuple
+     * @throws InvalidXMLStructure if there are too many arguments in the parameter list
+     */
+  static std::tuple<> as_tuple_opt(XMLParser &,
                                    params &attrs, params::iterator a) {
     if (a != attrs.end())
       throw InvalidXMLStructure(

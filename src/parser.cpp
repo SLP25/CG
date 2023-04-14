@@ -13,7 +13,7 @@
 #include <sstream>
 #include <tuple>
 
-#include "../include/parser.hpp"
+#include "parser.hpp"
 #include "exceptions/invalid_xml_file.hpp"
 #include "parser.hpp"
 

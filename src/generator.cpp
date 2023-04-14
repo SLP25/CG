@@ -2,7 +2,7 @@
  * @file generator.cpp
  * @brief File implementing the main generator program
  */
-
+#include <stdlib.h>
 #include "shape.hpp"
 #include "shapegenerator.hpp"
 #include <cstring>
@@ -88,6 +88,7 @@ std::unique_ptr<Shape> generateShape(int argc, char *argv[]) {
  * @return 0 if execution was successful
  * @return 1 if an error occurred
  */
+#ifndef ENGINE
 int main(int argc, char *argv[]) {
   try {
     std::unique_ptr<Shape> shape = generateShape(argc, argv);
@@ -101,3 +102,4 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 }
+#endif

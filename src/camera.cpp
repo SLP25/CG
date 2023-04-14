@@ -32,13 +32,13 @@ std::unique_ptr<Camera> Camera::parse(XMLParser parser) {
 
 Camera::~Camera() {}
 
-void Camera::handleKey(__attribute__((unused)) unsigned char key,
-                       __attribute__((unused)) int x,
-                       __attribute__((unused)) int y) {}
+void Camera::handleKey(unsigned char key,
+                       int x,
+                       int y) {}
 
-void Camera::handleSpecialKey(__attribute__((unused)) int key,
-                              __attribute__((unused)) int x,
-                              __attribute__((unused)) int y) {}
+void Camera::handleSpecialKey(int key,
+                              int x,
+                              int y) {}
 
 void Camera::defaultChangeSize(WindowSize windowSize, float fov, float near,
                                float far) {
@@ -141,8 +141,8 @@ void PolarCamera::setupScene() {
             std::get<0>(up), std::get<1>(up), std::get<2>(up));
 }
 
-void PolarCamera::handleSpecialKey(int key, __attribute__((unused)) int x,
-                                   __attribute__((unused)) int y) {
+void PolarCamera::handleSpecialKey(int key, int x,
+                                   int y) {
   /**
    * @brief handles special keys events like the arrow keys for rotational movement of the camera
    * @param key the keycode of the special key that was pressed
@@ -185,8 +185,8 @@ void PolarCamera::handleSpecialKey(int key, __attribute__((unused)) int x,
     break;
   }
 }
-void PolarCamera::handleKey(unsigned char key, __attribute__((unused)) int x,
-                            __attribute__((unused)) int y) {
+void PolarCamera::handleKey(unsigned char key, int x,
+                            int y) {
   
    /**
    * @brief handles keys events for distance from the look_at point
@@ -273,7 +273,7 @@ void FPSCamera::setupScene() {
             std::get<0>(up), std::get<1>(up), std::get<2>(up));
 }
 
-void FPSCamera::handleKey(unsigned char key, __attribute__((unused)) int x, __attribute__((unused)) int y) {
+void FPSCamera::handleKey(unsigned char key, int x, int y) {
     /**
      * @brief handles keys events for movement
      * @param key the character of the key that was pressed
@@ -308,7 +308,7 @@ void FPSCamera::handleKey(unsigned char key, __attribute__((unused)) int x, __at
     }
 }
 
-void FPSCamera::handleSpecialKey(int key, __attribute__((unused)) int x, __attribute__((unused)) int y) {
+void FPSCamera::handleSpecialKey(int key, int x, int y) {
     /**
      * @brief handles special keys events like the arrow keys for rotational movement of the camera
      * @param key the keycode of the special key that was pressed

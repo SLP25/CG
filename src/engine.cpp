@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #ifdef __APPLE__
 #include <GLUT/glew.h>
 #include <GLUT/glut.h>
@@ -9,6 +10,10 @@
 #include "parser.hpp"
 #include "utils.hpp"
 #include "world.hpp"
+
+#ifdef __GNUC__
+#define ENGINE
+#endif
 
 World world;
 
@@ -46,6 +51,7 @@ void handleSpecialKey(int key, int x, int y) {
   world.handleSpecialKey(key, x, y);
 }
 
+#ifdef ENGINE
 int main(int argc, char **argv) {
   /**
    * @brief Engine program entry point
@@ -98,3 +104,5 @@ int main(int argc, char **argv) {
   glutMainLoop();
   return 1;
 }
+#undef ENGINE
+#endif
