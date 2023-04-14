@@ -78,6 +78,7 @@
             <transform>
                 <translate x="40.21" y="0" z="0"/>
                 <scale s="0.4180"/>
+                <rotate x="0" y="0" z="1" angle="-30"/>
             </transform>
 
         </group>
