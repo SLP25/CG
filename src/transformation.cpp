@@ -9,7 +9,7 @@
 #include "parser.hpp"
 #include "transformation.hpp"
 
-std::unique_ptr<Transformation> Transformation::parse(__attribute__((unused)) XMLParser parser) {
+std::unique_ptr<Transformation> Transformation::parse(XMLParser parser) {
   // TODO: BACE REFACTOR THIS
 
   if (parser.name() == "translate") {

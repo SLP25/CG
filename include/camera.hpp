@@ -140,9 +140,7 @@ template <> struct helper<> {
    * @param parser Unused attribute
    * @return Throws an exception
    */
-  static std::unique_ptr<Camera> parseCamera(__attribute__((unused))
-                                             std::string type,
-                                             __attribute__((unused))
+  static std::unique_ptr<Camera> parseCamera(std::string type,
                                              XMLParser parser) {
     throw std::exception(); // string("No listed camera matched the received
                             // type '") + type + string("'")

@@ -4,6 +4,8 @@
  * @brief File implementing functions used to generate the different shapes
  */
 
+#define _USE_MATH_DEFINES
+#include <cmath>
 #include "shapegenerator.hpp"
 #include "utils.hpp"
 #include <cmath>
@@ -11,6 +13,8 @@
 #include <iostream>
 #include <map>
 #include <regex>
+
+
 
 // displacement is a fraction of the angle of slicing. 0.5 displacement means
 // the circle is offset by PI/slices rad

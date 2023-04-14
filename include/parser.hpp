@@ -11,11 +11,12 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <tuple>
 
 #ifdef FEDORA
 #include "rapidxml.h"
 #else
-#include <rapidxml/rapidxml.hpp>
+#include "../toolkits/rapidxml/rapidxml.hpp"
 #endif
 
 #include "exceptions/invalid_xml_file.hpp"
@@ -254,7 +255,7 @@ template <typename T, typename... Ts> struct aux<T, Ts...> {
 };
 
 template <> struct aux<> {
-  static std::tuple<> as_tuple(__attribute__((unused)) XMLParser &,
+  static std::tuple<> as_tuple(XMLParser &,
                                params &attrs, params::iterator a) {
     if (a != attrs.end())
       throw InvalidXMLStructure(
@@ -263,7 +264,7 @@ template <> struct aux<> {
     return {};
   }
 
-  static std::tuple<> as_tuple_opt(__attribute__((unused)) XMLParser &,
+  static std::tuple<> as_tuple_opt(XMLParser &,
                                    params &attrs, params::iterator a) {
     if (a != attrs.end())
       throw InvalidXMLStructure(
