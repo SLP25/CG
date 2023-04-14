@@ -253,8 +253,8 @@ template <class Superclass> struct dynamicParser<Superclass> {
    * @param parser Unused attribute
    * @return Throws an exception
    */
-  static std::unique_ptr<Superclass> parse(__attribute__((unused)) std::string className,
-                                             __attribute__((unused)) XMLParser parser) {
+  static std::unique_ptr<Superclass> parse(std::string className,
+                                            XMLParser parser) {
     throw InvalidXMLStructure(std::string("No listed camera matched the received type '")
                               + className + std::string("'"));
   }
