@@ -13,9 +13,19 @@
 #include "model.hpp"
 #include "parser.hpp"
 
-Model::Model(Shape shape) { this->shape = shape; }
+Model::Model(Shape shape) {
+  /**
+   * @brief Creates a model given its shape
+   * 
+   */
+  this->shape = shape; 
+}
 
 Model::Model(XMLParser parser) {
+  /**
+   * @brief parses the model atribute from the xml parser into a Model object
+   * @param parser the model xml data
+   */
   parser.validate_attrs({"file", "color"});
   this->shape = parser.as_object<Shape, std::string>({"file"});
   //If no color present, print the shape as being white
@@ -26,12 +36,20 @@ Model::Model(XMLParser parser) {
 }
 
 void Model::draw() {
+  /**
+   * @brief Draws the model in the window
+   * 
+   */
   glPolygonMode(GL_FRONT_AND_BACK, GLU_FILL);
   glColor3f(std::get<0>(this->color), std::get<1>(this->color), std::get<2>(this->color));
   shape.draw();
 }
 
 std::tuple<float, float, float> Model::parseHexColor(std::string colorHex) {
+  /**
+   * @brief Converts a string containing a hex representation of a color into rgb
+   * @return A tuple with values of {red,green,blue}
+   */
   unsigned int rgb[3];
   for(int i = 0; i < 3; i++) {
     std::stringstream ss;

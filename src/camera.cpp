@@ -20,6 +20,7 @@ std::unique_ptr<Camera> Camera::parse(XMLParser parser) {
   /**
    * @brief parses the camera atribute from the xml parser into a Camera object
    * 
+   * @param parser the camera xml data
    */
 
   std::string type;
@@ -44,6 +45,10 @@ void Camera::defaultChangeSize(WindowSize windowSize, float fov, float near,
   /**
    * @brief ajustes the camera to the size of the window
    * 
+   * @param windowSize The size of the window
+   * @param fov the field of view of the camera
+   * @param near the minimum distance from an object to the camera for it to be drawn
+   * @param far the maximum distance from an object to the camera for it to be drawn
    */
   int width = std::get<0>(windowSize);
   int height = std::get<1>(windowSize);
@@ -72,7 +77,7 @@ void Camera::defaultChangeSize(WindowSize windowSize, float fov, float near,
 PolarCamera::PolarCamera(XMLParser parser) {
   /**
    * @brief parses the camera atribute from the xml parser into a PolarCamera object
-   * 
+   * @param parser the camera xml data
    */
 
   /* Validating the camera node. */
@@ -119,8 +124,8 @@ PolarCamera::PolarCamera(XMLParser parser) {
 
 void PolarCamera::changeSize(WindowSize windowSize) {
   /**
-   * @brief ajustes the camera to the size of the window
-   * 
+   * @brief Ajustes the camera to the size of the window
+   * @param windowSize The size of the window
    */
   Camera::defaultChangeSize(windowSize, fov, near, far);
 }
@@ -140,7 +145,7 @@ void PolarCamera::handleSpecialKey(int key, __attribute__((unused)) int x,
                                    __attribute__((unused)) int y) {
   /**
    * @brief handles special keys events like the arrow keys for rotational movement of the camera
-   * 
+   * @param key the keycode of the special key that was pressed
    */
   Vector aux, perp, trasf;
   
@@ -185,7 +190,7 @@ void PolarCamera::handleKey(unsigned char key, __attribute__((unused)) int x,
   
    /**
    * @brief handles keys events for distance from the look_at point
-   * 
+   * @param key the character of the key that was pressed
    */
   Vector aux, transf;
   
@@ -217,7 +222,12 @@ void PolarCamera::handleKey(unsigned char key, __attribute__((unused)) int x,
 FPSCamera::FPSCamera(Point position, Vector lookAtVector, Vector up, float fov, float near, float far) {
   /**
    * @brief create a FPSCamera object from its components
-   * 
+   * @param The position of the camera in space
+   * @param lookAtVector To where the camera is looking at
+   * @param up The vector indicating the up direction
+   * @param fov the field of view of the camera
+   * @param near the minimum distance between an object and the camera for it to be drawn
+   * @param far the maximum distance between an object and the camera for it to be drawn
    */
     this->position = position;
     this->lookAtVector = lookAtVector;
@@ -230,7 +240,7 @@ FPSCamera::FPSCamera(Point position, Vector lookAtVector, Vector up, float fov, 
 FPSCamera::FPSCamera(XMLParser parser) {
   /**
    * @brief parses the camera atribute from the xml parser into a FPSCamera object
-   * 
+   * @param parser the camera xml data
    */
     position = parser.get_node("position").as_tuple<float,float,float>({"x","y","z"});
     Point lookAt = parser.get_node("lookAt").as_tuple<float,float,float>({"x","y","z"});
@@ -246,7 +256,7 @@ FPSCamera::FPSCamera(XMLParser parser) {
 void FPSCamera::changeSize(WindowSize windowSize) {
   /**
    * @brief ajustes the camera to the size of the window
-   * 
+   * @param windowSize The size of the window
    */
   Camera::defaultChangeSize(windowSize, fov, near, far);
 }
@@ -266,7 +276,7 @@ void FPSCamera::setupScene() {
 void FPSCamera::handleKey(unsigned char key, __attribute__((unused)) int x, __attribute__((unused)) int y) {
     /**
      * @brief handles keys events for movement
-     * 
+     * @param key the character of the key that was pressed
      */
 	switch (key) {
         case 'w'://move forwards
@@ -301,7 +311,7 @@ void FPSCamera::handleKey(unsigned char key, __attribute__((unused)) int x, __at
 void FPSCamera::handleSpecialKey(int key, __attribute__((unused)) int x, __attribute__((unused)) int y) {
     /**
      * @brief handles special keys events like the arrow keys for rotational movement of the camera
-     * 
+     * @param key the keycode of the special key that was pressed
      */
 	switch (key) {
         case GLUT_KEY_UP://rotate camera upwards
