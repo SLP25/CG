@@ -216,3 +216,18 @@ Vector rotate(Vector around,Vector v,float angle){
           scale(sinne,cross)),
           scale((1 - cossine) * dot,axis));
 }
+
+std::tuple<float, float, float> parseHexColor(std::string colorHex) {
+  /**
+   * @brief Converts a string containing a hex representation of a color into rgb
+   * @return A tuple with values of {red,green,blue}
+   */
+  unsigned int rgb[3];
+  for(int i = 0; i < 3; i++) {
+    std::stringstream ss;
+    ss << std::hex << colorHex.substr(1 + i * 2,2);
+    ss >> rgb[i];
+  }
+
+  return {(float)rgb[0] / 255.0f, (float)rgb[1] / 255.0f, (float)rgb[2] / 255.0f};
+}

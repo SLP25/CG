@@ -4,12 +4,7 @@
  * @brief File implementing the @link Shape class
  */
 
-#ifdef __APPLE__
-#include <GLUT/glut.h>
-#else
-#include <GL/glut.h>
-#endif
-
+#include "glut.hpp"
 #include "shape.hpp"
 #include <fstream>
 #include <iostream>
@@ -18,13 +13,27 @@
 #include <map>
 #include <tuple>
 
+std::map<std::string,std::shared_ptr<Shape>> Shape::cache;
+
+std::shared_ptr<Shape> Shape::fetchShape(std::string filePath) {
+  
+  if (cache.find(filePath) != cache.end())
+    return cache[filePath];
+
+  std::shared_ptr<Shape> s = std::shared_ptr<Shape>(new Shape(filePath));
+  cache[filePath] = s;
+  return s;
+}
+
+void Shape::initShapes() {
+  for (auto const& ss : cache)
+    ss.second->initialize();
+}
+
+
 Shape::Shape() {}
 
 Shape::Shape(std::vector<Triangle> triangles) {
-  /**
-   * @brief Creates a shape givel all triangles it is made of
-   * @param triangles a vector containing the triangles that make up the shape
-   */
   //points found in the vector of triangles and the position they will be stored in the points vector
   std::map<Point, int> pointsFound; 
   Point points[3];
@@ -50,10 +59,6 @@ Shape::Shape(std::vector<Triangle> triangles) {
 }
 
 Shape::Shape(std::string filePath) {
-  /**
-   * @brief Read a shape from a file
-   * @param filePath the path to the file containing the shape
-   */
   std::ifstream file(filePath); //open the file
 
   if (!file) {
@@ -80,11 +85,73 @@ Shape::Shape(std::string filePath) {
   file.close();//close the file
 }
 
+Shape::Shape(const Shape& shape) :
+  points(shape.points),
+  trianglesByPos(shape.trianglesByPos)
+{}
+
+Shape::Shape(Shape&& shape) :
+  points(std::move(shape.points)),
+  trianglesByPos(std::move(shape.trianglesByPos)),
+  vbo_addr(shape.vbo_addr),
+  vertexCount(shape.vertexCount)
+{}
+
+
+Shape::~Shape() {
+  glDeleteBuffers(1, &this->vbo_addr);
+}
+
+
+Shape& Shape::operator=(const Shape& shape) {
+  this->points = shape.points;
+  this->trianglesByPos = shape.trianglesByPos;
+
+  return *this;
+}
+
+
+Shape& Shape::operator=(Shape&& shape) {
+  this->points = std::move(shape.points);
+  this->trianglesByPos = std::move(shape.trianglesByPos);
+  this->vbo_addr = shape.vbo_addr;
+  this->vertexCount = shape.vertexCount;
+
+  return *this;
+}
+
+
+void push_tuple(std::vector<float>& v, std::tuple<float,float,float> t) {
+  v.push_back(std::get<0>(t));
+  v.push_back(std::get<1>(t));
+  v.push_back(std::get<2>(t));
+}
+
+void Shape::initialize() {
+  std::vector<float> p;
+	
+  //TODO: use vbo indexes
+  for (TriangleByPosition t : this->trianglesByPos) {
+    push_tuple(p, this->points[std::get<0>(t)]);
+    push_tuple(p, this->points[std::get<1>(t)]);
+    push_tuple(p, this->points[std::get<2>(t)]);
+  }
+
+	glGenBuffers(1, &this->vbo_addr);
+	this->vertexCount = p.size() / 3;
+
+	// copiar o vector para a memória gráfica
+	glBindBuffer(GL_ARRAY_BUFFER, this->vbo_addr);
+	glBufferData(
+		GL_ARRAY_BUFFER, // tipo do buffer, só é relevante na altura do desenho
+		sizeof(float) * p.size(), // tamanho do vector em bytes
+		p.data(), // os dados do array associado ao vector
+		GL_STATIC_DRAW // indicativo da utilização (estático e para desenho)
+	);
+}
+
 void Shape::draw() {
-  /**
-   * @brief Draw the shape in the window
-   * 
-   */
+  /*
   for (TriangleByPosition &triangle : this->trianglesByPos) {
     Point p1 = this->points[std::get<0>(triangle)];
     Point p2 = this->points[std::get<1>(triangle)];
@@ -97,13 +164,17 @@ void Shape::draw() {
     glVertex3f(std::get<0>(p3), std::get<1>(p3), std::get<2>(p3));
     glEnd();
   }
+  */
+
+  if (vbo_addr == 0)
+    throw std::runtime_error("Attept to draw uninitialized shape");
+
+	glBindBuffer(GL_ARRAY_BUFFER, this->vbo_addr);
+	glVertexPointer(3, GL_FLOAT, 0, 0);
+	glDrawArrays(GL_TRIANGLES, 0, this->vertexCount);
 }
 
 bool Shape::exportToFile(std::string filePath) {
-  /**
-   * @brief Stores a shape inside a file
-   * @param filePath the path to the file to write the shape to
-   */
   std::ofstream file(filePath);
   file << this->points.size() << std::endl;//write the number of points
   for (Point p : this->points)

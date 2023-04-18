@@ -9,6 +9,7 @@
 #include <tuple>
 #include <vector>
 #include "utils.hpp"
+#include "glut.hpp"
 
 typedef std::tuple<int,int,int> TriangleByPosition;
 
@@ -20,12 +21,45 @@ typedef std::tuple<int,int,int> TriangleByPosition;
  */
 class Shape {
 public:
+  static std::shared_ptr<Shape> fetchShape(std::string filePath);
+  static void initShapes();
+
   /**
    * @brief Default constructor
    */
   Shape();
   Shape(std::vector<Triangle> triangles);
-  Shape(std::string filePath);
+
+  /**
+   * @brief Copy constructor
+   * 
+   * @param shape the Shape to copy
+  */
+  Shape(const Shape& shape);
+
+  /**
+   * @brief Move constructor
+   * 
+   * @param shape The Shape to move
+  */
+  Shape(Shape&& shape);
+
+  /**
+   * @brief Destructor (disposes vbo)
+  */
+  ~Shape();
+
+  /**
+   * @brief Assignment operator
+   * @param shape the Shape to assign this as
+  */
+  Shape& operator=(const Shape& shape);
+
+  /**
+   * @brief Assignment operator
+   * @param shape the Shape to assign this as
+  */
+  Shape& operator=(Shape&& shape);
 
   /**
    * @brief Exports the shape to a 3D file
@@ -40,6 +74,12 @@ public:
   bool exportToFile(std::string filePath);
 
   /**
+   * @brief Initializes the Shape's VBO
+   * 
+   */
+  void initialize();
+
+  /**
    * @brief Draws the shape by calling glut's static functions. No color or texture
    * is set, only the shape is drawn.
    * 
@@ -47,9 +87,16 @@ public:
   void draw();
 
 private:
+  static std::map<std::string, std::shared_ptr<Shape>> cache;
+  
   /**
    * The vertices of the shape
    */
   std::vector<Point> points;
   std::vector<TriangleByPosition> trianglesByPos;
+
+  GLuint vbo_addr;
+  int vertexCount;
+
+  Shape(std::string filePath);
 };

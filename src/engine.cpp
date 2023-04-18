@@ -1,11 +1,5 @@
 #include <stdlib.h>
-#ifdef __APPLE__
-#include <GLUT/glew.h>
-#include <GLUT/glut.h>
-#else
-#include <GL/glew.h>
-#include <GL/glut.h>
-#endif
+#include "glut.hpp"
 
 #include "parser.hpp"
 #include "utils.hpp"
@@ -91,8 +85,6 @@ int main(int argc, char **argv) {
   glutInit(&argc, argv);
 
   world.initScene();
-
-  // glewInit(); after createWindow and before any other glut funcs
 
   /* Put callback registry here. */
   glutReshapeFunc(changeSize);

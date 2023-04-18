@@ -1,10 +1,5 @@
 #include <stdlib.h>
-#ifdef __APPLE__
-#include <GLUT/glut.h>
-#else
-#include <GL/glut.h>
-#endif
-
+#include "glut.hpp"
 #include "utils.hpp"
 #include "world.hpp"
 #include <fstream>
@@ -57,14 +52,21 @@ void World::initScene() {
   // put GLUT's init here
   glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
   glutInitWindowSize(std::get<0>(windowSize), std::get<1>(windowSize));
-
   glutInitWindowPosition(100, 100);
   glutCreateWindow("Model Viewer 3000");
+
+#ifndef __APPLE__
+	glewInit();
+#endif
+
+  glEnableClientState(GL_VERTEX_ARRAY);
 
   // some OpenGL settings
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_CULL_FACE);
   glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+
+  Shape::initShapes();
 }
 
 void World::changeSize(int width, int height) {
