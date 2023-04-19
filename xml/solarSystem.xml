@@ -10,6 +10,7 @@
 <!-- Planetas gasosos sao 5x maiores do que a escala -->
 <!-- Planetas terrestres sao 10x maiores do que a escala -->
 <!-- Todas as distâncias foram cortadas 50x, exceto a distancia terra-lua, q foi cortada 25x -->
+<!-- 1 ano irl dura 10 segundos de animação -->
 
     <group> <!-- Sol -->
         <models><model file="models/sphere.3d" color="#fdb813"/></models>
@@ -20,6 +21,7 @@
         <group> <!-- Mercúrio -->
             <models><model file="models/sphere.3d" color="#8c8c94"/></models>
             <transform>
+                <rotate x="0" y="1" z="0" time="2.41"/>
                 <translate x="1.67" y="0" z="0"/>
                 <scale s="0.035"/>
             </transform>
@@ -28,6 +30,7 @@
         <group> <!-- Vénus -->
             <models><model file="models/sphere.3d" color="#c18f17"/></models>
             <transform>
+                <rotate x="0" y="1" z="0" time="6.98"/>
                 <translate x="3.1" y="0" z="0"/>
                 <scale s="0.087"/>
             </transform>
@@ -37,6 +40,7 @@
         <group> <!-- Terra -->
             <models><model file="models/sphere.3d" color="#6b93d6"/></models>
             <transform>
+                <rotate x="0" y="1" z="0" time="10"/>
                 <translate x="4.3" y="0" z="0"/>
                 <scale s="0.091"/>
             </transform>
@@ -44,6 +48,7 @@
             <group> <!-- Lua -->
                 <models><model file="models/sphere.3d" color="#f6f1d5" /></models>
                 <transform>
+                    <rotate x="0" y="1" z="0" time="0.73"/>
                     <translate x="2.42" y="0" z="0"/>
                     <scale s="0.2725"/>
                 </transform>
@@ -55,6 +60,7 @@
         <group> <!-- Marte -->
             <models><model file="models/sphere.3d" color="#c1440e"/></models>
             <transform>
+                <rotate x="0" y="1" z="0" time="18.81"/>
                 <translate x="6.55" y="0" z="0"/>
                 <scale s="0.049"/>
             </transform>
@@ -64,6 +70,7 @@
         <group> <!-- Júpiter -->
             <models><model file="models/sphere.3d" color="#d8ca9d"/></models>
             <transform>
+                <rotate x="0" y="1" z="0" time="120"/>
                 <translate x="22.35" y="0" z="0"/>
                 <scale s="0.502"/>
             </transform>
@@ -76,9 +83,11 @@
                 <model file="models/donut.3d" color="#dbb57c"/>
             </models>
             <transform>
+                <rotate x="0" y="1" z="0" time="290"/>
                 <translate x="40.21" y="0" z="0"/>
                 <scale s="0.4180"/>
-                <rotate x="0" y="0" z="1" angle="-30"/>
+                <rotate x="0" y="-1" z="0" time="290"/>
+                <rotate x="0" y="0" z="1" angle="20"/>
             </transform>
 
         </group>
@@ -86,6 +95,7 @@
         <group> <!-- Urano -->
             <models><model file="models/sphere.3d" color="#c6d3e3"/></models>
             <transform>
+                <rotate x="0" y="1" z="0" time="840"/>
                 <translate x="83.29" y="0" z="0"/>
                 <scale s="0.1820"/>
             </transform>
@@ -95,6 +105,7 @@
         <group> <!-- Neptuno -->
             <models><model file="models/sphere.3d" color="#274687"/></models>
             <transform>
+                <rotate x="0" y="1" z="0" time="1650"/>
                 <translate x="129.25" y="0" z="0"/>
                 <scale s="0.177"/>
             </transform>
@@ -104,6 +115,7 @@
         <group> <!-- Plutão -->
             <models><model file="models/sphere.3d" color="#f6ddbd"/></models>
             <transform>
+                <rotate x="0" y="1" z="0" time="2480"/>
                 <translate x="169.46" y="0" z="0"/>
                 <scale s="0.017"/>
             </transform>

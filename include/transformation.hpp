@@ -101,7 +101,13 @@ private:
   */
   float z;
   /**
-   * @brief The angle (in degrees) of the rotation
+   * @brief The time (in seconds) for the rotation to complete (360 degrees).
+   * If time is zero, there is no animation (as if time = +INF)
+  */
+  float time;
+  /**
+   * @brief The angle (in degrees) of the rotation.
+   * If time is non-zero, angle serves as the initial rotation
   */
   float angle;
 };

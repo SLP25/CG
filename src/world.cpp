@@ -84,6 +84,7 @@ void World::renderScene() {
 
   // End of frame
   glutSwapBuffers();
+  glutPostRedisplay();
 }
 
 void World::handleKey(unsigned char key,

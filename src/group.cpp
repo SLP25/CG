@@ -94,11 +94,9 @@ void Group::constructModels(XMLParser parser) {
 }
 
 void Group::constructTransformations(XMLParser parser) {
-  std::vector<XMLParser> transformationTags = parser.get_nodes("transform");
-  for (XMLParser transformationTag : transformationTags) {
-    std::vector<XMLParser> transformTags = transformationTag.get_nodes();
-    for (XMLParser transformTag : transformTags) {
-      this->transformations.push_back(std::move(Transformation::parse(transformTag)));
-    }
+  XMLParser transformationTag = parser.get_node("transform");
+  std::vector<XMLParser> transformTags = transformationTag.get_nodes();
+  for (XMLParser& transformTag : transformTags) {
+    this->transformations.push_back(std::move(Transformation::parse(transformTag)));
   }
 }
