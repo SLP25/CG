@@ -23,7 +23,7 @@ std::unique_ptr<Camera> Camera::parse(XMLParser parser) {
 
   if (!parser.get_opt_attr("type", type)) // Verify the camera type (Polar) if the type isn't specified
     return std::make_unique<PolarCamera>(parser);
-  return dynamicParser<Camera,PolarCamera,FPSCamera>::parse(type, parser);
+  return dynamicParser<Camera,PolarCamera,FPSCamera>::parse(parser);
 }
 
 Camera::~Camera() {}
@@ -69,6 +69,9 @@ void Camera::defaultChangeSize(WindowSize windowSize, float fov, float near,
 }
 
 
+bool PolarCamera::accepts(XMLParser parser) {
+  return parser.get_attr<std::string>("type") == "polar";
+}
 
 PolarCamera::PolarCamera(XMLParser parser) {
   /**
@@ -213,7 +216,9 @@ void PolarCamera::handleKey(unsigned char key, int x,
 }
 
 
-
+bool FPSCamera::accepts(XMLParser parser) {
+  return parser.get_attr<std::string>("type") == "fps";
+}
 
 FPSCamera::FPSCamera(Point position, Vector lookAtVector, Vector up, float fov, float near, float far) {
   /**

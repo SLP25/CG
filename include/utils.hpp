@@ -207,7 +207,7 @@ Vector PerpendicularAntiClockWiseByYAxis(Vector u);
 Vector rotate(Vector around,Vector v,float angle);
 
 /**
-   * Casts an hexadecimal string (format: "#[0-9a-f]{6}") to the
+   * @brief Casts an hexadecimal string (format: "#[0-9a-f]{6}") to the
    * corresponding RGB values.
    * 
    * The values range from [0-1]. 1 corresponds to all of that color
@@ -225,6 +225,13 @@ Vector rotate(Vector around,Vector v,float angle);
   */
 std::tuple<float, float, float> parseHexColor(std::string color);
 
+/**
+ * @brief Parses the given string into true if the input is "true" and
+ * false if the input is "false". If the input is neither, an error is thrown.
+ * 
+ * @note The input is case insensitive
+*/
+bool parseBool(std::string str);
 
 /**
  * @brief A template struct to parse different types of classes using an XML parser.
@@ -235,29 +242,26 @@ template <class Superclass, class... Subclasses> struct dynamicParser {
 
   /**
    * @brief Parses an object of a given class using the provided XML parser.
-   * @param className The name of the class to parse
    * @param parser The XML parser to use for parsing
    * @return A unique pointer to the parsed object
   */
-  static std::unique_ptr<Superclass> parse(std::string className, XMLParser parser);
+  static std::unique_ptr<Superclass> parse(XMLParser parser);
 };
 
 template <class Superclass, class Subclass, class... Subclasses> struct dynamicParser<Superclass, Subclass, Subclasses...> {
 
  /**
- * @brief Parses a camera of a given type using the provided XML parser
- * @param className The name of the class to parse
+ * @brief Parses an object of a given class using the provided XML parser
  * @param parser The XML parser to use for parsing
  * @return A unique pointer to the parsed camera object
  */
-  static std::unique_ptr<Superclass> parse(std::string className,
-                                             XMLParser parser) {
+  static std::unique_ptr<Superclass> parse(XMLParser parser) {
 
-    if (Subclass::className() == className) {
+    if (Subclass::accepts(parser)) {
       return std::make_unique<Subclass>(parser);
     }
 
-    return dynamicParser<Superclass, Subclasses...>::parse(className, parser);
+    return dynamicParser<Superclass, Subclasses...>::parse(parser);
   }
 };
 
@@ -268,13 +272,11 @@ template <class Superclass> struct dynamicParser<Superclass> {
 
   /**
    * @brief Throws an exception since no matches were found
-   * @param className Unused attribute
    * @param parser Unused attribute
    * @return Throws an exception
    */
-  static std::unique_ptr<Superclass> parse(std::string className,
-                                            XMLParser parser) {
-    throw InvalidXMLStructure(std::string("No listed camera matched the received type '")
-                              + className + std::string("'"));
+  static std::unique_ptr<Superclass> parse(XMLParser parser) {
+    throw InvalidXMLStructure(std::string("No listed class accepted received node <")
+                              + parser.name() + std::string(">"));
   }
 };

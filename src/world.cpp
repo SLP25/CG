@@ -30,21 +30,10 @@ World::World(XMLParser parser) :
   windowParser.validate_node({});
 
   windowSize = windowParser.as_tuple<int, int>({"width", "height"});
+  
   std::string axisStr = "true";
   windowParser.get_opt_attr("axis", axisStr);
-
-  //Convert to lowercase
-  for(int i = 0; i < (int)axisStr.size(); i++)
-    axisStr[i] = tolower(axisStr[i]);
-
-  if(axisStr== "true") {
-    this->axis = true;
-  } else if(axisStr == "false") {
-    this->axis = false;
-  } else {
-    this->axis = true;
-    std::cout << "Warning: Invalid attribute for axis property of world. Defaulting to true" << std::endl;
-  }
+  this->axis = parseBool(axisStr);
 }
 
 void World::initScene() {

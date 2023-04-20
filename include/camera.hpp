@@ -108,10 +108,11 @@ class PolarCamera : public Camera {
 public:
 
   /**
-   * @brief Returns the class name of the PolarCamera
-   * @return The class name "polar"
+   * @brief Determines whether this class accepts to construct an instance
+   * with the given parser
+   * @return The parser
    */
-  static std::string className() { return "polar"; }
+  static bool accepts(XMLParser parser);
 
   /**
    * @brief Constructs a new PolarCamera object from the provided XML parser
@@ -165,10 +166,11 @@ class FPSCamera : public Camera {
 public:
 
     /**
-     * @brief Returns the class name of the FPSCamera
-     * @return The class name "fps"
+     * @brief Determines whether this class accepts to construct an instance
+     * with the given parser
+     * @return The parser
      */
-    static std::string className() { return "fps"; }
+    static bool accepts(XMLParser parser);
 
     /**
      * @brief Constructs a new FPSCamera object from the provided XML parser

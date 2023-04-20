@@ -1,5 +1,6 @@
 #include "utils.hpp"
 #include <cmath>
+#include <string>
 
 
 Point average(std::initializer_list<Point> points) {
@@ -230,4 +231,17 @@ std::tuple<float, float, float> parseHexColor(std::string colorHex) {
   }
 
   return {(float)rgb[0] / 255.0f, (float)rgb[1] / 255.0f, (float)rgb[2] / 255.0f};
+}
+
+bool parseBool(std::string str) {
+  for (char& c : str)
+    c = std::tolower(c);
+
+  if (str == "true")
+    return true;
+
+  if (str == "false")
+    return false;
+
+  throw InvalidXMLStructure("Input '" + str + "' isn't a boolean");
 }

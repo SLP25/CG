@@ -54,7 +54,12 @@ public:
 class Translation : public Transformation {
 public:
 
-  static std::string className() { return "translate"; }
+  /**
+   * @brief Determines whether this class accepts to construct an instance
+   * with the given parser
+   * @return The parser
+   */
+  static bool accepts(XMLParser parser);
 
   Translation(XMLParser parser);
   Transformation* clone();
@@ -81,7 +86,12 @@ private:
 class Rotation : public Transformation {
 public:
 
-  static std::string className() { return "rotate"; }
+  /**
+   * @brief Determines whether this class accepts to construct an instance
+   * with the given parser
+   * @return The parser
+   */
+  static bool accepts(XMLParser parser);
 
   Rotation(XMLParser parser);
   Transformation* clone();
@@ -118,7 +128,12 @@ private:
 class Scale : public Transformation {
 public:
 
-  static std::string className() { return "scale"; }
+  /**
+   * @brief Determines whether this class accepts to construct an instance
+   * with the given parser
+   * @return The parser
+   */
+  static bool accepts(XMLParser parser);
 
   Scale(XMLParser parser);
   Transformation* clone();
@@ -137,4 +152,51 @@ private:
    * @brief the scale factor in the z direction
   */
   float z;
+};
+
+
+/**
+ * @brief A Catmull-Rom curve
+*/
+class CatmullRom : public Transformation {
+public:
+  /**
+   * @brief Determines whether this class accepts to construct an instance
+   * with the given parser
+   * @return The parser
+   */
+  static bool accepts(XMLParser parser);
+
+  CatmullRom(XMLParser parser);
+  Transformation* clone();
+  void apply();
+  void draw();
+
+private:
+  /**
+   * @brief the period of the animation
+  */
+  float time;
+
+  /**
+   * @brief whether the frame should be aligned in the direction of the motion
+  */
+  bool align;
+
+  /**
+   * @brief if true, draws a trace of the curve when applied by cutting each segment into 10.
+   * Performance intensive
+  */
+  bool trace;
+
+  /**
+   * @brief the list of points forming the curve
+  */
+  std::vector<Point> points;
+
+
+  Vector y_0 = {0, 1, 0};
+
+
+  void getGlobalCatmullRomPoint(float gt, Point& pos, Vector& deriv);
 };
