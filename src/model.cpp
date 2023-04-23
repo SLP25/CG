@@ -34,7 +34,7 @@ void Model::draw() {
    * @brief Draws the model in the window
    * 
    */
-  glPolygonMode(GL_FRONT_AND_BACK, GLU_FILL);
+  glPolygonMode(GL_FRONT_AND_BACK, GLU_LINE);
   glColor3f(std::get<0>(this->color), std::get<1>(this->color), std::get<2>(this->color));
   shape->draw();
 }

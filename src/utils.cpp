@@ -14,6 +14,19 @@ Point average(std::initializer_list<Point> points) {
   return average(points.begin(), points.end());
 }
 
+
+Point operator *(float x, Point p) {
+  return scale(x, p);
+}
+
+Point operator *(Point p, float x) {
+  return scale(x, p);
+}
+
+Point operator +(Point p1, Point p2) {
+  return addVector(p1, p2);
+}
+
 Vector zero() {
   /**
    * @brief Return the zero vector

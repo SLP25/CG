@@ -20,6 +20,21 @@ typedef std::tuple<int, int> WindowSize; ///< Tuple of a width and a height, bot
  */
 typedef std::tuple<float, float, float> Point;
 
+Point operator *(float x, Point p);
+Point operator *(Point p, float x);
+//Point operator *(float x, std::tuple<float, float, float> p);
+//Point operator *(std::tuple<float, float, float> p, float x);
+
+Point operator *(float x, Point p);
+
+Point operator *(Point p, float x);
+
+Point operator +(Point p1, Point p2);
+
+//Point operator +(std::tuple<float, float, float> p1, Point p2);
+
+Point operator +(Point p1, std::tuple<float, float, float> p2); 
+
 /**
  * @brief A tuple of 3 points in 3d space, representing a triangle
  * 
@@ -278,5 +293,21 @@ template <class Superclass> struct dynamicParser<Superclass> {
   static std::unique_ptr<Superclass> parse(XMLParser parser) {
     throw InvalidXMLStructure(std::string("No listed class accepted received node <")
                               + parser.name() + std::string(">"));
+  }
+};
+
+
+//n, m -> columns and rows of output matrix
+//l -> columns of first/rows of second input matrix
+//a, b -> input matrices
+//c ->output matrix
+template <typename T, typename S, typename U> 
+void matrixProd(int n, int m, int l, T* a, S* b, U *c) {
+  for (int y = 0; y < m; y++) {
+    for (int x = 0; x < n; x++) {
+      c[n * y + x] = U{};
+      for (int i = 0; i < l; i++)
+        c[n * y + x] = c[n * y + x] + (a[l * y + i] * b[n * i + x]);
+    }
   }
 };

@@ -92,3 +92,6 @@ std::unique_ptr<Shape> generateFromObj(std::string srcFile);
  */
 std::unique_ptr<Shape> generateDonut(float radius, float length, float height,
                                      int stacks, int slices);
+
+
+std::unique_ptr<Shape> generateBezierPatches(std::string inputFile, int divisions);

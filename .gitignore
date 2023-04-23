@@ -8,3 +8,4 @@ xml/
 *.3d
 *.xml
 /models/
+vgcore.*

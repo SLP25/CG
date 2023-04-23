@@ -295,3 +295,88 @@ std::unique_ptr<Shape> generateDonut(float radius, float length, float height,
 
   return std::make_unique<Shape>(triangles);
 }
+
+std::unique_ptr<Shape> generateBezierPatches(std::string inputFile, int divisions) {
+  std::ifstream file(inputFile);
+
+  auto controlPoints = std::vector<Point>();
+
+  int patchCount;
+  file >> patchCount;
+
+  auto patches = std::vector<int[16]>(patchCount);
+
+  for(int i = 0; i < patchCount; i++) {
+    for(int j = 0; j < 16; j++) {
+      std::string str;
+      file >> str;
+
+      if(str.back() == ',') {
+        str.pop_back();
+      }
+
+
+      patches[i][j] = std::stoi(str);
+    }
+  }
+
+  int controlPointCount = 0;
+  file >> controlPointCount;
+
+  for(int i = 0; i < controlPointCount; i++) {
+    float coords[4];
+    for(int j = 0; j < 3; j++) {
+      std::string str;
+      file >> str;
+
+      if(str.back() == ',') {
+        str.pop_back();
+      }
+
+      coords[j] = std::stof(str);
+    }
+
+    controlPoints.push_back(Point(coords[0], coords[1], coords[2]));
+  }
+
+  float m[16] = {
+    -1.0f, 3.0f, -3.0f, 1.0f,
+    3.0f, -6.0f, 3.0f, 0.0f,
+    -3.0f, 3.0f, 0.0f, 0.0f,
+    1.0f, 0.0f, 0.0f, 0.0f
+  };
+
+  auto triangles = std::vector<Triangle>();
+  for(int i = 0; i < patchCount; i++) {
+    Point* points = new Point[divisions * divisions];
+    for(int j = 0; j < divisions; j++) {
+      for(int k = 0; k < divisions; k++) {
+        float d2 = (float)(divisions - 1)*(divisions - 1);
+        float d3 = (float)(divisions - 1)*d2;
+        float u[4] = {(float)j*j*j / d3, (float)j*j / d2, (float)j / (divisions - 1), 1};
+        float v[4] = {(float)k*k*k / d3, (float)k*k / d2, (float)k / (divisions - 1), 1};
+        Point p[16];
+        for(int l = 0; l < 16; l++)
+          p[l] = controlPoints[patches[i][l]];
+        float temp1[4];
+        Point temp2[16];
+        matrixProd(4,1, 4, v, m, temp1);
+        matrixProd(4,1, 4, temp1, p, temp2);
+        Point temp3[16];
+        matrixProd(4,1, 4, temp2, m, temp3);
+        matrixProd(1, 1, 4, temp3, u, points + j * divisions + k);
+      }
+    }
+    for(int j = 0; j < divisions - 1; j++) {
+      for(int k = 0; k < divisions - 1; k++) {
+        generateSquare(points[j * divisions + k], points[(j + 1) * divisions + k], points[(j + 1) * divisions + k + 1], points[(j) * divisions + k + 1], triangles);
+      }
+    }
+
+    delete[] points;
+  }
+
+  file.close();
+
+  return std::make_unique<Shape>(triangles);
+}

@@ -33,7 +33,7 @@ void Shape::initShapes() {
 
 Shape::Shape() {}
 
-Shape::Shape(std::vector<Triangle> triangles) {
+Shape::Shape(std::vector<Triangle> triangles) : vbo_addr(0) {
   //points found in the vector of triangles and the position they will be stored in the points vector
   std::map<Point, int> pointsFound; 
   Point points[3];
@@ -99,7 +99,8 @@ Shape::Shape(Shape&& shape) :
 
 
 Shape::~Shape() {
-  glDeleteBuffers(1, &this->vbo_addr);
+  if(this->vbo_addr != 0)
+    glDeleteBuffers(1, &this->vbo_addr);
 }
 
 

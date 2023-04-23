@@ -170,19 +170,6 @@ void CatmullRom::draw() {
 	glEnd();
 }
 
-//n, m -> columns and rows of output matrix
-//l -> columns of first/rows of second input matrix
-//a, b -> input matrices
-//c ->output matrix
-void matrixProd(int n, int m, int l, float* a, float* b, float *c) {
-  for (int y = 0; y < m; y++) {
-    for (int x = 0; x < n; x++) {
-      c[n * y + x] = 0;
-      for (int i = 0; i < l; i++)
-        c[n * y + x] += a[l * y + i] * b[n * i + x];
-    }
-  }
-}
 
 void getCatmullRomPoint(float t, Point p0, Point p1, Point p2, Point p3, Point& pos, Vector& deriv) {
   // catmull-rom matrix
