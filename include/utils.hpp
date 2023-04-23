@@ -20,6 +20,8 @@ typedef std::tuple<int, int> WindowSize; ///< Tuple of a width and a height, bot
  */
 typedef std::tuple<float, float, float> Point;
 
+//TODO: Refactor operators to a separate file
+
 Point operator *(float x, Point p);
 Point operator *(Point p, float x);
 //Point operator *(float x, std::tuple<float, float, float> p);
