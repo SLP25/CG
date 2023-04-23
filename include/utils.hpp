@@ -297,10 +297,25 @@ template <class Superclass> struct dynamicParser<Superclass> {
 };
 
 
-//n, m -> columns and rows of output matrix
-//l -> columns of first/rows of second input matrix
-//a, b -> input matrices
-//c ->output matrix
+
+/**
+ * @brief A generic matrix multiplication function.
+ * 
+ * It requires the product (* operator) to be defined for the types
+ * being multiplied, as well as addition (+ operator) for the type
+ * of the output matrix.
+ * 
+ * It assumes the null (zero) value of the type
+ * is one where the memory is all set to zero.
+ * 
+ * @param n The number of columns of the output matrix
+ * @param m The number of rows of the output matrix
+ * @param l The number of columns of the first input matrix (the
+ * same as the number of rows of the second input matrix)
+ * @param a The first input matrix
+ * @param b The second input matrix
+ * @param c The input matrix
+*/
 template <typename T, typename S, typename U> 
 void matrixProd(int n, int m, int l, T* a, S* b, U *c) {
   for (int y = 0; y < m; y++) {

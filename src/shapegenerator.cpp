@@ -296,21 +296,39 @@ std::unique_ptr<Shape> generateDonut(float radius, float length, float height,
   return std::make_unique<Shape>(triangles);
 }
 
-std::unique_ptr<Shape> generateBezierPatches(std::string inputFile, int divisions) {
+/**
+ * @brief Reads the data from a patch file.
+ * 
+ * Auxiliary function to #generateBezierPatches
+ * 
+ * The input file must have the following format:
+ * 
+ * A line with a single integer N. The numbers of patches in the file.
+ * N lines follow. Each line contains 16 comma separated integers. The
+ * indices (starting from 0) of the control points that make up the i-th patch.
+ * 
+ * A line with a single integer M. The number of control points. M lines follow.
+ * The i-th line contains three floating point numbers: the coordinates of the i-th
+ * control point.
+ * 
+ * The input vectors must be initialized, but their capacity can be zero.
+ * 
+ * @param inputFile     the path to the patch file
+ * @param controlPoints the control points
+ * @param patches       the patches
+*/
+inline void readBezierPatchFile(std::string inputFile, std::vector<Point>& controlPoints, std::vector<int[16]>& patches) {
   std::ifstream file(inputFile);
-
-  auto controlPoints = std::vector<Point>();
 
   int patchCount;
   file >> patchCount;
-
-  auto patches = std::vector<int[16]>(patchCount);
-
+  patches = std::vector<int[16]>(patchCount);
   for(int i = 0; i < patchCount; i++) {
     for(int j = 0; j < 16; j++) {
       std::string str;
       file >> str;
 
+      //Remove trailing comma if it exists
       if(str.back() == ',') {
         str.pop_back();
       }
@@ -338,7 +356,42 @@ std::unique_ptr<Shape> generateBezierPatches(std::string inputFile, int division
 
     controlPoints.push_back(Point(coords[0], coords[1], coords[2]));
   }
+  file.close();
+}
 
+/**
+ * @brief Computes the triangles needed to render the bezier patches provided.
+ * 
+ * Auxiliary function to #generateBezierPatches
+ * 
+ * @param controlPoints the control points
+ * @param patches       the patches
+ * @param divisions     the number of divisions of a patch in one axis
+ * @param triangles     the vector in which to store the triangles.
+*/
+inline void generateBezierTriangles(std::vector<Point>& controlPoints, std::vector<int[16]>& patches,
+ int divisions, std::vector<Triangle>& triangles) {
+  /*
+  
+  Given 16 control points p[0][0], p[0][1], ..., p[3][2], p[3][3], the Bezier patch
+  is calculated as:
+
+                           (p[0][0] p[0][1] p[0][2] p[0][3])     (v^3)
+  p(u,v) = (u^3 u^2 u 1) M (p[1][0] p[1][1] p[1][2] p[1][3]) M^T (v^2)
+                           (p[2][0] p[2][1] p[2][2] p[2][3])     ( v )
+                           (p[3][0] p[3][1] p[3][2] p[3][3])     ( 1 )
+
+      (-1 -3 -3 1)
+  M = (3 -6  3  0)
+      (-3 3  0  0)
+      (1  0  0  0)
+  
+  Note that M = M^T
+
+  u,v range from [0,1]. We will divide this range in `divisions`. E.g. if divisions = 4
+  we will compute the patch for u,v in {0, 0.25, 0.5, 0.75, 1}
+
+  */
   float m[16] = {
     -1.0f, 3.0f, -3.0f, 1.0f,
     3.0f, -6.0f, 3.0f, 0.0f,
@@ -346,37 +399,78 @@ std::unique_ptr<Shape> generateBezierPatches(std::string inputFile, int division
     1.0f, 0.0f, 0.0f, 0.0f
   };
 
-  auto triangles = std::vector<Triangle>();
+  int patchCount = patches.size();
+  
+  Point* points = new Point[divisions * divisions];
+
   for(int i = 0; i < patchCount; i++) {
-    Point* points = new Point[divisions * divisions];
+    //Compute the matrix that depends on the control points. The matrix is 
+    //stored row-major
+    Point p[16];
+    for(int l = 0; l < 16; l++)
+      p[l] = controlPoints[patches[i][l]];
+
     for(int j = 0; j < divisions; j++) {
       for(int k = 0; k < divisions; k++) {
-        float d2 = (float)(divisions - 1)*(divisions - 1);
-        float d3 = (float)(divisions - 1)*d2;
+        /*
+        We need to create the vectors dependent of u and v. We need to normalize
+        the indices of our loops j and k, and we do that by dividing by (divisions - 1)
+        as j and k range from 0 to (divisions - 1).
+
+        So u = j / (divisions - 1) and v = k / (divisions - 1)
+
+        To calculate powers of u and v, note that u^n = (j / (divisions - 1))^n 
+        = (j^n) / (divisions - 1)^n. The same for v
+
+        That is why we are computing d2 and d3 and using them in the vectors
+        */
+        float d2 = (float)(divisions - 1)*(divisions - 1); //(divisions - 1)^2
+        float d3 = (float)(divisions - 1)*d2; //(divisions - 1)^3
         float u[4] = {(float)j*j*j / d3, (float)j*j / d2, (float)j / (divisions - 1), 1};
         float v[4] = {(float)k*k*k / d3, (float)k*k / d2, (float)k / (divisions - 1), 1};
-        Point p[16];
-        for(int l = 0; l < 16; l++)
-          p[l] = controlPoints[patches[i][l]];
+        
+        /*
+         Matrix multiplications
+        */
         float temp1[4];
         Point temp2[16];
         matrixProd(4,1, 4, v, m, temp1);
         matrixProd(4,1, 4, temp1, p, temp2);
         Point temp3[16];
         matrixProd(4,1, 4, temp2, m, temp3);
+        //Compute the result and store it in (j,k) position of the matrix
         matrixProd(1, 1, 4, temp3, u, points + j * divisions + k);
       }
     }
+
+    /*
+    
+    Now with all points computed, we unite them in squares like so:
+    
+    p[0][0] ------ p[0][1] ----- p[0][2]
+    |                 |             |
+    p[1][0] ------ p[1][1] ----- p[1][2]
+
+    */
     for(int j = 0; j < divisions - 1; j++) {
       for(int k = 0; k < divisions - 1; k++) {
-        generateSquare(points[j * divisions + k], points[(j + 1) * divisions + k], points[(j + 1) * divisions + k + 1], points[(j) * divisions + k + 1], triangles);
+        generateSquare(points[j * divisions + k], points[(j + 1) * divisions + k], points[(j + 1) * divisions + k + 1], 
+          points[(j) * divisions + k + 1], triangles);
       }
     }
-
-    delete[] points;
   }
 
-  file.close();
+  delete[] points;
+}
+
+std::unique_ptr<Shape> generateBezierPatches(std::string inputFile, int divisions) {
+  auto controlPoints = std::vector<Point>();
+  auto patches = std::vector<int[16]>();
+  auto triangles = std::vector<Triangle>();
+
+  readBezierPatchFile(inputFile, controlPoints, patches);
+  generateBezierTriangles(controlPoints, patches, divisions, triangles);
+  
 
   return std::make_unique<Shape>(triangles);
 }

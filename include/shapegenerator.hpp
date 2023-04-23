@@ -93,5 +93,24 @@ std::unique_ptr<Shape> generateFromObj(std::string srcFile);
 std::unique_ptr<Shape> generateDonut(float radius, float length, float height,
                                      int stacks, int slices);
 
-
+/**
+ * @brief Generates a #Shape based on the Bezier patches provided
+ * in the input file.
+ * 
+ * The input file must have the following format:
+ * 
+ * A line with a single integer N. The numbers of patches in the file.
+ * N lines follow. Each line contains 16 comma separated integers. The
+ * indices (starting from 0) of the control points that make up the i-th patch.
+ * 
+ * A line with a single integer M. The number of control points. M lines follow.
+ * The i-th line contains three floating point numbers: the coordinates of the i-th
+ * control point
+ * 
+ * @param inputFile the path of the file containing the Bezier patch
+ * @param divisions the number of divisions in the patch (e.g. 3 divisions
+ * means the patch will be divided in a 3x3 grid)
+ * 
+ * @returns         the corresponding #Shape
+*/
 std::unique_ptr<Shape> generateBezierPatches(std::string inputFile, int divisions);
