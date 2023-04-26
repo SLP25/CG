@@ -7,21 +7,21 @@
 
 World::World() { }
 
-World::World(WindowSize windowSize, Camera *camera, Group&& root) :
+World::World(WindowSize windowSize, Camera *camera, Lighting lighting, Group&& root) :
   windowSize(windowSize),
   camera(std::unique_ptr<Camera>(camera)),
+  lighting(lighting),
   root(std::move(root))
 {}
 
 World::World(XMLParser parser) :
-  camera(Camera::parse(parser.get_node({"camera"}))),
-  root(parser.get_node("group"))
+  camera(Camera::parse(parser.get_node({"camera"})))
 {
 
   /* World node validation. */
   parser.validate_attrs({});
-  parser.validate_node({"window", "camera", "group"});
-  parser.validate_max_nodes(1, {"window", "camera", "group"});
+  parser.validate_node({"window", "camera", "lights", "group"});
+  parser.validate_max_nodes(1, {"window", "camera", "lights" "group"});
 
   /* Window node validation. */
   XMLParser windowParser = parser.get_node("window");
@@ -34,6 +34,14 @@ World::World(XMLParser parser) :
   std::string axisStr = "true";
   windowParser.get_opt_attr("axis", axisStr);
   this->axis = parseBool(axisStr);
+
+  auto aux = parser.get_nodes("lights");
+  if (aux.size() != 0)
+    this->lighting = Lighting(aux[0]);
+
+  aux = parser.get_nodes("group");
+  if (aux.size() != 0)
+    this->root = Group(aux[0]);
 }
 
 void World::initScene() {
@@ -49,12 +57,14 @@ void World::initScene() {
 #endif
 
   glEnableClientState(GL_VERTEX_ARRAY);
+  glEnableClientState(GL_NORMAL_ARRAY);
 
   // some OpenGL settings
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_CULL_FACE);
   glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
+  lighting.initScene();
   Shape::initShapes();
 }
 
@@ -66,6 +76,7 @@ void World::renderScene() {
   // clear buffers
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   camera->setupScene();
+  lighting.setupScene();
 
   if(this->axis)
     drawAxis();

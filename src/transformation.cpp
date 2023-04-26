@@ -137,7 +137,7 @@ void CatmullRom::apply()
   Vector deriv;
 	getGlobalCatmullRomPoint(glutGet(GLUT_ELAPSED_TIME) / 1000.0f, pos, deriv);
 
-  glTranslatef(std::get<0>(pos), std::get<1>(pos), std::get<2>(pos));
+  glTranslatef(GET_ALL(pos));
 
   if (this->align) {
     deriv = normalize(deriv);
@@ -145,10 +145,10 @@ void CatmullRom::apply()
     Vector y = normalize(crossProduct(z, deriv));
 
     float m[16] = {
-      std::get<0>(deriv), std::get<1>(deriv), std::get<2>(deriv), 0,
-      std::get<0>(y),     std::get<1>(y),     std::get<2>(y),     0,
-      std::get<0>(z),     std::get<1>(z),     std::get<2>(z),     0,
-      0,                  0,                  0,                  1
+      GET_ALL(deriv), 0,
+      GET_ALL(y),     0,
+      GET_ALL(z),     0,
+      0, 0, 0,        1
     };
 
     glMultMatrixf(m);
@@ -164,7 +164,7 @@ void CatmullRom::draw() {
 		Point pos;
     Vector deriv;
 		this->getGlobalCatmullRomPoint(t, pos, deriv);
-		glVertex3f(std::get<0>(pos), std::get<1>(pos), std::get<2>(pos));
+		glVertex3f(GET_ALL(pos));
 	}
 
 	glEnd();
@@ -178,10 +178,10 @@ void getCatmullRomPoint(float t, Point p0, Point p1, Point p2, Point p3, Point& 
 						      -0.5f,  0.0f,   0.5f,   0.0f,
 						      0.0f,   1.0f,   0.0f,   0.0f };
 
-  float P[16] = { std::get<0>(p0), std::get<1>(p0), std::get<2>(p0), 1,
-                  std::get<0>(p1), std::get<1>(p1), std::get<2>(p1), 1,
-                  std::get<0>(p2), std::get<1>(p2), std::get<2>(p2), 1,
-                  std::get<0>(p3), std::get<1>(p3), std::get<2>(p3), 1 };
+  float P[16] = { GET_ALL(p0), 1,
+                  GET_ALL(p1), 1,
+                  GET_ALL(p2), 1,
+                  GET_ALL(p3), 1 };
 	
 	float T[4] = { t*t*t, t*t, t, 1 };
 	float dT[4] = { 3*t*t, 2*t, 1, 0 };

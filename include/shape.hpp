@@ -28,7 +28,8 @@ public:
    * @brief Default constructor
    */
   Shape();
-  Shape(std::vector<Triangle> triangles);
+  Shape(std::vector<Triangle> triangles); //the normals are extapolated from the triangles
+  Shape(std::vector<Point> points, std::vector<Vector> normals, std::vector<TriangleByPosition> trianglesByPos);
 
   /**
    * @brief Copy constructor
@@ -93,10 +94,11 @@ private:
    * The vertices of the shape
    */
   std::vector<Point> points;
+  std::vector<Vector> normals;
   std::vector<TriangleByPosition> trianglesByPos;
 
-  GLuint vbo_addr;
-  int vertexCount;
+  GLuint vbo_points;
+  GLuint vbo_normals;
 
   Shape(std::string filePath);
 };
