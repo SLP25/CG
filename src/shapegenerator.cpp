@@ -25,7 +25,7 @@ std::vector<Point> generateCircle(Point center, float radius, int slices,
   for (int i = 0; i < slices; i++) {
     float angle = 2 * M_PI * (i + displacement) / slices;
     Vector v = {radius * cos(angle), 0, radius * sin(angle)};
-    ans.push_back(addVector(center, v));
+    ans.push_back(center + v);
   }
 
   return ans;

@@ -10,44 +10,12 @@
 #include <memory>
 #include <string>
 
+#include "geometry.hpp"
 #include "parser.hpp"
 #include "exceptions/invalid_xml_file.hpp"
 
 typedef std::tuple<int, int> WindowSize; ///< Tuple of a width and a height, both integers.
 
-/**
- * @brief A tuple representing a point in 3D space
- */
-typedef std::tuple<float, float, float> Point;
-
-//TODO: Refactor operators to a separate file
-
-Point operator *(float x, Point p);
-Point operator *(Point p, float x);
-//Point operator *(float x, std::tuple<float, float, float> p);
-//Point operator *(std::tuple<float, float, float> p, float x);
-
-Point operator *(float x, Point p);
-
-Point operator *(Point p, float x);
-
-Point operator +(Point p1, Point p2);
-
-//Point operator +(std::tuple<float, float, float> p1, Point p2);
-
-Point operator +(Point p1, std::tuple<float, float, float> p2); 
-
-/**
- * @brief A tuple of 3 points in 3d space, representing a triangle
- * 
- */
-typedef std::tuple<Point, Point, Point> Triangle;
-
-/**
- * @brief Same as point, but is a vector
- * 
- */
-typedef Point Vector;
 
 /**
  * @brief Calculates the average of the points by adding their
@@ -63,14 +31,10 @@ template<typename Iter> Point average(Iter begin, Iter end) {
   int n = 0;
   for (Iter it = begin; it != end; it++) {
     n++;
-    ans = { std::get<0>(ans) + std::get<0>(*it),
-            std::get<1>(ans) + std::get<1>(*it),
-            std::get<2>(ans) + std::get<2>(*it)};
+    ans = ans + *it;
   }
   
-  return { std::get<0>(ans) / n,
-           std::get<1>(ans) / n,
-           std::get<2>(ans) / n};
+  return ans / n;
 }
 
 /**
@@ -83,56 +47,6 @@ template<typename Iter> Point average(Iter begin, Iter end) {
 Point average(std::initializer_list<Point> points);
 
 /**
- * @brief Creates a null vector
- * 
- * @return Vector A null vector
- */
-Vector zero();
-
-/**
- * @brief Creates a vector with one in each component
- * 
- * @return Vector A vector with one in each component
- */
-Vector one();
-
-/**
- * @brief Returns the inverse of the given vector, such that their sum
- * is the null vector
- * 
- * @param v The given vector
- * @return Vector The inverse
- */
-Vector inverse(Vector v);
-
-/**
- * @brief Multiplies a vector by a scalar
- * 
- * @param n A scalar
- * @param v A vector
- * @return Vector The resulting vector
- */
-Vector scale(float n, Vector v);
-
-/**
- * @brief Calculates the length of the vector
- * 
- * @param v The vector
- * @return float The length
- */
-float length(Vector v);
-
-/**
- * @brief Calculates the square of the length of the vector.
- * Is less expensive than length(), since to calculate the length
- * one must calculate the square and then apply the square root.
- * 
- * @param v 
- * @return float 
- */
-float square_length(Vector v);
-
-/**
  * @brief Calculates the angle between two vectors, in degrees
  * 
  * @param u A vector
@@ -140,54 +54,6 @@ float square_length(Vector v);
  * @return float Bites the dust
  */
 float angle(Vector u,Vector v);
-
-/**
- * @brief Returns a normalized vector (with length 1) with the same direction
- * 
- * @param v A vector
- * @return Vector A normalized vector
- */
-Vector normalize(Vector v);
-
-/**
- * @brief Returns a vector that defines a translation from p1 to p2
- * 
- * @param p1 A point
- * @param p2 Another one
- * @return Vector Bites the dust
- */
-Vector difference(Point p1, Point p2);
-
-/**
- * @brief Applies a translation to a point
- * 
- * @param p A point
- * @param v A vector defining a translation
- * @return Point The translated point
- */
-Point addVector(Point p, Vector v);
-
-/**
- * @brief Calculates the dot product between two vectors
- * 
- * @param u A vector
- * @param v Another one
- * @return float Bytes the dust
- */
-float dotProduct(Vector u, Vector v);
-
-/**
- * @brief Calculates the cross product between two vectors
- * Returns a vector perpendicular to the two given vectors, with the
- * direction according to the right hand rule and a length that equals the
- * product of the lengths of the two vectors when they are perpendicular and zero when
- * they are colinear (and somewhere in between for other angles).
- * 
- * @param u A vector
- * @param v Another one
- * @return float Bytes the dust
- */
-Vector crossProduct(Vector u, Vector v);
 
 /**
  * @brief Projects vector v onto vector u, returning a vector with the same
@@ -208,9 +74,6 @@ Vector projectToVector(Vector u, Vector v);
  * @return Vector The projected vector
  */
 Vector projectToPlane(Vector n, Vector v);
-
-Vector PerpendicularClockWiseByYAxis(Vector u);
-Vector PerpendicularAntiClockWiseByYAxis(Vector u);
 
 /**
 * @brief calculate the resulting vector of rotating a vector around another vector by a given angle
@@ -249,6 +112,8 @@ std::tuple<float, float, float> parseHexColor(std::string color);
  * @note The input is case insensitive
 */
 bool parseBool(std::string str);
+
+
 
 /**
  * @brief A template struct to parse different types of classes using an XML parser.
@@ -297,7 +162,6 @@ template <class Superclass> struct dynamicParser<Superclass> {
                               + parser.name() + std::string(">"));
   }
 };
-
 
 
 /**

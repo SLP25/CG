@@ -141,8 +141,8 @@ void CatmullRom::apply()
 
   if (this->align) {
     deriv = normalize(deriv);
-    Vector z = normalize(crossProduct(deriv, this->y_0));
-    Vector y = normalize(crossProduct(z, deriv));
+    Vector z = normalize(deriv ^ this->y_0);
+    Vector y = normalize(z ^ deriv);
 
     float m[16] = {
       std::get<0>(deriv), std::get<1>(deriv), std::get<2>(deriv), 0,
