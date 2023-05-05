@@ -22,7 +22,7 @@
             <models><model file="models/teapot.3d" color="#8c8c94"/></models>
             <transform>
                 <rotate x="0" y="1" z="1" angle="30"/>
-                <translate time="20" trace="false" align="false">
+                <translate time="20" trace="false" align="true">
                     <point x="29.999999222222222" y="0" z="-0.002" />
                     <point x="29.904830127296453" y="0" z="-0.9869560377900326" />
                     <point x="29.6195766429409" y="0" z="-1.9656220835161593" />
