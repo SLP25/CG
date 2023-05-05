@@ -9,3 +9,4 @@ xml/
 *.xml
 /models/
 vgcore.*
+test_files/

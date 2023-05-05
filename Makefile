@@ -1,7 +1,7 @@
 rwildcard=$(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
 
 CC = g++
-CFLAGS = -O0 -g -Wall -Wextra --pedantic-errors -Wno-unused-parameter -Werror
+CFLAGS = -O3 -g -Wall -Wextra --pedantic-errors -Wno-unused-parameter -Werror
 
 ifdef FEDORA
 	CFLAGS+=-DFEDORA
