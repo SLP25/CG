@@ -19,7 +19,7 @@
         </transform>
 
         <group> <!-- Cometa -->
-            <models><model file="models/sphere.3d" color="#8c8c94"/></models>
+            <models><model file="models/teapot.3d" color="#8c8c94"/></models>
             <transform>
                 <translate time="20" trace="true" align="false">
                     <point x="14.142135623730947" y="0" z="14.142135623730947" />
