@@ -237,6 +237,9 @@ std::unique_ptr<Shape> generateFromObj(std::string srcFile) {
       generatePolygon(temp, triangles);
     } // We ignore everything else
   }
+
+  //TODO: normals
+
   file.close();
   return std::make_unique<Shape>(triangles);
 }

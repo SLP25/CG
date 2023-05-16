@@ -71,6 +71,13 @@ Vector rotate(Vector around,Vector v,float angle){
         + ((1 - cossine) * (v * axis) * axis);
 }
 
+Vector getNormal(Triangle triangle) {
+  Vector v1 = difference(std::get<1>(triangle), std::get<0>(triangle));
+  Vector v2 = difference(std::get<1>(triangle), std::get<2>(triangle));
+  Vector cross = crossProduct(v2, v1);
+  return cross == zero() ? zero() : normalize(cross);
+}
+
 std::tuple<float, float, float> parseHexColor(std::string colorHex) {
   /**
    * @brief Converts a string containing a hex representation of a color into rgb

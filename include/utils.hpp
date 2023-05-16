@@ -14,6 +14,8 @@
 #include "parser.hpp"
 #include "exceptions/invalid_xml_file.hpp"
 
+#define GET_ALL(tuple) std::get<0>(tuple), std::get<1>(tuple), std::get<2>(tuple) 
+
 typedef std::tuple<int, int> WindowSize; ///< Tuple of a width and a height, both integers.
 
 
@@ -85,6 +87,16 @@ Vector projectToPlane(Vector n, Vector v);
 * @return the vector resulting of rotating v angle degrees around around
 */
 Vector rotate(Vector around,Vector v,float angle);
+
+
+/**
+ * @brief calculate the normal vector of the triangle
+ * 
+ * @param triangle the given triangle
+ * 
+ * @return the normal vector
+*/
+Vector getNormal(Triangle triangle);
 
 /**
    * @brief Casts an hexadecimal string (format: "#[0-9a-f]{6}") to the

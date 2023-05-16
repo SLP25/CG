@@ -13,6 +13,7 @@
 #include "parser.hpp"
 #include "camera.hpp"
 #include "group.hpp"
+#include "lighting.hpp"
 
 /**
  * @class World
@@ -22,8 +23,23 @@ class World {
 private:
     WindowSize windowSize; ///< The size of the window.
     std::unique_ptr<Camera> camera; ///< The camera to use for rendering the scene.
+    Lighting lighting; ///< The lighting to use for rendering the scene.
     Group root; ///< The root group of the scene.
     bool axis; ///< Whether to draw the axis
+
+    /**
+     * @brief Constructs a World object with the given window size, camera, and group.
+     * @param windowSize The size of the window to create.
+     * @param camera The camera to use for rendering the scene.
+     * @param lighting The lighting of the scene
+     * @param models The root group of the scene.
+     */
+    World(WindowSize windowSize, Camera* camera, Lighting lighting, Group&& root);
+
+    /**
+     * @brief Draws the x, y, and z axes.
+     */
+    void drawAxis();
 
 public:
     /**
@@ -72,19 +88,4 @@ public:
      * @param y The y-coordinate of the mouse at the time of the event.
      */
     void handleSpecialKey(int key, int x, int y);
-
-private:
-
-    /**
-     * @brief Constructs a World object with the given window size, camera, and group.
-     * @param windowSize The size of the window to create.
-     * @param camera The camera to use for rendering the scene.
-     * @param models The root group of the scene.
-     */
-    World(WindowSize windowSize, Camera* camera, Group&& root);
-
-    /**
-     * @brief Draws the x, y, and z axes.
-     */
-    void drawAxis();
 };

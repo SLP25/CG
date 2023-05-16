@@ -135,9 +135,7 @@ void PolarCamera::setupScene() {
    * 
    */
   glLoadIdentity();
-  gluLookAt(std::get<0>(position), std::get<1>(position), std::get<2>(position),
-            std::get<0>(lookAt), std::get<1>(lookAt), std::get<2>(lookAt),
-            std::get<0>(up), std::get<1>(up), std::get<2>(up));
+  gluLookAt(GET_ALL(position), GET_ALL(lookAt), GET_ALL(up));
 }
 
 void PolarCamera::handleSpecialKey(int key, int x,
@@ -269,9 +267,7 @@ void FPSCamera::setupScene() {
    */
   glLoadIdentity();
   Point lookAt = position + lookAtVector;
-  gluLookAt(std::get<0>(position), std::get<1>(position), std::get<2>(position), 
-            std::get<0>(lookAt), std::get<1>(lookAt), std::get<2>(lookAt),
-            std::get<0>(up), std::get<1>(up), std::get<2>(up));
+  gluLookAt(GET_ALL(position), GET_ALL(lookAt), GET_ALL(up));
 }
 
 void FPSCamera::handleKey(unsigned char key, int x, int y) {
