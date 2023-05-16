@@ -51,15 +51,20 @@ std::unique_ptr<Shape> generatePlane(float length, int divisions) {
   In order to generate a plane with length l and d divisions, we do the
   following:
 
-  1. Compute all the relevant points in the plane
+  1. Compute all the relevant points in the plane and their respective
+  texture mapping
   2. Create a mapping between these points and their indices in the
   vector that stores them. This will be useful when computing the faces
   3. Compute the vertices belonging to each face. Use the reverse mapping
   to store the indices of all vertices of a face. They must be generated
   in counter-clockwise fashion
 
+  Texture mapping is trivial. Point (x,y) will have texture coordinate
+  ( (x + (length / 2))/ length, (y / (length / 2)) / length)
+
   */
   std::vector<Triangle> triangles;
+  std::map<Point, Point> textureCoordinates;
 
   float mid = length / 2.0;
   float step = length / divisions;
@@ -73,7 +78,17 @@ std::unique_ptr<Shape> generatePlane(float length, int divisions) {
     }
   }
 
-  return std::make_unique<Shape>(triangles);
+  for(Triangle t : triangles) {
+    Point p[3] = {std::get<0>(t), std::get<1>(t), std::get<2>(t)};
+    for(int i = 0; i < 3; i++) {
+      float x = std::get<0>(p[i]);
+      float z = std::get<2>(p[i]);
+
+      textureCoordinates[p[i]] = {(x + mid) / length, (z + mid) / length, 0.0};
+    }
+  }
+
+  return std::make_unique<Shape>(triangles, textureCoordinates);
 }
 
 std::unique_ptr<Shape> generateCube(float length, int divisions) {
@@ -128,6 +143,13 @@ std::unique_ptr<Shape> generateCube(float length, int divisions) {
   }
 
   for (int i = 0; i < divisions; i++) {
+    for (int j = 0; j < divisions; j++) {
+      generateSquare({-mid + (i + 1) * step, -mid + j * step, mid},
+                     {-mid + (i + 1) * step, -mid + (j + 1) * step, mid},
+                     {-mid + i * step, -mid + (j + 1) * step, mid},
+                     {-mid + i * step, -mid + j * step, mid}, triangles);
+    }
+  }for (int i = 0; i < divisions; i++) {
     for (int j = 0; j < divisions; j++) {
       generateSquare({-mid + (i + 1) * step, -mid + j * step, mid},
                      {-mid + (i + 1) * step, -mid + (j + 1) * step, mid},

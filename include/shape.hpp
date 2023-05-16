@@ -8,6 +8,7 @@
 #include <string>
 #include <tuple>
 #include <vector>
+#include <geometry.hpp>
 #include "utils.hpp"
 #include "glut.hpp"
 
@@ -30,6 +31,7 @@ public:
   Shape();
   Shape(std::vector<Triangle> triangles); //the normals are extapolated from the triangles
   Shape(std::vector<Point> points, std::vector<Vector> normals, std::vector<TriangleByPosition> trianglesByPos);
+  Shape(std::vector<Triangle> triangles, std::map<Point, Point> textureCoordinates);
 
   /**
    * @brief Copy constructor
@@ -88,17 +90,47 @@ public:
   void draw();
 
 private:
+  /**
+   * @brief Constructs from the given file
+   * 
+   * @param filePath the path of the 3D file
+  */
+  Shape(std::string filePath);
+
+private:
+  /**
+   * @brief Cache of #Shape from file paths. Implemented to avoid reading from files multiple times
+  */
   static std::map<std::string, std::shared_ptr<Shape>> cache;
   
   /**
-   * The vertices of the shape
+   * @brief The vertices of the shape
    */
   std::vector<Point> points;
   std::vector<Vector> normals;
-  std::vector<TriangleByPosition> trianglesByPos;
 
   GLuint vbo_points;
   GLuint vbo_normals;
 
-  Shape(std::string filePath);
+  /**
+   * @brief The triangles of the shape. For the i-th triangle, the tuple corresponds to
+   * the index of the points in the points vector, following the right hand rule
+  */
+  std::vector<TriangleByPosition> trianglesByPos;
+
+  /**
+   * @brief The textures for the points of the shape. The key is the coordinates of the 
+   * vertex, and the value is the texture coordinate of that vertex
+  */
+  std::map<Point, Point> textureMapping;
+
+  /**
+   * @brief VBO Address
+  */
+  GLuint vbo_addr;
+
+  /**
+   * @brief Total number of vertices
+  */
+  int vertexCount;
 };
