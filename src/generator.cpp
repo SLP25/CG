@@ -74,7 +74,7 @@ std::unique_ptr<Shape> generateShape(int argc, char *argv[]) {
   case shapetoint((char *)"obj"):
     ASSERT_ARG_LENGTH(4);
     return generateFromObj(argv[2]);
-  case shapetoint((char *)"bezier"):
+  case shapetoint((char *)"patch"):
     ASSERT_ARG_LENGTH(5);
     return generateBezierPatches(argv[2], std::stoi(argv[3]));
   default:

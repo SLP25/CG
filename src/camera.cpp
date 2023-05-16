@@ -148,37 +148,37 @@ void PolarCamera::handleSpecialKey(int key, int x,
   
   switch (key) {
   case GLUT_KEY_UP: //look down
-    aux = difference(lookAt, position);
+    aux = position - lookAt;
     if (angle(up, aux) - ON_READ_ANG > 0) { //don't allow to look past the directly down plane
-      perp = normalize(crossProduct(up, aux));
+      perp = normalize(up ^ aux);
       trasf = rotate(perp, aux, -ON_READ_ANG);
-      position = addVector(lookAt, trasf);
-      glutPostRedisplay();
+      position = lookAt + trasf;
+      //glutPostRedisplay();
     }
     break;
 
   case GLUT_KEY_DOWN://look up
-    aux = difference(lookAt, position);
-    if (angle(inverse(up), aux) - ON_READ_ANG > 0) {//don't allow to look past the directly up plane
-      perp = normalize(crossProduct(up, aux));
+    aux = position - lookAt;
+    if (angle(-up, aux) - ON_READ_ANG > 0) {//don't allow to look past the directly up plane
+      perp = normalize(up ^ aux);
       trasf = rotate(perp, aux, ON_READ_ANG);
-      position = addVector(lookAt, trasf);
-      glutPostRedisplay();
+      position = lookAt + trasf;
+      //glutPostRedisplay();
     }
     break;
 
   case GLUT_KEY_LEFT: // rotate to the left
-    aux = difference(lookAt, position);
+    aux = position - lookAt;
     trasf = rotate(up, aux, -ON_READ_ANG);
-    position = addVector(lookAt, trasf);
-    glutPostRedisplay();
+    position = lookAt + trasf;
+    //glutPostRedisplay();
     break;
 
   case GLUT_KEY_RIGHT: // rotate to the right
-    aux = difference(lookAt, position);
+    aux = position - lookAt;
     trasf = rotate(up, aux, ON_READ_ANG);
-    position = addVector(lookAt, trasf);
-    glutPostRedisplay();
+    position = lookAt + trasf;
+    //glutPostRedisplay();
     break;
   }
 }
@@ -195,20 +195,20 @@ void PolarCamera::handleKey(unsigned char key, int x,
   switch (key) {
   case 'w': //zoom in
 
-    aux = difference(lookAt, position);
-    transf = scale(length(aux) - ON_READ_DIST, normalize(aux));
+    aux = position - lookAt;
+    transf = (length(aux) - ON_READ_DIST) * normalize(aux);
     
-    if (dotProduct(aux, transf) > 0) { //don't let get to close
-      position = addVector(lookAt, transf);
-      glutPostRedisplay();
+    if (aux * transf > 0) { //don't let get to close
+      position = lookAt + transf;
+      //glutPostRedisplay();
     }
 
     break;
   case 's': //zoom out
-    aux = difference(lookAt, position);
-    transf = scale(length(aux) + ON_READ_DIST, normalize(aux));
-    position = addVector(lookAt, transf);
-    glutPostRedisplay();
+    aux = position - lookAt;
+    transf = (length(aux) + ON_READ_DIST) * normalize(aux);
+    position = lookAt + transf;
+    //glutPostRedisplay();
     break;
   }
 }
@@ -243,7 +243,7 @@ FPSCamera::FPSCamera(XMLParser parser) {
    */
     position = parser.get_node("position").as_tuple<float,float,float>({"x","y","z"});
     Point lookAt = parser.get_node("lookAt").as_tuple<float,float,float>({"x","y","z"});
-    lookAtVector=difference(position,lookAt);
+    lookAtVector=lookAt - position;
     up = parser.get_node("up").as_tuple<float,float,float>({"x","y","z"});
     XMLParser projection = parser.get_node("projection");
     fov = projection.get_attr<float>("fov");
@@ -266,7 +266,7 @@ void FPSCamera::setupScene() {
    * 
    */
   glLoadIdentity();
-  Point lookAt = addVector(position,lookAtVector);
+  Point lookAt = position + lookAtVector;
   gluLookAt(GET_ALL(position), GET_ALL(lookAt), GET_ALL(up));
 }
 
@@ -277,28 +277,28 @@ void FPSCamera::handleKey(unsigned char key, int x, int y) {
      */
 	switch (key) {
         case 'w'://move forwards
-            position = addVector(position, scale(ON_READ_DIST, normalize(projectToPlane(up,lookAtVector))));
-            glutPostRedisplay();
+            position = position + ON_READ_DIST * normalize(projectToPlane(up,lookAtVector));
+            //glutPostRedisplay();
             break;
         case 's'://move backwards
-            position = addVector(position, scale(-ON_READ_DIST, normalize(projectToPlane(up,lookAtVector))));
-            glutPostRedisplay();
+            position = position - ON_READ_DIST * normalize(projectToPlane(up,lookAtVector));
+            //glutPostRedisplay();
             break;
         case 'a'://move to the left
-            position = addVector(position, scale(ON_READ_DIST, normalize(crossProduct(up,lookAtVector))));
-            glutPostRedisplay();
+            position = position + ON_READ_DIST * normalize(up ^ lookAtVector);
+            //glutPostRedisplay();
             break;
         case 'd'://move to the right
-            position = addVector(position, scale(-ON_READ_DIST, normalize(crossProduct(up,lookAtVector))));
-            glutPostRedisplay();
+            position = position - ON_READ_DIST * normalize(up ^ lookAtVector);
+            //glutPostRedisplay();
             break;
         case 'z'://move upwards
-            position = addVector(position,scale(ON_READ_DIST, normalize(up)));
-            glutPostRedisplay();
+            position = position + ON_READ_DIST * normalize(up);
+            //glutPostRedisplay();
             break;
         case 'x'://move downwards
-            position = addVector(position,scale(-ON_READ_DIST, normalize(up)));
-            glutPostRedisplay();
+            position = position - ON_READ_DIST * normalize(up);
+            //glutPostRedisplay();
             break;
         default:
             break;
@@ -312,27 +312,27 @@ void FPSCamera::handleSpecialKey(int key, int x, int y) {
      */
 	switch (key) {
         case GLUT_KEY_UP://rotate camera upwards
-            if (angle(up,lookAtVector)-ON_READ_ANG>0){//limit so that the camera doesn't go past directly up
-                lookAtVector=rotate(crossProduct(up,lookAtVector),lookAtVector,-ON_READ_ANG);
+            if (angle(up, lookAtVector) - ON_READ_ANG > 0) {//limit so that the camera doesn't go past directly up
+                lookAtVector = rotate(up ^ lookAtVector, lookAtVector, -ON_READ_ANG);
             }
-            glutPostRedisplay();
+            //glutPostRedisplay();
             break;
 
         case GLUT_KEY_DOWN://rotate camera downwards
-            if (angle(inverse(up),lookAtVector)-ON_READ_ANG>0){//limit so that the camera doesn't go past directly down
-                lookAtVector=rotate(crossProduct(up,lookAtVector),lookAtVector,ON_READ_ANG);
+            if (angle(-up, lookAtVector) - ON_READ_ANG > 0) {//limit so that the camera doesn't go past directly down
+                lookAtVector = rotate(up ^ lookAtVector, lookAtVector, ON_READ_ANG);
             }
-            glutPostRedisplay();
+            //glutPostRedisplay();
             break;
 
         case GLUT_KEY_LEFT://rotate camera to the left
             lookAtVector=rotate(up,lookAtVector,ON_READ_ANG);
-            glutPostRedisplay();
+            //glutPostRedisplay();
             break;
 
         case GLUT_KEY_RIGHT://rotate camera to the right
             lookAtVector=rotate(up,lookAtVector,-ON_READ_ANG);
-            glutPostRedisplay();
+            //glutPostRedisplay();
             break;
     }
 }
