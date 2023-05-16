@@ -35,15 +35,18 @@ void Model::draw() {
    * 
    */
 
-  //glPolygonMode(GL_FRONT_AND_BACK, GLU_LINE);
   //glColor3f(GET_ALL(color));
 
   //TODO: texture
 	float white[] = { 0.8, 0.8, 0.8, 1.0 };
-	float red[] = { 0.8, 0.2, 0.2, 1.0 };
-	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, red);
+  float black[] = { 0.0, 0.0, 0.0, 1.0 };
+
+  float aux[] = { GET_ALL(color), 1.0 };
+  
+	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, aux);
 	glMaterialfv(GL_FRONT, GL_SPECULAR, white);
-	glMaterialf(GL_FRONT, GL_SHININESS, 128);
+	glMaterialf(GL_FRONT, GL_SHININESS, 0);
+  glMaterialfv(GL_FRONT, GL_EMISSION, black);
 
   shape->draw();
 }

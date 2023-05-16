@@ -101,18 +101,30 @@ void World::handleSpecialKey(int key, int x, int y) {
 }
 
 void World::drawAxis() {
+  float red[] = { 1.0, 0.0, 0.0, 1.0 };
+  float green[] = { 0.0, 1.0, 0.0, 1.0 };
+  float blue[] = { 0.0, 0.0, 1.0, 1.0 };
+  float black[] = { 0.0, 0.0, 0.0, 1.0 };
+
+  glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, black);
+  glMaterialfv(GL_FRONT, GL_SPECULAR, black);
+	glMaterialf(GL_FRONT, GL_SHININESS, 0);
+
   glBegin(GL_LINES);
 
   // X-axis in red
-  glColor3f(1.0f, 0.0f, 0.0f);
+  //glColor3f(1.0f, 0.0f, 0.0f);
+  glMaterialfv(GL_FRONT, GL_EMISSION, red);
   glVertex3f(-1000.0f, 0.0f, 0.0f);
   glVertex3f(1000.0f, 0.0f, 0.0f);
   // Y Axis in Green
-  glColor3f(0.0f, 1.0f, 0.0f);
+  //glColor3f(0.0f, 1.0f, 0.0f);
+  glMaterialfv(GL_FRONT, GL_EMISSION, green);
   glVertex3f(0.0f, -1000.0f, 0.0f);
   glVertex3f(0.0f, 1000.0f, 0.0f);
   // Z Axis in Blue
-  glColor3f(0.0f, 0.0f, 1.0f);
+  //glColor3f(0.0f, 0.0f, 1.0f);
+  glMaterialfv(GL_FRONT, GL_EMISSION, blue);
   glVertex3f(0.0f, 0.0f, -1000.0f);
   glVertex3f(0.0f, 0.0f, 1000.0f);
 

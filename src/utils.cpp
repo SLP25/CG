@@ -72,10 +72,9 @@ Vector rotate(Vector around,Vector v,float angle){
 }
 
 Vector getNormal(Triangle triangle) {
-  //TODO:: Check difference order
-  Vector v1 = std::get<1>(triangle) - std::get<0>(triangle);
-  Vector v2 = std::get<1>(triangle) - std::get<2>(triangle);
-  Vector cross = v2 ^ v1;
+  Vector v1 = std::get<2>(triangle) - std::get<1>(triangle);
+  Vector v2 = std::get<0>(triangle) - std::get<1>(triangle);
+  Vector cross = v1 ^ v2;
   return cross == zero() ? zero() : normalize(cross);
 }
 
