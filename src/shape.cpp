@@ -308,7 +308,8 @@ void Shape::draw() {
 
 bool Shape::exportToFile(std::string filePath) {
   std::ofstream file(filePath);
-  file << this->points.size() << std::endl;//write the number of points
+  int n = this->points.size();
+  file << n << std::endl;//write the number of points
 
   for (Point p : this->points) {
     file << std::get<0>(p) << " " << std::get<1>(p) << " " << std::get<2>(p)

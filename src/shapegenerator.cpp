@@ -14,6 +14,17 @@
 #include <map>
 #include <regex>
 
+std::vector<Point2D> generateTextureCoordinates(std::vector<Triangle>& triangles, std::map<Point, Point2D>& textures) {
+  std::vector<Point2D> ans = std::vector<Point2D>();
+  
+  for(Triangle t : triangles) {
+    ans.push_back(textures[std::get<0>(t)]);
+    ans.push_back(textures[std::get<1>(t)]);
+    ans.push_back(textures[std::get<2>(t)]);
+  }
+
+  return ans;
+}
 
 
 // displacement is a fraction of the angle of slicing. 0.5 displacement means
@@ -64,7 +75,7 @@ std::unique_ptr<Shape> generatePlane(float length, int divisions) {
 
   */
   std::vector<Triangle> triangles;
-  std::map<Point,Point2D> textureCoordinates;
+  std::map<Point, Point2D> textureMapping;
 
   float mid = length / 2.0;
   float step = length / divisions;
@@ -84,11 +95,13 @@ std::unique_ptr<Shape> generatePlane(float length, int divisions) {
       float x = std::get<0>(p[i]);
       float z = std::get<2>(p[i]);
 
-      textureCoordinates[p[i]] = {(x + mid) / length, (z + mid) / length};
+      textureMapping[p[i]] = {(x + mid) / length, (z + mid) / length};
     }
   }
 
-  return std::make_unique<Shape>(triangles, textureCoordinates);
+  //std::vector<Point2D> textureCoordinates = generateTextureCoordinates(triangles, textureMapping);
+
+  return std::make_unique<Shape>(triangles, textureMapping);
 }
 
 std::unique_ptr<Shape> generateCube(float length, int divisions) {

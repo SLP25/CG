@@ -30,6 +30,11 @@ typedef std::tuple<Point, Point, Point> Triangle;
 typedef Point Vector;
 
 /**
+ * @brief A point in 2D space
+*/
+typedef std::tuple<float, float> Point2D;
+
+/**
    * @brief Return the zero vector
    * @return {0,0,0}
    */
