@@ -30,8 +30,8 @@ public:
    */
   Shape();
   Shape(std::vector<Triangle> triangles); //the normals are extapolated from the triangles
-  Shape(std::vector<Point> points, std::vector<Vector> normals, std::vector<TriangleByPosition> trianglesByPos);
-  Shape(std::vector<Triangle> triangles, std::map<Point, Point> textureCoordinates);
+  Shape(std::vector<Point> points, std::vector<Vector> normals, std::vector<Point2D> textures, std::vector<TriangleByPosition> trianglesByPos);
+  Shape(std::vector<Triangle> triangles, std::map<Point, Point2D> textureCoordinates);
 
   /**
    * @brief Copy constructor
@@ -108,29 +108,19 @@ private:
    */
   std::vector<Point> points;
   std::vector<Vector> normals;
+  /**
+   * @brief The textures for the points of the shape. The key is the coordinates of the 
+   * vertex, and the value is the texture coordinate of that vertex
+  */
+  std::vector<Point2D> textures;
 
   GLuint vbo_points;
   GLuint vbo_normals;
+  GLuint vbo_textures;
 
   /**
    * @brief The triangles of the shape. For the i-th triangle, the tuple corresponds to
    * the index of the points in the points vector, following the right hand rule
   */
   std::vector<TriangleByPosition> trianglesByPos;
-
-  /**
-   * @brief The textures for the points of the shape. The key is the coordinates of the 
-   * vertex, and the value is the texture coordinate of that vertex
-  */
-  std::map<Point, Point> textureMapping;
-
-  /**
-   * @brief VBO Address
-  */
-  GLuint vbo_addr;
-
-  /**
-   * @brief Total number of vertices
-  */
-  int vertexCount;
 };

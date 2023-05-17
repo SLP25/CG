@@ -31,20 +31,20 @@ void Shape::initShapes() {
 }
 
 
-Shape::Shape() : vbo_points(0), vbo_normals(0) {}
+Shape::Shape() : vbo_points(0), vbo_normals(0), vbo_textures(0) {}
 
-Shape::Shape(std::vector<Triangle> triangles) : vbo_points(0), vbo_normals(0) {
+Shape::Shape(std::vector<Triangle> triangles) : vbo_points(0), vbo_normals(0), vbo_textures(0) {
   //points found in the vector of triangles and the position they will be stored in the points vector
   std::map<std::pair<Point,Vector>, int> verticesFound; 
-  std::pair<Point,Vector> vertices[3];
-  int pos[3];
-  
+
   for (Triangle &triangle : triangles) {
     Vector normal = getNormal(triangle);
-
-    vertices[0] = { std::get<0>(triangle), normal };
-    vertices[1] = { std::get<1>(triangle), normal };
-    vertices[2] = { std::get<2>(triangle), normal };
+    std::pair<Point,Vector> vertices[3] = {
+      { std::get<0>(triangle), normal },
+      { std::get<1>(triangle), normal },
+      { std::get<2>(triangle), normal }
+    };
+    int pos[3];
 
     for (int i = 0; i < 3; i++) {
       auto it = verticesFound.find(vertices[i]);
@@ -62,30 +62,39 @@ Shape::Shape(std::vector<Triangle> triangles) : vbo_points(0), vbo_normals(0) {
 
 }
 
-Shape::Shape(std::vector<Point> points, std::vector<Vector> normals, std::vector<TriangleByPosition> trianglesByPos) :
+Shape::Shape(std::vector<Point> points, std::vector<Vector> normals, std::vector<Point2D> textures, std::vector<TriangleByPosition> trianglesByPos) :
   points(points),
   normals(normals),
+  textures(textures),
   vbo_points(0),
   vbo_normals(0),
+  vbo_textures(0),
   trianglesByPos(trianglesByPos)
 {}
 
-Shape::Shape(std::vector<Triangle> triangles, std::map<Point, Point> textureCoordinates) : vbo_points(0), vbo_normals(0), vbo_addr(0) {
-  //points found in the vector of triangles and the position they will be stored in the points vector
-  std::map<Point, int> pointsFound; 
-  Point points[3];
-  int pos[3];
-  
+Shape::Shape(std::vector<Triangle> triangles, std::map<Point, Point2D> textureCoordinates) :
+  vbo_points(0),
+  vbo_normals(0),
+  vbo_textures(0)
+{
+  std::map<std::tuple<Point,Vector,Point2D>, int> verticesFound; 
+
   for (Triangle &triangle : triangles) {
-    points[0] = std::get<0>(triangle);
-    points[1] = std::get<1>(triangle);
-    points[2] = std::get<2>(triangle);
+    Vector normal = getNormal(triangle);
+    std::tuple<Point,Vector,Point2D> vertices[3] = {
+      { std::get<0>(triangle), normal, textureCoordinates[std::get<0>(triangle)] },
+      { std::get<1>(triangle), normal, textureCoordinates[std::get<1>(triangle)] },
+      { std::get<2>(triangle), normal, textureCoordinates[std::get<2>(triangle)] }
+    };
+    int pos[3];
+
     for (int i = 0; i < 3; i++) {
-      auto it = pointsFound.find(points[i]);
-      if (it == pointsFound.end()) { // if the point wasn't found yet
-        this->points.push_back(points[i]); //add point to points vector
-        pointsFound[points[i]] = this->points.size() - 1; //add to the map where it is stored
-        pos[i] = pointsFound[points[i]];
+      auto it = verticesFound.find(vertices[i]);
+      if (it == verticesFound.end()) { // if the point wasn't found yet
+        this->points.push_back(std::get<0>(vertices[i]));
+        this->normals.push_back(std::get<1>(vertices[i]));
+        this->textures.push_back(std::get<2>(vertices[i]));
+        pos[i] = verticesFound[vertices[i]] = this->points.size() - 1; //add to the map where it is stored
       } else {
         pos[i] = it->second;
       }
@@ -93,10 +102,9 @@ Shape::Shape(std::vector<Triangle> triangles, std::map<Point, Point> textureCoor
     //save the triangle as the positions of the points in the vector of points
     this->trianglesByPos.push_back({pos[0], pos[1], pos[2]});
   }
-  this->textureMapping = std::move(textureCoordinates);
 }
 
-Shape::Shape(std::string filePath) {
+Shape::Shape(std::string filePath) : vbo_points(0), vbo_normals(0), vbo_textures(0) {
   std::ifstream file(filePath); //open the file
 
   if (!file) {
@@ -111,11 +119,9 @@ Shape::Shape(std::string filePath) {
   file >> n; //read number of points
 
   for (int i = 0; i < n; i++) {
-    float x, y, z, u, v;
-    file >> x >> y >> z >> u >> v; // read x,y,z for each point
+    float x, y, z;
+    file >> x >> y >> z; // read x,y,z for each point
     this->points.push_back({x, y, z}); // add the point to vector of points
-    if(u != -1)
-      this->textureMapping[{x,y,z}] = {u,v,0};
   }
   //number of normals is the same as number of points
   for (int i = 0; i < n; i++) {
@@ -123,6 +129,12 @@ Shape::Shape(std::string filePath) {
     file >> x >> y >> z; // read x,y,z for each point
     this->normals.push_back({x, y, z}); // add the vector to vector of normals
   }
+  for (int i = 0; i < n; i++) {
+    float u, v;
+    file >> u >> v;
+    this->textures.push_back({u, v});
+  }
+
   file >> n; // read number of triangles
   for (int i = 0; i < n; i++) {
     int t1, t2, t3;
@@ -134,23 +146,23 @@ Shape::Shape(std::string filePath) {
 }
 
 Shape::Shape(const Shape& shape) :
-  points(std::move(shape.points)),
-  normals(std::move(shape.normals)),
-  vbo_points(shape.vbo_points),
-  vbo_normals(shape.vbo_normals),
-  trianglesByPos(std::move(shape.trianglesByPos)),
-  textureMapping(shape.textureMapping),
-  vertexCount(shape.vertexCount)
+  points(shape.points),
+  normals(shape.normals),
+  textures(shape.textures),
+  vbo_points(0),
+  vbo_normals(0),
+  vbo_textures(0),
+  trianglesByPos(shape.trianglesByPos)
 {}
 
 Shape::Shape(Shape&& shape) :
   points(std::move(shape.points)),
   normals(std::move(shape.normals)),
+  textures(std::move(shape.textures)),
   vbo_points(shape.vbo_points),
   vbo_normals(shape.vbo_normals),
-  trianglesByPos(std::move(shape.trianglesByPos)),
-  textureMapping(shape.textureMapping),
-  vertexCount(shape.vertexCount)
+  vbo_textures(shape.vbo_textures),
+  trianglesByPos(std::move(shape.trianglesByPos))
 {}
 
 
@@ -160,16 +172,16 @@ Shape::~Shape() {
 
   if (this->vbo_normals != 0)
     glDeleteBuffers(1, &this->vbo_normals);
+
+  if (this->vbo_textures != 0)
+    glDeleteBuffers(1, &this->vbo_textures);
 }
 
 
 Shape& Shape::operator=(const Shape& shape) {
   this->points = shape.points;
   this->normals = shape.normals;
-  this->trianglesByPos = shape.trianglesByPos;
-  this->vbo_addr = shape.vbo_addr;
-  this->vertexCount = shape.vertexCount;
-  this->textureMapping = shape.textureMapping;
+  this->textures = shape.textures;
 
   if (this->vbo_points != 0) {
     glDeleteBuffers(1, &this->vbo_points);
@@ -181,6 +193,12 @@ Shape& Shape::operator=(const Shape& shape) {
     this->vbo_normals = 0;
   }
 
+  if (this->vbo_textures != 0) {
+    glDeleteBuffers(1, &this->vbo_textures);
+    this->vbo_textures = 0;
+  }
+
+  this->trianglesByPos = shape.trianglesByPos;
   return *this;
 }
 
@@ -188,7 +206,7 @@ Shape& Shape::operator=(const Shape& shape) {
 Shape& Shape::operator=(Shape&& shape) {
   this->points = std::move(shape.points);
   this->normals = std::move(shape.normals);
-  this->trianglesByPos = std::move(shape.trianglesByPos);
+  this->textures = std::move(shape.textures);
 
   if (this->vbo_points != 0)
     glDeleteBuffers(1, &this->vbo_points);
@@ -196,12 +214,13 @@ Shape& Shape::operator=(Shape&& shape) {
   if (this->vbo_normals != 0)
     glDeleteBuffers(1, &this->vbo_normals);
 
+  if (this->vbo_textures != 0)
+    glDeleteBuffers(1, &this->vbo_textures);
+
   this->vbo_points = shape.vbo_points;
   this->vbo_normals = shape.vbo_normals;
-  this->vbo_addr = shape.vbo_addr;
-  this->vertexCount = shape.vertexCount;
-  this->textureMapping = shape.textureMapping;
-
+  this->vbo_textures = shape.vbo_textures;
+  this->trianglesByPos = std::move(shape.trianglesByPos);
   return *this;
 }
 
@@ -212,20 +231,27 @@ void push_tuple(std::vector<float>& v, std::tuple<float,float,float> t) {
   v.push_back(std::get<2>(t));
 }
 
+void push_tuple(std::vector<float>& v, std::tuple<float,float> t) {
+  v.push_back(std::get<0>(t));
+  v.push_back(std::get<1>(t));
+}
+
 void Shape::initialize() {
-  std::vector<float> p, n;
+  std::vector<float> p, n, t;
 
   //TODO: use vbo indexes
-  for (TriangleByPosition t : this->trianglesByPos) {
-    push_tuple(p, this->points[std::get<0>(t)]);
-    push_tuple(p, this->points[std::get<1>(t)]);
-    push_tuple(p, this->points[std::get<2>(t)]);
-  }
+  for (TriangleByPosition tr : this->trianglesByPos) {
+    push_tuple(p, this->points[std::get<0>(tr)]);
+    push_tuple(p, this->points[std::get<1>(tr)]);
+    push_tuple(p, this->points[std::get<2>(tr)]);
 
-  for (TriangleByPosition t : this->trianglesByPos) {
-    push_tuple(n, this->normals[std::get<0>(t)]);
-    push_tuple(n, this->normals[std::get<1>(t)]);
-    push_tuple(n, this->normals[std::get<2>(t)]);
+    push_tuple(n, this->normals[std::get<0>(tr)]);
+    push_tuple(n, this->normals[std::get<1>(tr)]);
+    push_tuple(n, this->normals[std::get<2>(tr)]);
+
+    push_tuple(t, this->textures[std::get<0>(tr)]);
+    push_tuple(t, this->textures[std::get<1>(tr)]);
+    push_tuple(t, this->textures[std::get<2>(tr)]);
   }
 
   glGenBuffers(1, &this->vbo_points);
@@ -240,9 +266,12 @@ void Shape::initialize() {
 	);
 
   glGenBuffers(1, &this->vbo_normals);
-
 	glBindBuffer(GL_ARRAY_BUFFER, this->vbo_normals);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * n.size(), n.data(), GL_STATIC_DRAW);
+
+  glGenBuffers(1, &this->vbo_textures);
+  glBindBuffer(GL_ARRAY_BUFFER, this->vbo_textures);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(float) * t.size(), t.data(), GL_STATIC_DRAW);
 }
 
 void Shape::draw() {
@@ -261,7 +290,7 @@ void Shape::draw() {
   }
   */
 
-  if (vbo_points == 0 || vbo_normals == 0)
+  if (vbo_points == 0 || vbo_normals == 0 || vbo_textures == 0)
     throw std::runtime_error("Attept to draw uninitialized shape");
 
 	glBindBuffer(GL_ARRAY_BUFFER, this->vbo_points);
@@ -269,6 +298,9 @@ void Shape::draw() {
 
   glBindBuffer(GL_ARRAY_BUFFER, this->vbo_normals);
   glNormalPointer(GL_FLOAT, 0, 0);
+
+  glBindBuffer(GL_ARRAY_BUFFER, this->vbo_textures);
+  glTexCoordPointer(2, GL_FLOAT, 0, 0);
 
 	glDrawArrays(GL_TRIANGLES, 0, this->trianglesByPos.size() * 3);
   //glDrawElements(GL_TRIANGLES, this->points.size(), GL_UNSIGNED_INT, indices);
@@ -279,19 +311,17 @@ bool Shape::exportToFile(std::string filePath) {
   file << this->points.size() << std::endl;//write the number of points
 
   for (Point p : this->points) {
-    file << std::get<0>(p) << " " << std::get<1>(p) << " " << std::get<2>(p);
-
-    if (this->textureMapping.find(p) != this->textureMapping.end()) 
-      file << " " << std::get<0>(this->textureMapping[p]) << " " << std::get<1>(this->textureMapping[p]);
-    else
-      file << " -1 -1";
-
-    file << std::endl; // for each point write its x,y,z coordenates
+    file << std::get<0>(p) << " " << std::get<1>(p) << " " << std::get<2>(p)
+         << std::endl; // for each point write its x,y,z coordenates
   }
 
   for (Vector n : this->normals)
     file << std::get<0>(n) << " " << std::get<1>(n) << " " << std::get<2>(n)
-         << std::endl; // for each point write its x,y,z coordenates
+         << std::endl; // for each normal write its x,y,z coordenates
+
+  for (Point2D t : this->textures)
+    file << std::get<0>(t) << " " << std::get<1>(t)
+         << std::endl; // for each point write its u,v coordenates
     
   file << this->trianglesByPos.size() << std::endl;//write the number of triangles
   for (TriangleByPosition pos : this->trianglesByPos)

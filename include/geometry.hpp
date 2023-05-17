@@ -13,6 +13,11 @@
 typedef std::tuple<float, float, float> Point;
 
 /**
+ * @brief A tuple representing a point in 2D space
+ */
+typedef std::tuple<float, float> Point2D;
+
+/**
  * @brief A tuple of 3 points in 3d space, representing a triangle
  * 
  */

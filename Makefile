@@ -7,7 +7,7 @@ ifdef FEDORA
 	CFLAGS+=-DFEDORA
 endif
 
-LIBS = -lGLEW -lGL -lGLU -lglut -Iinclude/
+LIBS = -lGLEW -lGL -lGLU -lglut -lIL -Iinclude/
 
 HEADERS = $(call rwildcard,include,*.hpp)
 SRC = $(call rwildcard,src,*.cpp)

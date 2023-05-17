@@ -7,6 +7,7 @@
 
 #include "parser.hpp"
 #include "shape.hpp"
+#include "texture.hpp"
 
 /**
  * @brief Represents a model that gets rendered into the world
@@ -18,6 +19,7 @@ private:
    * @brief The shape of the model
   */
   std::shared_ptr<Shape> shape;
+  std::shared_ptr<Texture> texture;
 
   /**
    * @brief The color of the model in RGB.
@@ -29,14 +31,14 @@ private:
    * 1 -> the green part of the color
    * 2 -> the blue part of the color
   */
-  std::tuple<float, float, float> color;
+  Color color;
 public:
   /**
    * @brief Constructs a new Model object from a given Shape
    *
    * @param shape The given shape
    */
-  Model(Shape shape, std::tuple<float,float,float> color);
+  Model(Shape shape, Color color);
   Model(XMLParser parser);
 
   /**

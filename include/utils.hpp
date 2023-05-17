@@ -16,6 +16,8 @@
 
 #define GET_ALL(tuple) std::get<0>(tuple), std::get<1>(tuple), std::get<2>(tuple) 
 
+typedef std::tuple<float,float,float> Color; ///< Tuple representing RGB color values
+
 typedef std::tuple<int, int> WindowSize; ///< Tuple of a width and a height, both integers.
 
 

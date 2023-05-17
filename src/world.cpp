@@ -58,10 +58,12 @@ void World::initScene() {
 
   glEnableClientState(GL_VERTEX_ARRAY);
   glEnableClientState(GL_NORMAL_ARRAY);
+  glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
   // some OpenGL settings
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_CULL_FACE);
+  glEnable(GL_TEXTURE_2D); //TODO: mudar de sitio? a lighting tem cenas destas para si
   glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
   lighting.initScene();
@@ -109,6 +111,7 @@ void World::drawAxis() {
   glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, black);
   glMaterialfv(GL_FRONT, GL_SPECULAR, black);
 	glMaterialf(GL_FRONT, GL_SHININESS, 0);
+  Texture::unbind();
 
   glBegin(GL_LINES);
 

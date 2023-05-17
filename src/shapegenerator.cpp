@@ -64,7 +64,7 @@ std::unique_ptr<Shape> generatePlane(float length, int divisions) {
 
   */
   std::vector<Triangle> triangles;
-  std::map<Point, Point> textureCoordinates;
+  std::map<Point,Point2D> textureCoordinates;
 
   float mid = length / 2.0;
   float step = length / divisions;
@@ -84,7 +84,7 @@ std::unique_ptr<Shape> generatePlane(float length, int divisions) {
       float x = std::get<0>(p[i]);
       float z = std::get<2>(p[i]);
 
-      textureCoordinates[p[i]] = {(x + mid) / length, (z + mid) / length, 0.0};
+      textureCoordinates[p[i]] = {(x + mid) / length, (z + mid) / length};
     }
   }
 
