@@ -59,5 +59,8 @@ void Texture::initialize() {
 }
 
 void Texture::bind() {
+    if (texture == 0)
+        throw std::runtime_error("Attept to bind uninitialized texture");
+
     glBindTexture(GL_TEXTURE_2D, texture);
 }

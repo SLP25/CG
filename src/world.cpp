@@ -2,6 +2,7 @@
 #include "glut.hpp"
 #include "utils.hpp"
 #include "world.hpp"
+#include "texture.hpp"
 #include <fstream>
 #include <iostream>
 
@@ -68,6 +69,7 @@ void World::initScene() {
 
   lighting.initScene();
   Shape::initShapes();
+  Texture::initTextures();
 }
 
 void World::changeSize(int width, int height) {

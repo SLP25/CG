@@ -1,3 +1,5 @@
+#pragma once
+
 #include "utils.hpp"
 #include <map>
 #include "glut.hpp"

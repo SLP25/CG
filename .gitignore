@@ -8,5 +8,6 @@ xml/
 *.3d
 *.xml
 /models/
+/textures/
 vgcore.*
 test_files/

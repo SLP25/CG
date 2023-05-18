@@ -40,6 +40,7 @@ Lighting::Lighting(XMLParser parser) {
 void Lighting::initScene() {
     glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
+    glEnable(GL_RESCALE_NORMAL);
 }
 
 void Lighting::setupScene() {
@@ -60,9 +61,9 @@ bool PointLight::accepts(XMLParser parser) {
 }
 
 PointLight::PointLight(XMLParser parser) {
-    parser.validate_attrs({"type", "posX", "posY", "posZ"});
+    parser.validate_attrs({"type", "posx", "posy", "posz"});
     parser.validate_node({});
-    this->pos = parser.as_tuple<float,float,float>({"posX", "posY", "posZ"});
+    this->pos = parser.as_tuple<float,float,float>({"posx", "posy", "posz"});
 }
 
 Light* PointLight::clone() {

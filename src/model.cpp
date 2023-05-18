@@ -20,15 +20,20 @@ Model::Model(XMLParser parser) {
    * @brief parses the model atribute from the xml parser into a Model object
    * @param parser the model xml data
    */
-  parser.validate_node({"texture"});
+  parser.validate_node({"texture", "color"});
+  parser.validate_max_nodes(1, {"texture", "color"});
   parser.validate_attrs({"file", "color"}); //TODO: read color from its own xml tag
 
-  XMLParser textureNode = parser.get_node("texture");
-  textureNode.validate_node({});
-  textureNode.validate_attrs({"file"});
-
   this->shape = Shape::fetchShape(parser.get_attr<std::string>("file"));
-  this->texture = Texture::fetchTexture(textureNode.get_attr<std::string>("file"));
+
+  if (parser.get_nodes().size() != 0) {
+    XMLParser textureNode = parser.get_node("texture");
+    textureNode.validate_node({});
+    textureNode.validate_attrs({"file"});
+    this->texture = Texture::fetchTexture(textureNode.get_attr<std::string>("file"));
+  } else {
+    this->texture = nullptr;
+  }
 
   //TODO: default colors (see xml format)
   std::string colorHex = "#ffffff";
