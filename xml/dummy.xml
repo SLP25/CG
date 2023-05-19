@@ -1,7 +1,7 @@
 <world>
     <window width="512" height="512" />
 
-    <camera type="fps">
+    <camera type="polar">
         <position x="3" y="2" z="1" />
         <lookAt x="0" y="0" z="0" />
         <up x="0" y="1" z="0" />
@@ -10,8 +10,8 @@
 
     <group>
         <models>
-            <model file="models/sphere.3d">
-                <texture file="test_files/test_files_phase_4/earth.jpg"/>
+            <model file="models/cube.3d">
+                <texture file="models/tnt.jpg"/>
             </model>
         </models>
     </group>

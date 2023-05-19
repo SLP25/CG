@@ -29,6 +29,7 @@ public:
    * @brief Default constructor
    */
   Shape();
+  Shape(std::vector<Triangle> triangles, std::vector<Point2D> textureCoordinates);
   Shape(std::vector<Triangle> triangles); //the normals are extapolated from the triangles
   Shape(std::vector<Point> points, std::vector<Vector> normals, std::vector<Point2D> textures, std::vector<TriangleByPosition> trianglesByPos);
   Shape(std::vector<Triangle> triangles, std::map<Point, Point2D> textureCoordinates);
