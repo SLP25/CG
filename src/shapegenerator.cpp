@@ -332,6 +332,9 @@ std::unique_ptr<Shape> generateCone(float radius, float height, int slices,
 
   std::vector<Triangle> ans;
   std::vector<Point> prev;
+  std::vector<Point2D> textures;
+  
+  int count = 0;
 
   for (int i = 0; i <= stacks; i++) {
     float r = radius * (stacks - i) / stacks;
@@ -339,17 +342,43 @@ std::unique_ptr<Shape> generateCone(float radius, float height, int slices,
     std::vector<Point> cur =
         generateCircle({0, height * i / stacks, 0}, r, slices, 0);
 
-    if (i == 0)
+    if(i == 0) {
       generatePolygon(cur, ans);
-    else
-      for (int j = 0; j < slices; j++)
-        generateSquare(prev.at((j + 1) % slices), prev.at(j), cur.at(j),
-                       cur.at((j + 1) % slices), ans);
+
+      for(; count < (int)ans.size(); count++) {
+        Point p[3] = {std::get<0>(ans[count]), std::get<1>(ans[count]), std::get<2>(ans[count])};
+        for(int i = 0; i < 3; i++) {
+          float x = std::get<0>(p[i]);
+          float z = std::get<2>(p[i]);
+
+          float u = x / radius;
+          float v = z / radius;
+          textures.push_back({u,v});
+        }     
+      }
+    } else {
+      for (int j = 0; j < slices; j++) {
+        Point p1 = prev.at((j + 1) % slices);
+        Point p2 = prev.at(j);
+        Point p3 = cur.at(j);
+        Point p4 = cur.at((j + 1) % slices);
+
+        ans.push_back({p1, p2, p3});
+        ans.push_back({p1, p3, p4});
+
+        textures.push_back({(float)(j + 1) / slices, (float)(i - 1) / stacks});
+        textures.push_back({(float)j / slices, (float)(i - 1) / stacks});
+        textures.push_back({(float)j / slices, (float)i / stacks});
+        textures.push_back({(float)(j + 1) / slices, (float)(i - 1) / stacks});
+        textures.push_back({(float)j / slices, (float)i / stacks});
+        textures.push_back({(float)(j + 1) / slices, (float)i / stacks});
+      }
+    }
 
     prev = cur;
   }
 
-  return std::make_unique<Shape>(ans);
+  return std::make_unique<Shape>(ans, textures);
 }
 
 std::unique_ptr<Shape> generateSphere(float radius, int slices, int stacks) {
