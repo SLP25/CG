@@ -222,11 +222,22 @@ std::unique_ptr<Shape> generateSphere(float radius, int slices, int stacks) {
   std::vector<Triangle> ans;
   std::vector<Point> prev;
 
+  std::map<Point, Point2D> textureMapping;
+
   for (int i = 0; i <= stacks; i++) {
     float h = radius * (2.0f * i / stacks - 1);
     float r = sqrt(radius * radius - h * h);
 
     std::vector<Point> cur = generateCircle({0, h, 0}, r, slices, 0);
+
+    for(Point p : cur) {
+      // Source: https://en.wikipedia.org/wiki/UV_mapping
+      // Computing texture coordinates based on lattitude and longitude
+      float u = 0.5f - (atan2(std::get<2>(p) / radius, std::get<0>(p) / radius)) / (2 * M_PI);
+      float v = 0.5f + asin(std::get<1>(p) / radius) / M_PI;
+
+      textureMapping[p] = {u, v};
+    }
 
     if (i != 0)
       for (int j = 0; j < slices; j++)
@@ -236,7 +247,7 @@ std::unique_ptr<Shape> generateSphere(float radius, int slices, int stacks) {
     prev = cur;
   }
 
-  return std::make_unique<Shape>(ans);
+  return std::make_unique<Shape>(ans, textureMapping);
 }
 
 std::unique_ptr<Shape> generateFromObj(std::string srcFile) {

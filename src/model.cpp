@@ -36,7 +36,7 @@ Model::Model(XMLParser parser) {
   }
 
   //TODO: default colors (see xml format)
-  std::string colorHex = "#ffffff";
+  std::string colorHex = "#ff0000";
   parser.get_opt_attr("color", colorHex);
   this->color = parseHexColor(colorHex);
 }

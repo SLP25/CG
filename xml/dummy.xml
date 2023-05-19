@@ -10,10 +10,9 @@
 
     <group>
         <models>
-            <model file="models/plane.3d">
-                <texture file="test_files/test_files_phase4/relva.jpg"/>
+            <model file="models/sphere.3d">
+                <texture file="test_files/test_files_phase_4/earth.jpg"/>
             </model>
         </models>
     </group>
-
 </world>
