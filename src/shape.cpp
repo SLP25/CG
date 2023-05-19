@@ -72,6 +72,39 @@ Shape::Shape(std::vector<Point> points, std::vector<Vector> normals, std::vector
   trianglesByPos(trianglesByPos)
 {}
 
+Shape::Shape(std::vector<Triangle> triangles, std::vector<Point2D> textureCoordinates) :
+  vbo_points(0),
+  vbo_normals(0),
+  vbo_textures(0)
+{
+  std::map<std::tuple<Point,Vector,Point2D>, int> verticesFound; 
+
+  for (int i = 0; i < (int)triangles.size(); i++) {
+    Triangle triangle = triangles[i];
+    Vector normal = getNormal(triangle);
+    std::tuple<Point,Vector,Point2D> vertices[3] = {
+      { std::get<0>(triangle), normal, textureCoordinates[3 * i] },
+      { std::get<1>(triangle), normal, textureCoordinates[3 * i + 1] },
+      { std::get<2>(triangle), normal, textureCoordinates[3 * i + 2] }
+    };
+    int pos[3];
+
+    for (int i = 0; i < 3; i++) {
+      auto it = verticesFound.find(vertices[i]);
+      if (it == verticesFound.end()) { // if the point wasn't found yet
+        this->points.push_back(std::get<0>(vertices[i]));
+        this->normals.push_back(std::get<1>(vertices[i]));
+        this->textures.push_back(std::get<2>(vertices[i]));
+        pos[i] = verticesFound[vertices[i]] = this->points.size() - 1; //add to the map where it is stored
+      } else {
+        pos[i] = it->second;
+      }
+    }
+    //save the triangle as the positions of the points in the vector of points
+    this->trianglesByPos.push_back({pos[0], pos[1], pos[2]});
+  }
+}
+
 Shape::Shape(std::vector<Triangle> triangles, std::map<Point, Point2D> textureCoordinates) :
   vbo_points(0),
   vbo_normals(0),
