@@ -9,55 +9,89 @@
 #include "model.hpp"
 #include "parser.hpp"
 
-Model::Model(Shape shape, Color color) :
-  shape(std::move(std::make_shared<Shape>(shape))),
-  texture(std::shared_ptr<Texture>()),
-  color(color)
+Model::Model(Shape shape, Texture texture, Color emission, Color ambient, Color diffuse, Color specular, float shininess) :
+  shape(std::move(std::shared_ptr<Shape>(new Shape(shape)))),
+  texture(std::move(std::shared_ptr<Texture>(new Texture(texture)))),
+  emission(emission),
+  ambient(ambient),
+  diffuse(diffuse),
+  specular(specular),
+  shininess(shininess)
 {}
 
-Model::Model(XMLParser parser) {
+void Model::readColor(XMLParser color) {
+  std::string colorHex;
+
+  if (color.get_opt_attr("hex", colorHex)) {
+
+    this->diffuse = parseHexColor(colorHex);
+
+    if (color.get_nodes().size() != 0)
+      throw InvalidXMLStructure("Can't define both hex and color values for a given color");
+  } else {
+    for (XMLParser node : color.get_nodes()) {
+      node.validate_node({});
+      node.validate_attrs({"R","G","B","value"});
+      if (node.name() == "diffuse")
+        diffuse = node.as_tuple<float,float,float>({"R","G","B"}) / 255.0f;
+      else if (node.name() == "ambient")
+        ambient = node.as_tuple<float,float,float>({"R","G","B"}) / 255.0f;
+      else if (node.name() == "specular")
+        specular = node.as_tuple<float,float,float>({"R","G","B"}) / 255.0f;
+      else if (node.name() == "emissive")
+        emission = node.as_tuple<float,float,float>({"R","G","B"}) / 255.0f;
+      else //shininess
+        shininess = node.get_attr<float>("value");
+    }
+  }
+}
+
+Model::Model(XMLParser parser) : 
+  texture(nullptr),
+  emission({0, 0, 0}),
+  ambient({0.2, 0.2, 0.2}),
+  diffuse({0.8, 0.8, 0.8}),
+  specular({0, 0, 0}),
+  shininess(0)
+{
   /**
    * @brief parses the model atribute from the xml parser into a Model object
    * @param parser the model xml data
    */
   parser.validate_node({"texture", "color"});
   parser.validate_max_nodes(1, {"texture", "color"});
-  parser.validate_attrs({"file", "color"}); //TODO: read color from its own xml tag
+  parser.validate_attrs({"file"});
 
   this->shape = Shape::fetchShape(parser.get_attr<std::string>("file"));
 
-  if (parser.get_nodes().size() != 0) {
-    XMLParser textureNode = parser.get_node("texture");
-    textureNode.validate_node({});
-    textureNode.validate_attrs({"file"});
-    this->texture = Texture::fetchTexture(textureNode.get_attr<std::string>("file"));
-  } else {
-    this->texture = nullptr;
-  }
-
-  //TODO: default colors (see xml format)
-  std::string colorHex = "#ffffff";
-  parser.get_opt_attr("color", colorHex);
-  this->color = parseHexColor(colorHex);
+  for (XMLParser node : parser.get_nodes()) {
+    if (node.name() == "color")
+    {
+      node.validate_node({"diffuse", "ambient", "specular", "emissive", "shininess"});
+      node.validate_max_nodes(1, {"diffuse", "ambient", "specular", "emissive", "shininess"});
+      node.validate_attrs({"hex"});
+      readColor(node);
+    }
+    else //texture
+    {
+      node.validate_node({});
+      node.validate_attrs({"file"});
+      this->texture = Texture::fetchTexture(node.get_attr<std::string>("file"));
+    }
+  }  
 }
 
 void Model::draw() {
-  /**
-   * @brief Draws the model in the window
-   * 
-   */
-
-  //glColor3f(GET_ALL(color));
-
-	float white[] = { 0.8, 0.8, 0.8, 1.0 };
-  float black[] = { 0.0, 0.0, 0.0, 1.0 };
-
-  float aux[] = { GET_ALL(color), 1.0 };
+  float emi[] = { GET_ALL(emission), 1.0 };
+  float amb[] = { GET_ALL(ambient), 1.0 };
+  float dif[] = { GET_ALL(diffuse), 1.0 };
+  float spec[] = { GET_ALL(specular), 1.0 };
   
-	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, aux);
-	glMaterialfv(GL_FRONT, GL_SPECULAR, white);
-	glMaterialf(GL_FRONT, GL_SHININESS, 0);
-  glMaterialfv(GL_FRONT, GL_EMISSION, black);
+  glMaterialfv(GL_FRONT, GL_EMISSION, emi);
+	glMaterialfv(GL_FRONT, GL_AMBIENT, amb);
+  glMaterialfv(GL_FRONT, GL_DIFFUSE, dif);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, spec);
+	glMaterialf(GL_FRONT, GL_SHININESS, shininess);
 
   if (texture != nullptr)
     texture->bind();

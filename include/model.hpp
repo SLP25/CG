@@ -22,7 +22,7 @@ private:
   std::shared_ptr<Texture> texture;
 
   /**
-   * @brief The color of the model in RGB.
+   * @brief The colors of the model in RGB.
    * 
    * The values range from [0-1]. 1 corresponds to all of that color
    * (255) and 0 to no color (0).
@@ -31,14 +31,21 @@ private:
    * 1 -> the green part of the color
    * 2 -> the blue part of the color
   */
-  Color color;
+  Color emission;
+  Color ambient;
+  Color diffuse;
+  Color specular;
+  float shininess;
+
+  void readColor(XMLParser color);
+
 public:
   /**
-   * @brief Constructs a new Model object from a given Shape
+   * @brief Constructs a new Model object from a given Shape, Texture and Colors
    *
    * @param shape The given shape
    */
-  Model(Shape shape, Color color);
+  Model(Shape shape, Texture texture, Color emission, Color ambient, Color diffuse, Color specular, float shininess);
   Model(XMLParser parser);
 
   /**

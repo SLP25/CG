@@ -26,6 +26,7 @@ public:
 
 
 class Lighting {
+  Color ambient;
   std::vector<std::unique_ptr<Light>> lights;
 
 public:
@@ -40,6 +41,8 @@ public:
 
 class PointLight : public Light {
   Point pos;
+  Color difuse;
+  Color specular;
 
 public:
   static bool accepts(XMLParser parser);
@@ -51,6 +54,8 @@ public:
 
 class DirectionalLight : public Light {
   Vector direction;
+  Color difuse;
+  Color specular;
 
 public:
   static bool accepts(XMLParser parser);

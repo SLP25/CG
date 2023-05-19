@@ -186,7 +186,7 @@ void getCatmullRomPoint(float t, Point p0, Point p1, Point p2, Point p3, Point& 
 	float T[4] = { t*t*t, t*t, t, 1 };
 	float dT[4] = { 3*t*t, 2*t, 1, 0 };
 
-  float A[16];  //TODO: optimization: store matrix (is the same for the same segment)
+  float A[16];
   matrixProd(4, 4, 4, M, P, A);
 
   float _pos[4], _deriv[4];

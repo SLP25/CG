@@ -1,6 +1,7 @@
 #include "texture.hpp"
 #include "glut.hpp"
 #include <map>
+#include <cstring>
 #include <IL/il.h>
 
 std::map<std::string,std::shared_ptr<Texture>> Texture::cache;
@@ -25,7 +26,6 @@ void Texture::unbind() {
 }
 
 Texture::Texture(std::string filePath) : texture(0) {
-    //TODO: meter numa inicialização global?
     ilInit();
 	ilEnable(IL_ORIGIN_SET);
 	ilOriginFunc(IL_ORIGIN_LOWER_LEFT);
@@ -33,17 +33,62 @@ Texture::Texture(std::string filePath) : texture(0) {
     unsigned int t;
 	ilGenImages(1, &t);
 	ilBindImage(t);
-	ilLoadImage((ILstring)filePath.c_str());
+
+    if (!ilLoadImage((ILstring)filePath.c_str())) {
+        throw InvalidXMLStructure("Texture file '" + filePath + "' doesn't exist");
+    }
+	
 	width = ilGetInteger(IL_IMAGE_WIDTH);
 	height = ilGetInteger(IL_IMAGE_HEIGHT);
 	ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
 	data = ilGetData();
 }
 
+Texture::Texture(const Texture& texture) :
+    width(texture.width),
+    height(texture.height),
+    texture(0)
+{
+    int n = width * height * 4;
+    data = (unsigned char*)malloc(n);
+    memcpy(data, texture.data, n);
+}
+
+Texture::Texture(Texture&& texture) :
+    width(texture.width),
+    height(texture.height),
+    data(texture.data),
+    texture(texture.texture)
+{}
+
 Texture::~Texture() {
     if (texture != 0)
         glDeleteTextures(1, &texture);
+
+    free(data);
 }
+
+Texture& Texture::operator=(const Texture& texture) {
+    this->width = texture.width;
+    this->height = texture.height;
+
+    int n = width * height * 4;
+    this->data = (unsigned char*)malloc(n);
+    memcpy(data, texture.data, n);
+
+    this->texture = 0;
+    return *this;
+}
+
+Texture& Texture::operator=(Texture&& texture) {
+    this->width = texture.width;
+    this->height = texture.height;
+    this->data = texture.data;
+    this->texture = texture.texture;
+
+    return *this;
+}
+
 
 void Texture::initialize() {
     glGenTextures(1, &texture);

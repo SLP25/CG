@@ -5,10 +5,7 @@
 Lighting::Lighting() {}
 
 Lighting::Lighting(const Lighting& lighting) {
-
-    //TODO: ?
-    float black[4] = {0.0f, 0.0f, 0.0f, 0.0f};
-    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, black);
+    this->ambient = lighting.ambient;
 
     for (auto& l : lighting.lights) {
         Light* copy = l->clone();
@@ -19,6 +16,8 @@ Lighting::Lighting(const Lighting& lighting) {
 }
 
 Lighting& Lighting::operator=(const Lighting& lighting) {
+    this->ambient = lighting.ambient;
+
     for (auto& l : lighting.lights) {
         Light* copy = l->clone();
         std::unique_ptr<Light> ptr(copy);
@@ -31,16 +30,17 @@ Lighting& Lighting::operator=(const Lighting& lighting) {
 Lighting::Lighting(XMLParser parser) {
     parser.validate_attrs({});
     parser.validate_node({"light"});
-    parser.validate_max_nodes(8, {"light"});
+    parser.validate_max_nodes(GL_MAX_LIGHTS, {"light"});
 
     for (const XMLParser& x : parser.get_nodes("light"))
         this->lights.push_back(Light::parse(x));
+
+    this->ambient =  { 0.5, 0.5, 0.5 };
 }
 
 void Lighting::initScene() {
-    glEnable(GL_LIGHTING);
-	glEnable(GL_LIGHT0);
-    glEnable(GL_RESCALE_NORMAL);
+    float aux[4] = { GET_ALL(this->ambient), 1 };
+    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, aux);
 }
 
 void Lighting::setupScene() {
@@ -64,23 +64,21 @@ PointLight::PointLight(XMLParser parser) {
     parser.validate_attrs({"type", "posx", "posy", "posz"});
     parser.validate_node({});
     this->pos = parser.as_tuple<float,float,float>({"posx", "posy", "posz"});
+    this->difuse = { 1, 1, 1 };
+    this->specular = { 1, 1, 1 };
 }
 
 Light* PointLight::clone() {
     return new PointLight(*this);
 }
 
-float dark[4] = {0.2, 0.2, 0.2, 1.0};
-float white[4] = {1.0, 1.0, 1.0, 1.0};
-float black[4] = {0.0f, 0.0f, 0.0f, 0.0f};
-
 void PointLight::draw(int index) {
-    //TODO: color of light??
-	glLightfv(GL_LIGHT0 + index, GL_AMBIENT, dark);
-	glLightfv(GL_LIGHT0 + index, GL_DIFFUSE, white);
-	glLightfv(GL_LIGHT0 + index, GL_SPECULAR, white);
-
+    float dif[4] = { GET_ALL(difuse), 1 };
+    float spec[4] = { GET_ALL(specular), 1 };
     float aux[4] = { GET_ALL(pos), 1 };
+
+	glLightfv(GL_LIGHT0 + index, GL_DIFFUSE, dif);
+	glLightfv(GL_LIGHT0 + index, GL_SPECULAR, spec);
     glLightfv(GL_LIGHT0 + index, GL_POSITION, aux);
 }
 
@@ -90,9 +88,11 @@ bool DirectionalLight::accepts(XMLParser parser) {
 }
 
 DirectionalLight::DirectionalLight(XMLParser parser) {
-    parser.validate_attrs({"type", "dirX", "dirY", "dirZ"});
+    parser.validate_attrs({"type", "dirx", "diry", "dirz"});
     parser.validate_node({});
-    this->direction = parser.as_tuple<float,float,float>({"dirX", "dirY", "dirZ"});
+    this->direction = parser.as_tuple<float,float,float>({"dirx", "diry", "dirz"});
+    this->difuse = { 1, 1, 1 };
+    this->specular = { 1, 1, 1 };
 }
 
 Light* DirectionalLight::clone() {
@@ -100,12 +100,13 @@ Light* DirectionalLight::clone() {
 }
 
 void DirectionalLight::draw(int index) {
-    glLightfv(GL_LIGHT0 + index, GL_AMBIENT, dark);
-	glLightfv(GL_LIGHT0 + index, GL_DIFFUSE, white);
-	glLightfv(GL_LIGHT0 + index, GL_SPECULAR, white);
+    float dif[4] = { GET_ALL(difuse), 1 };
+    float spec[4] = { GET_ALL(specular), 1 };
+    float pos[4] = { GET_ALL(direction), 0 };
 
-    float aux[4] = { GET_ALL(direction), 0 };
-    glLightfv(GL_LIGHT0 + index, GL_POSITION, aux);
+	glLightfv(GL_LIGHT0 + index, GL_DIFFUSE, dif);
+	glLightfv(GL_LIGHT0 + index, GL_SPECULAR, spec);
+    glLightfv(GL_LIGHT0 + index, GL_POSITION, pos);
 }
 
 
