@@ -313,18 +313,60 @@ std::unique_ptr<Shape> generateCylinder(float radius, float height,
   std::vector<Point> top = generateCircle({0, height, 0}, radius, slices, 0);
   std::vector<Point> bottom = generateCircle({0, 0, 0}, radius, slices, 0.5);
   std::vector<Triangle> ans;
+  std::vector<Point2D> textures;
 
   for (int i = 0; i < slices; i++) {
     int i2 = (i + 1) % slices;
     ans.push_back({top[i], top[i2], bottom[i]});
     ans.push_back({bottom[i2], bottom[i], top[i2]});
-  }
 
+    i2 = i == slices - 1 ? slices : i2;
+    textures.push_back({1.0f - (float)i / slices, 1.0f});
+    textures.push_back({1.0f - (float)i2 / slices, 1.0f});
+    textures.push_back({1.0f - (float)i / slices, 0.375f});
+    textures.push_back({1.0f - (float)i2 / slices, 0.375f});
+    textures.push_back({1.0f - (float)i / slices, 0.375f});
+    textures.push_back({1.0f - (float)i2 / slices, 1.0f});
+  }
+  int count = ans.size();
   reverse(top.begin(), top.end());
   generatePolygon(top, ans);
+
+  for(; count < (int)ans.size(); count++) {
+    Point p[3] = {std::get<0>(ans[count]), std::get<1>(ans[count]), std::get<2>(ans[count])};
+    for(int i = 0; i < 3; i++) {
+      float x = std::get<0>(p[i]);
+      float z = std::get<2>(p[i]);
+
+      float u = x / (2 * radius) + 0.5f;
+      float v = z / (2 * radius) + 0.5f;
+      v = 1 - v;
+      u *= 0.375;
+      v *= 0.375;
+      u += 0.25;
+      textures.push_back({u,v});
+    }     
+  }
+
   generatePolygon(bottom, ans);
 
-  return std::make_unique<Shape>(ans);
+  for(; count < (int)ans.size(); count++) {
+    Point p[3] = {std::get<0>(ans[count]), std::get<1>(ans[count]), std::get<2>(ans[count])};
+    for(int i = 0; i < 3; i++) {
+      float x = std::get<0>(p[i]);
+      float z = std::get<2>(p[i]);
+
+      float u = x / (2 * radius) + 0.5f;
+      float v = z / (2 * radius) + 0.5f;
+      v = 1 - v;
+      u *= 0.375;
+      v *= 0.375;
+      u += 0.625;
+      textures.push_back({u,v});
+    }     
+  }
+
+  return std::make_unique<Shape>(ans, textures);
 }
 
 std::unique_ptr<Shape> generateCone(float radius, float height, int slices,
@@ -351,8 +393,8 @@ std::unique_ptr<Shape> generateCone(float radius, float height, int slices,
           float x = std::get<0>(p[i]);
           float z = std::get<2>(p[i]);
 
-          float u = x / radius;
-          float v = z / radius;
+          float u = x / (2 * radius) + 0.5f;
+          float v = z / (2 * radius) + 0.5f;
           textures.push_back({u,v});
         }     
       }
