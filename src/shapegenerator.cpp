@@ -459,7 +459,10 @@ std::unique_ptr<Shape> generateFromObj(std::string srcFile) {
   // We add one dummy vertex at the start as to shift indices by 1,
   // as vectors start at 0 but OBJ files start at 1
   auto vertices = std::vector<Point>({{0, 0, 0}});
+  auto textures = std::vector<Point2D>({{0,0}});
+
   auto triangles = std::vector<Triangle>();
+  auto textureMapping = std::vector<Point2D>();
 
   std::ifstream file = std::ifstream(srcFile);
 
@@ -467,8 +470,9 @@ std::unique_ptr<Shape> generateFromObj(std::string srcFile) {
   const std::regex vertex(R"(v +(-?\d+\.?\d*) (-?\d+\.?\d*) (-?\d+\.?\d*))");
   const std::regex face(
       R"(f +((\d+)(\/?\d*\/?\d*)? ){2,}((\d+)(\/?\d*\/?\d*)?))");
-  const std::regex face_vertice(R"((\d+)(\/?\d*\/?\d*))");
-
+  const std::regex textureRegex(R"(vt +(\d+\.?\d*) +(\d+\.?\d*))");
+  const std::regex face_vertice(R"((\d+)\/?(\d*)\/?(\d*))");
+  int count = 0;
   while (std::getline(file, line)) {
     std::smatch match;
     if (std::regex_search(line, match, vertex)) { // Is a vertex
@@ -476,23 +480,46 @@ std::unique_ptr<Shape> generateFromObj(std::string srcFile) {
       float y = std::stof(match[2].str());
       float z = std::stof(match[3].str());
       vertices.push_back({x, y, z});
+    } else if(std::regex_search(line, match, textureRegex)) { // Is a texture
+      float u = std::stof(match[1].str());
+      float v = 1.0f - std::stof(match[2].str());
+      textures.push_back({u,v}); 
     } else if (std::regex_search(line, match, face)) { // Is a face
       auto temp = std::vector<Point>();
+      auto mapping = std::map<Point, Point2D>();
 
       while (std::regex_search(line, match, face_vertice)) {
         int index = std::stoi(match[1]);
         temp.push_back(vertices[index]);
+
+        if(match[2] != "") {
+          int j = std::stoi(match[2]);
+          mapping[vertices[index]] = textures[j];
+        }
+
         line = match.suffix().str();
       }
 
-      generatePolygon(temp, triangles);
+      //generatePolygon(temp, triangles);
+      triangles.push_back({temp[0], temp[1], temp[2]});
+      for(; count < (int)triangles.size(); count++) {
+        Point p[3] = {std::get<0>(triangles[count]), std::get<1>(triangles[count]), std::get<2>(triangles[count])};
+
+        for(int k = 0; k < 3; k++) {
+          if(mapping.find(p[k]) == mapping.end()) {
+            textureMapping.push_back({0,0});
+          } else {
+            textureMapping.push_back(mapping[p[k]]);
+          }
+        }
+      }
     } // We ignore everything else
   }
 
   //TODO: normals
 
   file.close();
-  return std::make_unique<Shape>(triangles);
+  return std::make_unique<Shape>(triangles, textureMapping);
 }
 
 std::unique_ptr<Shape> generateDonut(float radius, float length, float height,

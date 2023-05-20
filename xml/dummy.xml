@@ -10,8 +10,8 @@
 
     <group>
         <models>
-            <model file="models/cilinder.3d">
-                <texture file="models/cilindro.jpg"/>
+            <model file="models/car.3d">
+                <texture file="models/formula1.png"/>
             </model>
         </models>
     </group>
