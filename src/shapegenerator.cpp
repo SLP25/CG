@@ -651,7 +651,7 @@ inline void readBezierPatchFile(std::string inputFile, std::vector<Point>& contr
  * @param triangles     the vector in which to store the triangles.
 */
 inline void generateBezierTriangles(std::vector<Point>& controlPoints, std::vector<int[16]>& patches,
- int divisions, std::vector<Triangle>& triangles) {
+ int divisions, std::vector<Triangle>& triangles, std::vector<Point2D>& textures) {
   /*
   
   Given 16 control points p[0][0], p[0][1], ..., p[3][2], p[3][3], the Bezier patch
@@ -735,8 +735,20 @@ inline void generateBezierTriangles(std::vector<Point>& controlPoints, std::vect
     */
     for(int j = 0; j < divisions - 1; j++) {
       for(int k = 0; k < divisions - 1; k++) {
-        generateSquare(points[j * divisions + k], points[(j + 1) * divisions + k], points[(j + 1) * divisions + k + 1], 
-          points[(j) * divisions + k + 1], triangles);
+        Point p1 = points[j * divisions + k];
+        Point p2 = points[(j + 1) * divisions + k];
+        Point p3 = points[(j + 1) * divisions + k + 1];
+        Point p4 = points[(j) * divisions + k + 1];
+
+        triangles.push_back({p1, p2, p3});
+        triangles.push_back({p1, p3, p4});
+
+        textures.push_back({(float)j / (divisions - 1), (float)k / (divisions - 1)});
+        textures.push_back({(float)(j + 1) / (divisions - 1), (float)k / (divisions - 1)});
+        textures.push_back({(float)(j + 1) / (divisions - 1), (float)(k + 1) / (divisions - 1)});
+        textures.push_back({(float)j / (divisions - 1), (float)k / (divisions - 1)});
+        textures.push_back({(float)(j + 1) / (divisions - 1), (float)(k + 1) / (divisions - 1)});
+        textures.push_back({(float)j / (divisions - 1), (float)(k + 1) / (divisions - 1)});
       }
     }
   }
@@ -748,10 +760,11 @@ std::unique_ptr<Shape> generateBezierPatches(std::string inputFile, int division
   auto controlPoints = std::vector<Point>();
   auto patches = std::vector<int[16]>();
   auto triangles = std::vector<Triangle>();
+  auto textures = std::vector<Point2D>();
 
   readBezierPatchFile(inputFile, controlPoints, patches);
-  generateBezierTriangles(controlPoints, patches, divisions, triangles);
+  generateBezierTriangles(controlPoints, patches, divisions, triangles, textures);
   
 
-  return std::make_unique<Shape>(triangles);
+  return std::make_unique<Shape>(triangles, textures);
 }
