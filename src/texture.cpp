@@ -40,8 +40,12 @@ Texture::Texture(std::string filePath) : texture(0) {
 	
 	width = ilGetInteger(IL_IMAGE_WIDTH);
 	height = ilGetInteger(IL_IMAGE_HEIGHT);
+    int n = width * height * 4;
 	ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
-	data = ilGetData();
+
+	unsigned char* temp = ilGetData();
+    data = new unsigned char[n];
+    memcpy(data, temp, n);
 }
 
 Texture::Texture(const Texture& texture) :
@@ -50,7 +54,7 @@ Texture::Texture(const Texture& texture) :
     texture(0)
 {
     int n = width * height * 4;
-    data = (unsigned char*)malloc(n);
+    data = new unsigned char[n];
     memcpy(data, texture.data, n);
 }
 
@@ -65,7 +69,7 @@ Texture::~Texture() {
     if (texture != 0)
         glDeleteTextures(1, &texture);
 
-    free(data);
+    delete data;
 }
 
 Texture& Texture::operator=(const Texture& texture) {
@@ -73,7 +77,7 @@ Texture& Texture::operator=(const Texture& texture) {
     this->height = texture.height;
 
     int n = width * height * 4;
-    this->data = (unsigned char*)malloc(n);
+    this->data = new unsigned char[n];
     memcpy(data, texture.data, n);
 
     this->texture = 0;

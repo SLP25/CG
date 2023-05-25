@@ -10,8 +10,8 @@
 
     <group>
         <models>
-            <model file="models/cone.3d">
-                <texture file="test_files/test_files_phase_4/cone.jpg"/>
+            <model file="models/teapot.3d">
+                <texture file="models/teapot.jpg"/>
             </model>
         </models>
     </group>
