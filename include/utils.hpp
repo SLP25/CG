@@ -21,6 +21,35 @@ typedef std::tuple<float,float,float> Color; ///< Tuple representing RGB color v
 typedef std::tuple<int, int> WindowSize; ///< Tuple of a width and a height, both integers.
 
 
+class BoundingBox {
+    std::vector<Point> corners;
+
+public:
+    BoundingBox();
+    BoundingBox(const std::vector<Point>& points);
+    BoundingBox(const BoundingBox& bb);
+
+    BoundingBox& operator =(const BoundingBox& bb);
+
+    void transform(float modelview[16]);
+    bool isForward(Plane plane); //whether at least part of the AABB is in front
+                                 //of the plane (aka the direction the normal points)
+};
+
+class Frustrum {
+    //For all these, the normal vector points inwards
+    Plane up;
+    Plane down;
+    Plane left;
+    Plane right;
+    Plane near;
+    Plane far;
+
+public:
+    Frustrum(Point position, Vector lookAtVector, Vector up, float near, float fat, float fov, float ratio);
+    bool contains(BoundingBox boundingBox) const;
+};
+
 /**
  * @brief Calculates the average of the points by adding their
  * components and dividing by the number of points
@@ -177,6 +206,16 @@ template <class Superclass> struct dynamicParser<Superclass> {
   }
 };
 
+template <typename T> void transpose(int n, int m, T* a) {
+  for (int y = 1; y < m; y++) {
+    for (int x = 0; x < y; x++) {
+      T aux = a[y * n + x];
+      a[y * n + x] = a[x * n + y];
+      a[x * n + y] = aux;
+    }
+  }
+}
+
 
 /**
  * @brief A generic matrix multiplication function.
@@ -194,7 +233,7 @@ template <class Superclass> struct dynamicParser<Superclass> {
  * same as the number of rows of the second input matrix)
  * @param a The first input matrix
  * @param b The second input matrix
- * @param c The input matrix
+ * @param c The output matrix
 */
 template <typename T, typename S, typename U> 
 void matrixProd(int n, int m, int l, T* a, S* b, U *c) {

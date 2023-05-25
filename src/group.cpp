@@ -53,7 +53,7 @@ Group& Group::operator=(Group&& group) {
   return *this;
 }
 
-void Group::draw() {
+void Group::draw(const Frustrum& viewFrustrum) {
   glPushMatrix();
 
   for (auto &t : this->transformations) {
@@ -61,11 +61,11 @@ void Group::draw() {
   }
 
   for (auto &m : this->models) {
-    m.draw();
+    m.draw(viewFrustrum);
   }
 
   for (auto &g : this->subgroups) {
-    g.draw();
+    g.draw(viewFrustrum);
   }
   glPopMatrix();
 }

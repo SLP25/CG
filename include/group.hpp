@@ -62,7 +62,7 @@ public:
    * This method does not change GLUT's matrices - i.e. they will be the same
    * before and after execution.
   */
-  void draw();
+  void draw(const Frustrum& viewFrustrum);
 
 private:
   /**

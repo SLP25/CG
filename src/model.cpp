@@ -81,22 +81,35 @@ Model::Model(XMLParser parser) :
   }  
 }
 
-void Model::draw() {
-  float emi[] = { GET_ALL(emission), 1.0 };
-  float amb[] = { GET_ALL(ambient), 1.0 };
-  float dif[] = { GET_ALL(diffuse), 1.0 };
-  float spec[] = { GET_ALL(specular), 1.0 };
-  
-  glMaterialfv(GL_FRONT, GL_EMISSION, emi);
-	glMaterialfv(GL_FRONT, GL_AMBIENT, amb);
-  glMaterialfv(GL_FRONT, GL_DIFFUSE, dif);
-	glMaterialfv(GL_FRONT, GL_SPECULAR, spec);
-	glMaterialf(GL_FRONT, GL_SHININESS, shininess);
+void Model::draw(const Frustrum& viewFrustrum)
+{
+  float modelview[16];
+  glGetFloatv(GL_MODELVIEW_MATRIX, modelview);
+  transpose(4, 4, modelview); //glut stores matrices in column-major order. we want row-major
 
-  if (texture != nullptr)
-    texture->bind();
-  else
-    Texture::unbind();
+  BoundingBox bb = shape->getBoundingBox();
+  bb.transform(modelview);
 
-  shape->draw();
+  if (viewFrustrum.contains(bb)) {
+    //std::cout << "visible" << std::endl;
+    float emi[] = { GET_ALL(emission), 1.0 };
+    float amb[] = { GET_ALL(ambient), 1.0 };
+    float dif[] = { GET_ALL(diffuse), 1.0 };
+    float spec[] = { GET_ALL(specular), 1.0 };
+    
+    glMaterialfv(GL_FRONT, GL_EMISSION, emi);
+    glMaterialfv(GL_FRONT, GL_AMBIENT, amb);
+    glMaterialfv(GL_FRONT, GL_DIFFUSE, dif);
+    glMaterialfv(GL_FRONT, GL_SPECULAR, spec);
+    glMaterialf(GL_FRONT, GL_SHININESS, shininess);
+
+    if (texture != nullptr)
+      texture->bind();
+    else
+      Texture::unbind();
+
+    shape->draw();
+  } //else {
+    //std::cout << "invisible" << std::endl;
+  //}
 }

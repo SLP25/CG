@@ -1,5 +1,6 @@
 #include "geometry.hpp"
 #include <cmath>
+#include <vector>
 
 Vector zero() {
   return {0,0,0};
@@ -84,3 +85,13 @@ Vector normalize(Vector v) {
    */
   return (1 / length(v)) * v;
 }
+
+Plane::Plane() :
+  normal({0,0,0}),
+  displacement(0)
+{}
+
+Plane::Plane(Point point, Vector normal) :
+  normal(normal),
+  displacement(normal * point)
+{}

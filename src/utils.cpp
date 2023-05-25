@@ -105,3 +105,89 @@ bool parseBool(std::string str) {
 
   throw InvalidXMLStructure("Input '" + str + "' isn't a boolean");
 }
+
+
+BoundingBox::BoundingBox() {}
+
+BoundingBox::BoundingBox(const std::vector<Point>& points) {
+  //Calculate as an AABB
+  float minX, maxX, minY, maxY, minZ, maxZ;
+  minX = maxX = std::get<0>(points.at(0));
+  minY = maxY = std::get<1>(points.at(0));
+  minZ = maxZ = std::get<2>(points.at(0));
+
+  for (uint i = 1; i < points.size(); i++) {
+    float x = std::get<0>(points.at(i));
+    float y = std::get<1>(points.at(i));
+    float z = std::get<2>(points.at(i));
+
+    if (x < minX) minX = x; else if (x > maxX) maxX = x;
+    if (y < minY) minY = y; else if (y > maxY) maxY = y;
+    if (z < minZ) minZ = z; else if (z > maxZ) maxZ = z;
+  }
+
+  for (float x : { minX, maxX })
+    for (float y : { minY, maxY })
+      for (float z : { minZ, maxZ })
+        corners.push_back({ x, y, z });
+}
+
+BoundingBox::BoundingBox(const BoundingBox& bb) :
+  corners(bb.corners)
+{}
+
+BoundingBox& BoundingBox::operator =(const BoundingBox& bb) {
+  this->corners = bb.corners;
+  return *this;
+}
+
+void BoundingBox::transform(float modelview[16]) {
+  for (Point& p : corners) {
+    float input[4] = { GET_ALL(p), 1 }, output[4];
+    matrixProd(1, 4, 4, modelview, input, output);
+
+    p = { output[0], output[1], output[2] };
+  }
+}
+
+bool BoundingBox::isForward(Plane plane) {
+  for (Point& p : corners)
+    if (p * plane.normal >= plane.displacement)
+      return true;
+
+  return false;
+}
+
+
+Frustrum::Frustrum(Point position, Vector lookAtVector, Vector up, float near, float far, float fov, float ratio) {
+  lookAtVector = normalize(lookAtVector);
+  up = normalize(up);
+
+  Point centerNear = position + lookAtVector * near;
+  Point centerFar = position + lookAtVector * far;
+
+  this->near = Plane(centerNear, lookAtVector);
+  this->far = Plane(centerFar, -lookAtVector);
+
+  float halfHeightNear = near * tan(fov * M_PI / 360);
+  float halfWidthNear = halfHeightNear * ratio;
+
+  Vector right = normalize(lookAtVector ^ up);
+  Point upRightNear = centerNear + up * halfHeightNear + right * halfWidthNear;
+  Vector upRightOut = upRightNear - position;
+  Point downLeftNear = centerNear - up * halfHeightNear - right * halfWidthNear;
+  Vector downLeftOut = downLeftNear - position;
+  
+  this->up = Plane(upRightNear, normalize(upRightOut ^ right));
+  this->down = Plane(downLeftNear, normalize(right ^ downLeftOut));
+  this->left = Plane(downLeftNear, normalize(downLeftOut ^ up));
+  this->right = Plane(upRightNear, normalize(up ^ upRightOut));
+}
+
+bool Frustrum::contains(BoundingBox boundingBox) const {
+  for (Plane p : { up, down, left, right, near, far })
+    if (!boundingBox.isForward(p))
+      return false;
+  
+  return true;
+}

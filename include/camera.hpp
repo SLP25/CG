@@ -4,23 +4,6 @@
 #include "utils.hpp"
 #include <iostream>
 
-class Camera;
-
-/**
- * @brief A helper struct to parse different types of cameras using the XML parser.
- * @tparam Cameras Variadic template parameter pack of camera types.
-*/
-template <class... Cameras> struct helper {
-
-  /**
-   * @brief Parses a camera of a given type using the provided XML parser.
-   * @param type The type of camera to parse
-   * @param parser The XML parser to use for parsing
-   * @return A unique pointer to the parsed camera object
-  */
-  static std::unique_ptr<Camera> parseCamera(std::string type,
-                                             XMLParser parser);
-};
 
 /**
  * @brief Represents the camera through which the world is viewed. It stores information about the camera's
@@ -28,6 +11,16 @@ template <class... Cameras> struct helper {
  * 
  */
 class Camera {
+
+protected:
+  Point lookAt;
+  Point position;
+  Vector up;
+
+  float near;
+  float far;
+  float fov;
+  float ratio;
 
 public:
   /**
@@ -42,20 +35,28 @@ public:
   /**
   * @brief A virtual destructor for the Camera class.
   */
-  virtual ~Camera();
+  ~Camera();
 
   /**
    * @brief Is called whenever the window changes size. Is used to adjust the fov
    * 
    * @param windowSize The new dimensions of the window
    */
-  virtual void changeSize(WindowSize windowSize) = 0;
+  void changeSize(WindowSize windowSize);
 
   /**
    * @brief Is called before rendering the scene
    * 
    */
-  virtual void setupScene() = 0;
+  void setupScene();
+
+  /**
+   * @brief Constructs the view frustrum
+   * 
+   * @return The view frustrum
+   * 
+   */
+  Frustrum viewFrustrum();
 
   /**
    * @brief Is called whenever a character key is pressed
@@ -74,18 +75,6 @@ public:
    * @param y   The y position of the mouse
    */
   virtual void handleSpecialKey(int key, int x, int y);
-
-protected:
-  /**
-   * @brief Updates the window viewport and the frustrum of the camera based on the given valiues
-   * 
-   * @param windowSize  The size of the window
-   * @param fov         The field of view (in degrees)
-   * @param near        The begin of the frustrum
-   * @param far         The end of the frustrum
-   */
-  static void defaultChangeSize(WindowSize windowSize, float fov, float near,
-                                float far);
 };
 
 
@@ -95,15 +84,6 @@ protected:
  * 
  */
 class PolarCamera : public Camera {
-
-  Point lookAt;
-  Point position;
-
-  Vector up;
-
-  float fov;
-  float near;
-  float far;
 
 public:
 
@@ -121,15 +101,12 @@ public:
   PolarCamera(XMLParser parser);
 
   /**
-   * @brief Changes the size of the camera viewport
-   * @param windowSize The new size of the window
+   * @brief Handles keyboard keys for camera movement
+   * @param key The key code
+   * @param x The x-coordinate of the mouse
+   * @param y The y-coordinate of the mouse
    */
-  void changeSize(WindowSize windowSize);
-
-  /**
-   * @brief Sets up the camera view and projection matrices for the current scene
-   */
-  void setupScene();
+  void handleKey(unsigned char key, int x, int y);
 
   /**
    * @brief Handles special keyboard keys for camera movement
@@ -138,14 +115,6 @@ public:
    * @param y The y-coordinate of the mouse
    */
   void handleSpecialKey(int key, int x, int y);
-
-  /**
-   * @brief Handles keyboard keys for camera movement
-   * @param key The key code
-   * @param x The x-coordinate of the mouse
-   * @param y The y-coordinate of the mouse
-   */
-  void handleKey(unsigned char key, int x, int y);
 };
 
 /**
@@ -154,14 +123,6 @@ public:
  * 
  */
 class FPSCamera : public Camera {
-
-    Point position;
-    Vector lookAtVector;
-    Vector up;
-
-    float fov;
-    float near;
-    float far;
 
 public:
 
@@ -179,17 +140,6 @@ public:
     FPSCamera(XMLParser parser);
 
     /**
-     * @brief Changes the size of the camera viewport
-     * @param windowSize The new size of the window
-     */
-    void changeSize(WindowSize windowSize);
-
-    /**
-     * @brief Sets up the camera view and projection matrices for the current scene
-     */
-    void setupScene();
-
-    /**
      * @brief Handles keyboard keys for camera movement
      * @param key The key code
      * @param x The x-coordinate of the mouse
@@ -204,17 +154,4 @@ public:
      * @param y The y-coordinate of the mouse
      */
     void handleSpecialKey(int key, int x, int y);
-
-private:
-
-    /**
-     * @brief Constructs an FPSCamera object with the provided parameters
-     * @param position The initial position of the camera
-     * @param lookAtVector The initial look-at vector of the camera
-     * @param up The up vector of the camera
-     * @param fov The field of view of the camera
-     * @param near The near plane distance of the camera
-     * @param far The far plane distance of the camera
-     */
-    FPSCamera(Point, Vector, Vector, float, float, float);
 };

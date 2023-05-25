@@ -88,7 +88,7 @@ void World::renderScene() {
 
   if(this->axis)
     drawAxis();
-  root.draw();
+  root.draw(camera->viewFrustrum());
 
   // End of frame
   glutSwapBuffers();

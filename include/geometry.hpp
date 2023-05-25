@@ -34,10 +34,19 @@ typedef Point Vector;
 */
 typedef std::tuple<float, float> Point2D;
 
+struct Plane {
+   //Such that the equation of the plane is normal.P - displacement = 0
+   Vector normal;
+   float displacement;
+
+   Plane();
+   Plane(Point point, Vector normal);
+};
+
 /**
-   * @brief Return the zero vector
-   * @return {0,0,0}
-   */
+ * @brief Return the zero vector
+ * @return {0,0,0}
+ */
 Vector zero();
 
 /**

@@ -29,10 +29,10 @@ public:
    * @brief Default constructor
    */
   Shape();
-  Shape(std::vector<Triangle> triangles, std::vector<Point2D> textureCoordinates);
-  Shape(std::vector<Triangle> triangles); //the normals are extapolated from the triangles
+  Shape(const std::vector<Triangle>& triangles, const std::vector<Point2D>& textureCoordinates);
+  Shape(const std::vector<Triangle>& triangles); //the normals are extapolated from the triangles
   Shape(std::vector<Point> points, std::vector<Vector> normals, std::vector<Point2D> textures, std::vector<TriangleByPosition> trianglesByPos);
-  Shape(std::vector<Triangle> triangles, std::map<Point, Point2D> textureCoordinates);
+  Shape(const std::vector<Triangle>& triangles, const std::map<Point, Point2D>& textureCoordinates);
 
   /**
    * @brief Copy constructor
@@ -84,6 +84,13 @@ public:
   void initialize();
 
   /**
+   * @brief Returns a copy of the bounding box of the shape
+   * 
+   * @return a copy of the bounding box of the shape
+   */
+  BoundingBox getBoundingBox();
+
+  /**
    * @brief Draws the shape by calling glut's static functions. No color or texture
    * is set, only the shape is drawn.
    * 
@@ -114,6 +121,11 @@ private:
    * vertex, and the value is the texture coordinate of that vertex
   */
   std::vector<Point2D> textures;
+
+  /**
+   * @brief The axis-aligned bounding box of the shape
+  */
+  BoundingBox boundingBox;
 
   GLuint vbo_points;
   GLuint vbo_normals;
