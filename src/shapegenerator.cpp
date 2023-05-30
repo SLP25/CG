@@ -617,12 +617,18 @@ std::unique_ptr<Shape> generateFromObj(std::string srcFile) {
 std::unique_ptr<Shape> generateDonut(float radius, float length, float height,
                                      int stacks, int slices) {
   std::vector<Point> *circles[2];
+  std::vector<Vector> *normalsTemp[2];
   circles[0] = new std::vector<Point>[stacks + 1];
   circles[1] = new std::vector<Point>[stacks + 1];
+  normalsTemp[0] = new std::vector<Vector>[stacks + 1];
+  normalsTemp[1] = new std::vector<Vector>[stacks + 1];
+
 
   const float stack_height = height / (float)stacks;
   const float min_y = -height / 2.0;
   const float angle_step = 2 * M_PI / slices;
+  const float a = length / 2.0;
+  const float b = height / 2.0;
   for (int i = 0; i <= stacks; i++) {
     float y = min_y + stack_height * i;
     float horizontal_gap =
@@ -632,16 +638,25 @@ std::unique_ptr<Shape> generateDonut(float radius, float length, float height,
       float x = (radius - horizontal_gap) * cos(angle_step * j);
       float z = (radius - horizontal_gap) * sin(angle_step * j);
 
+      float w = x*x + z*z - radius;
+      float gamma = b*b * w*w / (a*sqrt((1 - b*b*x*x) / a));
+
       circles[0][i].push_back({x, y, z});
+      normalsTemp[0][i].push_back(normalize({sin(angle_step * j), gamma, cos(angle_step * j)}));
 
       x = (radius + horizontal_gap) * cos(angle_step * j);
       z = (radius + horizontal_gap) * sin(angle_step * j);
+      w = x*x + z*z - radius;
 
+      gamma = - b*b * w*w / (a*sqrt((1 - b*b*x*x) / a));
       circles[1][i].push_back({x, y, z});
+      normalsTemp[1][i].push_back(normalize({sin(angle_step * j), gamma, cos(angle_step * j)}));
     }
   }
 
   std::vector<Triangle> triangles = std::vector<Triangle>();
+  std::vector<Vector> normals;
+  std::vector<Point2D> textures;
 
   for (int i = 0; i < stacks; i++) {
     for (int j = 0; j < slices; j++) {
@@ -653,6 +668,13 @@ std::unique_ptr<Shape> generateDonut(float radius, float length, float height,
       triangles.push_back({p1, p2, p3});
       triangles.push_back({p3, p2, p4});
 
+      normals.push_back(normalsTemp[0][i][j]);
+      normals.push_back(normalsTemp[0][i][(j + 1) % slices]);
+      normals.push_back(normalsTemp[0][i + 1][j]);
+      normals.push_back(normalsTemp[0][i + 1][j]);
+      normals.push_back(normalsTemp[0][i + 1][(j + 1) % slices]);
+      normals.push_back(normalsTemp[0][i + 1][(j + 1) % slices]);
+
       p1 = circles[1][i][j];
       p2 = circles[1][i][(j + 1) % slices];
       p3 = circles[1][i + 1][j];
@@ -660,13 +682,25 @@ std::unique_ptr<Shape> generateDonut(float radius, float length, float height,
 
       triangles.push_back({p1, p3, p2});
       triangles.push_back({p2, p3, p4});
+
+      normals.push_back(normalsTemp[1][i][j]);
+      normals.push_back(normalsTemp[1][i + 1][j]);
+      normals.push_back(normalsTemp[1][i][(j + 1) % slices]);
+      normals.push_back(normalsTemp[1][i + 1][(j + 1) % slices]);
+      normals.push_back(normalsTemp[1][i + 1][j]);
+      normals.push_back(normalsTemp[1][i + 1][(j + 1) % slices]);
     }
   }
 
   delete[] circles[0];
   delete[] circles[1];
+  delete[] normalsTemp[0];
+  delete[] normalsTemp[1];
 
-  return std::make_unique<Shape>(triangles, std::vector<Vector>(), std::vector<Point2D>());
+  for(int i = 0; i < (int)normals.size(); i++)
+    textures.push_back({0,0});
+
+  return std::make_unique<Shape>(triangles, normals, textures);
 }
 
 /**
