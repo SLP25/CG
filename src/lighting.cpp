@@ -120,7 +120,7 @@ void DirectionalLight::draw(GLenum light) {
 
 
 bool SpotLight::accepts(XMLParser parser) {
-    return parser.name() == "light" && parser.get_attr<std::string>("type") == "spotlight";
+    return parser.name() == "light" && parser.get_attr<std::string>("type") == "spot";
 }
 
 SpotLight::SpotLight(XMLParser parser) {
