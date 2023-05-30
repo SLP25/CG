@@ -35,7 +35,7 @@ Lighting::Lighting(XMLParser parser) {
     for (const XMLParser& x : parser.get_nodes("light"))
         this->lights.push_back(Light::parse(x));
 
-    this->ambient =  { 0.5, 0.5, 0.5 };
+    this->ambient =  { 0.4, 0.4, 0.4 };
 }
 
 void Lighting::initScene() {
@@ -44,16 +44,23 @@ void Lighting::initScene() {
 }
 
 void Lighting::setupScene() {
-    int i = 0;
-    for (std::unique_ptr<Light>& l : this->lights)
-        l->draw(i++);
+    for (uint i = 0; i < GL_MAX_LIGHTS; i++) {
+        if (i < lights.size()) {
+            glEnable(GL_LIGHT0 + i);
+            lights[i]->draw(GL_LIGHT0 + i);
+        } else {
+            glDisable(GL_LIGHT0 + i);
+        }
+    }
 }
 
+
 std::unique_ptr<Light> Light::parse(XMLParser parser) {
-    return dynamicParser<Light, PointLight, DirectionalLight/*, SpotLight*/>::parse(parser);
+    return dynamicParser<Light, PointLight, DirectionalLight, SpotLight>::parse(parser);
 }
 
 Light::~Light() {}
+
 
 
 bool PointLight::accepts(XMLParser parser) {
@@ -72,15 +79,16 @@ Light* PointLight::clone() {
     return new PointLight(*this);
 }
 
-void PointLight::draw(int index) {
+void PointLight::draw(GLenum light) {
     float dif[4] = { GET_ALL(difuse), 1 };
     float spec[4] = { GET_ALL(specular), 1 };
     float aux[4] = { GET_ALL(pos), 1 };
 
-	glLightfv(GL_LIGHT0 + index, GL_DIFFUSE, dif);
-	glLightfv(GL_LIGHT0 + index, GL_SPECULAR, spec);
-    glLightfv(GL_LIGHT0 + index, GL_POSITION, aux);
+	glLightfv(light, GL_DIFFUSE, dif);
+	glLightfv(light, GL_SPECULAR, spec);
+    glLightfv(light, GL_POSITION, aux);
 }
+
 
 
 bool DirectionalLight::accepts(XMLParser parser) {
@@ -99,14 +107,46 @@ Light* DirectionalLight::clone() {
     return new DirectionalLight(*this);
 }
 
-void DirectionalLight::draw(int index) {
+void DirectionalLight::draw(GLenum light) {
     float dif[4] = { GET_ALL(difuse), 1 };
     float spec[4] = { GET_ALL(specular), 1 };
-    float pos[4] = { GET_ALL(direction), 0 };
+    float dir[4] = { GET_ALL(direction), 0 };
 
-	glLightfv(GL_LIGHT0 + index, GL_DIFFUSE, dif);
-	glLightfv(GL_LIGHT0 + index, GL_SPECULAR, spec);
-    glLightfv(GL_LIGHT0 + index, GL_POSITION, pos);
+	glLightfv(light, GL_DIFFUSE, dif);
+	glLightfv(light, GL_SPECULAR, spec);
+    glLightfv(light, GL_POSITION, dir);
 }
 
 
+
+bool SpotLight::accepts(XMLParser parser) {
+    return parser.name() == "light" && parser.get_attr<std::string>("type") == "spotlight";
+}
+
+SpotLight::SpotLight(XMLParser parser) {
+    parser.validate_attrs({"type", "posx", "posy", "posz", "dirx", "diry", "dirz", "cutoff"});
+    parser.validate_node({});
+
+    this->position = parser.as_tuple<float,float,float>({"posx", "posy", "posz"});
+    this->direction = parser.as_tuple<float,float,float>({"dirx", "diry", "dirz"});
+    this->cutoff = parser.get_attr<float>("cutoff");
+    this->difuse = { 1, 1, 1 };
+    this->specular = { 1, 1, 1 };
+}
+
+Light* SpotLight::clone() {
+    return new SpotLight(*this);
+}
+
+void SpotLight::draw(GLenum light) {
+    float dif[4] = { GET_ALL(difuse), 1 };
+    float spec[4] = { GET_ALL(specular), 1 };
+    float pos[4] = { GET_ALL(position), 1 };
+    float dir[4] = { GET_ALL(direction), 0 };
+
+	glLightfv(light, GL_DIFFUSE, dif);
+	glLightfv(light, GL_SPECULAR, spec);
+    glLightfv(light, GL_POSITION, pos);
+    glLightfv(light, GL_SPOT_DIRECTION, dir);
+    glLightf(light,  GL_SPOT_CUTOFF, cutoff);
+}

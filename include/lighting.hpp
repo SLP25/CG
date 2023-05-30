@@ -21,7 +21,7 @@ public:
   virtual ~Light();
 
   virtual Light* clone() = 0;
-  virtual void draw(int index) = 0;
+  virtual void draw(GLenum light) = 0;
 };
 
 
@@ -49,7 +49,7 @@ public:
 
   PointLight(XMLParser parser);
   Light* clone();
-  void draw(int index);
+  void draw(GLenum light);
 };
 
 class DirectionalLight : public Light {
@@ -62,5 +62,20 @@ public:
 
   DirectionalLight(XMLParser parser);
   Light* clone();
-  void draw(int index);
+  void draw(GLenum light);
+};
+
+class SpotLight : public Light {
+  Point position;
+  Vector direction;
+  float cutoff;
+  Color difuse;
+  Color specular;
+
+public:
+  static bool accepts(XMLParser parser);
+
+  SpotLight(XMLParser parser);
+  Light* clone();
+  void draw(GLenum light);
 };

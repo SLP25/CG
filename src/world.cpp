@@ -66,7 +66,6 @@ void World::initScene() {
   glEnable(GL_CULL_FACE);
   glEnable(GL_TEXTURE_2D);
   glEnable(GL_LIGHTING);
-	glEnable(GL_LIGHT0);
   glEnable(GL_RESCALE_NORMAL);
   glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
