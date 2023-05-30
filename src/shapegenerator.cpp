@@ -108,6 +108,7 @@ std::unique_ptr<Shape> generatePlane(float length, int divisions) {
 
 std::unique_ptr<Shape> generateCube(float length, int divisions) {
   std::vector<Triangle> triangles;
+  std::vector<Vector> normals;
   std::vector<Point2D> textureMapping;
 
   float mid = length / 2.0;
@@ -141,6 +142,7 @@ std::unique_ptr<Shape> generateCube(float length, int divisions) {
       v = (v / 3.0f) + (1.0f / 3.0f);
 
       textureMapping.push_back({u, v});
+      normals.push_back({-1.0f, 0.0f, 0.0f});
     }
   }
 
@@ -171,6 +173,7 @@ std::unique_ptr<Shape> generateCube(float length, int divisions) {
       v = (v / 3.0f) + (1.0f / 3.0f);
 
       textureMapping.push_back({u, v});
+      normals.push_back({1.0f, 0.0f, 0.0f});
     }
   }
 
@@ -203,6 +206,7 @@ std::unique_ptr<Shape> generateCube(float length, int divisions) {
       v = (v / 3.0f);
 
       textureMapping.push_back({u, v});
+      normals.push_back({0.0f, -1.0f, 0.0f});
     }
   }
 
@@ -233,6 +237,7 @@ std::unique_ptr<Shape> generateCube(float length, int divisions) {
       v = (v / 3.0f) + (2.0f / 3.0f);
 
       textureMapping.push_back({u, v});
+      normals.push_back({1.0f, 0.0f, 0.0f});
     }
   }
 
@@ -263,6 +268,7 @@ std::unique_ptr<Shape> generateCube(float length, int divisions) {
       v = (v / 3) + (1.0f / 3.0f);
 
       textureMapping.push_back({u, v});
+      normals.push_back({0.0f, 0.0f, -1.0f});
     }
   }
 
@@ -293,21 +299,12 @@ std::unique_ptr<Shape> generateCube(float length, int divisions) {
       v = (v / 3.0f) + (1.0f / 3.0f);
 
       textureMapping.push_back({u, v});
+      normals.push_back({0.0f, 0.0f, 1.0f});
     }
   }
-  
-  /*for (int i = 0; i < divisions; i++) {
-    for (int j = 0; j < divisions; j++) {
-      generateSquare({-mid + (i + 1) * step, -mid + j * step, mid},
-                     {-mid + (i + 1) * step, -mid + (j + 1) * step, mid},
-                     {-mid + i * step, -mid + (j + 1) * step, mid},
-                     {-mid + i * step, -mid + j * step, mid}, triangles);
-    }
-  }*/
 
 
-
-  return std::make_unique<Shape>(triangles, std::vector<Vector>(), textureMapping);
+  return std::make_unique<Shape>(triangles, normals, textureMapping);
 }
 
 std::unique_ptr<Shape> generateCylinder(float radius, float height,
