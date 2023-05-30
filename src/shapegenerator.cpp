@@ -384,10 +384,13 @@ std::unique_ptr<Shape> generateCone(float radius, float height, int slices,
                                     int stacks) {
 
   std::vector<Triangle> ans;
+  std::vector<Vector> normals;
   std::vector<Point> prev;
   std::vector<Point2D> textures;
   
   int count = 0;
+
+  float angle = atan(radius / height);
 
   for (int i = 0; i <= stacks; i++) {
     float r = radius * (stacks - i) / stacks;
@@ -407,6 +410,7 @@ std::unique_ptr<Shape> generateCone(float radius, float height, int slices,
           float u = x / (2 * radius) + 0.5f;
           float v = z / (2 * radius) + 0.5f;
           textures.push_back({u,v});
+          normals.push_back({0.0f, -1.0f, 0.0f});
         }     
       }
     } else {
@@ -425,13 +429,27 @@ std::unique_ptr<Shape> generateCone(float radius, float height, int slices,
         textures.push_back({(float)(j + 1) / slices, (float)(i - 1) / stacks});
         textures.push_back({(float)j / slices, (float)i / stacks});
         textures.push_back({(float)(j + 1) / slices, (float)i / stacks});
+
+        if(i == stacks) {
+          for(int k = 0; k < 6; k++)
+            normals.push_back({0.0f, 1.0f, 0.0f});
+
+        } else {
+          Vector vertical = {0.0f, sin(angle), 0.0f};
+          normals.push_back((cos(angle)) * normalize(projectToPlane({0.0f, 1.0f, 0.0f}, p1)) + vertical);
+          normals.push_back((cos(angle)) * normalize(projectToPlane({0.0f, 1.0f, 0.0f}, p2)) + vertical);
+          normals.push_back((cos(angle)) * normalize(projectToPlane({0.0f, 1.0f, 0.0f}, p3)) + vertical);
+          normals.push_back((cos(angle)) * normalize(projectToPlane({0.0f, 1.0f, 0.0f}, p1)) + vertical);
+          normals.push_back((cos(angle)) * normalize(projectToPlane({0.0f, 1.0f, 0.0f}, p3)) + vertical);
+          normals.push_back((cos(angle)) * normalize(projectToPlane({0.0f, 1.0f, 0.0f}, p4)) + vertical);
+        }
       }
     }
 
     prev = cur;
   }
 
-  return std::make_unique<Shape>(ans, std::vector<Vector>(), textures);
+  return std::make_unique<Shape>(ans, normals, textures);
 }
 
 std::unique_ptr<Shape> generateSphere(float radius, int slices, int stacks) {
