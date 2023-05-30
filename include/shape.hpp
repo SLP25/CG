@@ -29,7 +29,7 @@ public:
    * @brief Default constructor
    */
   Shape();
-  Shape(const std::vector<Triangle>& triangles, const std::vector<Point2D>& textureCoordinates);
+  Shape(const std::vector<Triangle>& triangles, const std::vector<Vector>& normals,  const std::vector<Point2D>& textureCoordinates);
   Shape(const std::vector<Triangle>& triangles); //the normals are extapolated from the triangles
   Shape(std::vector<Point> points, std::vector<Vector> normals, std::vector<Point2D> textures, std::vector<TriangleByPosition> trianglesByPos);
   Shape(const std::vector<Triangle>& triangles, const std::map<Point, Point2D>& textureCoordinates);
@@ -115,7 +115,12 @@ private:
    * @brief The vertices of the shape
    */
   std::vector<Point> points;
+
+  /**
+   * @brief The normals for the vertices
+  */
   std::vector<Vector> normals;
+  
   /**
    * @brief The textures for the points of the shape. The key is the coordinates of the 
    * vertex, and the value is the texture coordinate of that vertex

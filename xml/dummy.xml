@@ -8,10 +8,10 @@
         <projection fov="60" near="0.1" far="10000" />
     </camera>
 
-    <group>
-        <models>
-            <model file="models/teapot.3d">
-                <texture file="models/teapot.jpg"/>
+    <group> 
+        <models> 
+            <model file="models/plane.3d" > <!-- generator plane 2 3 plane_2_3.3d -->
+                <texture file = "models/relva.jpg" />
             </model>
         </models>
     </group>

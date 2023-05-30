@@ -74,7 +74,7 @@ Shape::Shape(std::vector<Point> points, std::vector<Vector> normals, std::vector
   trianglesByPos(trianglesByPos)
 {}
 
-Shape::Shape(const std::vector<Triangle>& triangles, const std::vector<Point2D>& textureCoordinates) :
+Shape::Shape(const std::vector<Triangle>& triangles, const std::vector<Vector>& normals, const std::vector<Point2D>& textureCoordinates) :
   vbo_points(0),
   vbo_normals(0),
   vbo_textures(0)
@@ -83,11 +83,10 @@ Shape::Shape(const std::vector<Triangle>& triangles, const std::vector<Point2D>&
 
   for (int i = 0; i < (int)triangles.size(); i++) {
     Triangle triangle = triangles[i];
-    Vector normal = getNormal(triangle);
     std::tuple<Point,Vector,Point2D> vertices[3] = {
-      { std::get<0>(triangle), normal, textureCoordinates[3 * i] },
-      { std::get<1>(triangle), normal, textureCoordinates[3 * i + 1] },
-      { std::get<2>(triangle), normal, textureCoordinates[3 * i + 2] }
+      { std::get<0>(triangle), normals[3 * i], textureCoordinates[3 * i] },
+      { std::get<1>(triangle), normals[3 * i + 1], textureCoordinates[3 * i + 1] },
+      { std::get<2>(triangle), normals[3 * i + 2], textureCoordinates[3 * i + 2] }
     };
     int pos[3];
 
