@@ -454,15 +454,18 @@ std::unique_ptr<Shape> generateCone(float radius, float height, int slices,
 
 std::unique_ptr<Shape> generateSphere(float radius, int slices, int stacks) {
   std::vector<Triangle> ans;
+  std::vector<Vector> normals;
+  std::vector<Point2D> textureMapping;
   std::vector<Point> prev;
 
-  std::map<Point, Point2D> textureMapping;
+  std::map<Point, Point2D> textureMap;
 
   for (int i = 0; i <= stacks; i++) {
     float h = radius * (2.0f * i / stacks - 1);
     float r = sqrt(radius * radius - h * h);
 
     std::vector<Point> cur = generateCircle({0, h, 0}, r, slices, 0);
+    cur.push_back(cur[0]);
 
     for(Point p : cur) {
       // Source: https://en.wikipedia.org/wiki/UV_mapping
@@ -470,18 +473,63 @@ std::unique_ptr<Shape> generateSphere(float radius, int slices, int stacks) {
       float u = 0.5f - (atan2(std::get<2>(p) / radius, std::get<0>(p) / radius)) / (2 * M_PI);
       float v = 0.5f + asin(std::get<1>(p) / radius) / M_PI;
 
-      textureMapping[p] = {u, v};
+      textureMap[p] = {u, v};
     }
 
     if (i != 0)
-      for (int j = 0; j < slices; j++)
-        generateSquare(prev.at((j + 1) % slices), prev.at(j), cur.at(j),
-                       cur.at((j + 1) % slices), ans);
+      for (int j = 0; j < slices; j++) {
+        Point p1 = prev.at(j + 1);
+        Point p2 = prev.at(j);
+        Point p3 = cur.at(j);
+        Point p4 = cur.at(j + 1);
+
+        ans.push_back({p1, p2, p3});
+        ans.push_back({p1, p3, p4});
+
+        float u = 0.5f - (atan2(std::get<2>(p2) / radius, std::get<0>(p2) / radius)) / (2 * M_PI);
+        float v = 0.5f + asin(std::get<1>(p2) / radius) / M_PI;
+
+        textureMapping.push_back({u - 1.0f / slices,v});
+        textureMapping.push_back({u,v});
+        textureMapping.push_back({u,v + 1.0f / stacks});
+        textureMapping.push_back({u - 1.0f / slices,v});
+        textureMapping.push_back({u,v + 1.0f / stacks});
+        textureMapping.push_back({u - 1.0f / slices,v + 1.0f / stacks});
+
+        /*u = 0.5f - (atan2(std::get<2>(p2) / radius, std::get<0>(p2) / radius)) / (2 * M_PI);
+        v = 0.5f + asin(std::get<1>(p2) / radius) / M_PI;
+        textureMapping.push_back({u,v});
+
+        u = 0.5f - (atan2(std::get<2>(p3) / radius, std::get<0>(p3) / radius)) / (2 * M_PI);
+        v = 0.5f + asin(std::get<1>(p3) / radius) / M_PI;
+        textureMapping.push_back({u,v});
+
+        u = j == slices - 1 ? 1.0f : 0.5f - (atan2(std::get<2>(p1) / radius, std::get<0>(p1) / radius)) / (2 * M_PI);
+        v = 0.5f + asin(std::get<1>(p1) / radius) / M_PI;
+        textureMapping.push_back({u,v});
+
+        u = 0.5f - (atan2(std::get<2>(p3) / radius, std::get<0>(p3) / radius)) / (2 * M_PI);
+        v = 0.5f + asin(std::get<1>(p3) / radius) / M_PI;
+        textureMapping.push_back({u,v});
+
+        u = j == slices - 1 ? 1.0f : 0.5f - (atan2(std::get<2>(p4) / radius, std::get<0>(p4) / radius)) / (2 * M_PI);
+        v = 0.5f + asin(std::get<1>(p4) / radius) / M_PI;
+        textureMapping.push_back({u,v});*/
+      }
 
     prev = cur;
   }
 
-  return std::make_unique<Shape>(ans, std::vector<Vector>(), std::vector<Point2D>());
+  for(Triangle t : ans) {
+    Point p[3] = {std::get<0>(t), std::get<1>(t), std::get<2>(t)};
+
+    for(int j = 0; j < 3; j++) {
+      textureMapping.push_back(textureMap[p[j]]);
+      normals.push_back(normalize(p[j]));
+    }
+  }
+
+  return std::make_unique<Shape>(ans, normals, textureMapping);
 }
 
 std::unique_ptr<Shape> generateFromObj(std::string srcFile) {
