@@ -537,17 +537,20 @@ std::unique_ptr<Shape> generateFromObj(std::string srcFile) {
   // as vectors start at 0 but OBJ files start at 1
   auto vertices = std::vector<Point>({{0, 0, 0}});
   auto textures = std::vector<Point2D>({{0,0}});
+  auto normals = std::vector<Vector>({{0,0,0}});
 
   auto triangles = std::vector<Triangle>();
   auto textureMapping = std::vector<Point2D>();
+  auto normalMapping = std::vector<Vector>();
 
   std::ifstream file = std::ifstream(srcFile);
 
   std::string line = "";
-  const std::regex vertex(R"(v +(-?\d+\.?\d*) (-?\d+\.?\d*) (-?\d+\.?\d*))");
+  const std::regex vertex(R"(v +(-?\d+\.?\ std::vector<Vector>()d*) (-?\d+\.?\d*) (-?\d+\.?\d*))");
   const std::regex face(
       R"(f +((\d+)(\/?\d*\/?\d*)? ){2,}((\d+)(\/?\d*\/?\d*)?))");
   const std::regex textureRegex(R"(vt +(\d+\.?\d*) +(\d+\.?\d*))");
+  const std::regex normalRegex(R"(vn +(\d+\.?\d*) +(\d+\.?\d*))");
   const std::regex face_vertice(R"((\d+)\/?(\d*)\/?(\d*))");
   int count = 0;
   while (std::getline(file, line)) {
@@ -557,36 +560,48 @@ std::unique_ptr<Shape> generateFromObj(std::string srcFile) {
       float y = std::stof(match[2].str());
       float z = std::stof(match[3].str());
       vertices.push_back({x, y, z});
+    } else if (std::regex_search(line, match, normalRegex)) { // Is a normal
+      float x = std::stof(match[1].str());
+      float y = std::stof(match[2].str());
+      float z = std::stof(match[3].str());
+      normals.push_back({x, y, z});
     } else if(std::regex_search(line, match, textureRegex)) { // Is a texture
       float u = std::stof(match[1].str());
       float v = 1.0f - std::stof(match[2].str());
       textures.push_back({u,v}); 
     } else if (std::regex_search(line, match, face)) { // Is a face
       auto temp = std::vector<Point>();
-      auto mapping = std::map<Point, Point2D>();
+      auto textureMap = std::map<Point, Point2D>();
+      auto normalMap = std::map<Point, Vector>();
 
       while (std::regex_search(line, match, face_vertice)) {
         int index = std::stoi(match[1]);
         temp.push_back(vertices[index]);
 
+        if(match[1] != "") {
+          int j = std::stoi(match[2]);
+          normalMap[vertices[index]] = normals[j];
+        }
+
         if(match[2] != "") {
           int j = std::stoi(match[2]);
-          mapping[vertices[index]] = textures[j];
+          textureMap[vertices[index]] = textures[j];
         }
 
         line = match.suffix().str();
       }
 
-      //generatePolygon(temp, triangles);
       triangles.push_back({temp[0], temp[1], temp[2]});
       for(; count < (int)triangles.size(); count++) {
         Point p[3] = {std::get<0>(triangles[count]), std::get<1>(triangles[count]), std::get<2>(triangles[count])};
 
         for(int k = 0; k < 3; k++) {
-          if(mapping.find(p[k]) == mapping.end()) {
+          if(textureMap.find(p[k]) == textureMap.end()) {
             textureMapping.push_back({0,0});
+            normalMapping.push_back({0,0,0});
           } else {
-            textureMapping.push_back(mapping[p[k]]);
+            textureMapping.push_back(textureMap[p[k]]);
+            normalMapping.push_back(normalMap[p[k]]);
           }
         }
       }
@@ -596,7 +611,7 @@ std::unique_ptr<Shape> generateFromObj(std::string srcFile) {
   //TODO: normals
 
   file.close();
-  return std::make_unique<Shape>(triangles, std::vector<Vector>(), textureMapping);
+  return std::make_unique<Shape>(triangles, normalMapping, textureMapping);
 }
 
 std::unique_ptr<Shape> generateDonut(float radius, float length, float height,
@@ -725,10 +740,12 @@ inline void readBezierPatchFile(std::string inputFile, std::vector<Point>& contr
  * @param controlPoints the control points
  * @param patches       the patches
  * @param divisions     the number of divisions of a patch in one axis
- * @param triangles     the vector in which to store the triangles.
+ * @param triangles     the vector in which to store the triangles
+ * @param normals       the vector in which to store the vertex normals
+ * @param textures      the vector in which to store the texture coordinates
 */
 inline void generateBezierTriangles(std::vector<Point>& controlPoints, std::vector<int[16]>& patches,
- int divisions, std::vector<Triangle>& triangles, std::vector<Point2D>& textures) {
+ int divisions, std::vector<Triangle>& triangles, std::vector<Vector>& normals, std::vector<Point2D>& textures) {
   /*
   
   Given 16 control points p[0][0], p[0][1], ..., p[3][2], p[3][3], the Bezier patch
@@ -760,6 +777,7 @@ inline void generateBezierTriangles(std::vector<Point>& controlPoints, std::vect
   int patchCount = patches.size();
   
   Point* points = new Point[divisions * divisions];
+  Vector* normalArr = new Vector[divisions * divisions];
 
   for(int i = 0; i < patchCount; i++) {
     //Compute the matrix that depends on the control points. The matrix is 
@@ -785,10 +803,12 @@ inline void generateBezierTriangles(std::vector<Point>& controlPoints, std::vect
         float d2 = (float)(divisions - 1)*(divisions - 1); //(divisions - 1)^2
         float d3 = (float)(divisions - 1)*d2; //(divisions - 1)^3
         float u[4] = {(float)j*j*j / d3, (float)j*j / d2, (float)j / (divisions - 1), 1};
+        float du[4] = {(float)3*j*j / d3, (float)2*j / d2, 1.0f, 0.0f};
         float v[4] = {(float)k*k*k / d3, (float)k*k / d2, (float)k / (divisions - 1), 1};
+        float dv[4] = {(float)3*k*k / d3, (float)2*k / d2, 1.0f, 0.0f};
         
         /*
-         Matrix multiplications
+         Matrix multiplications: Coordinates
         */
         float temp1[4];
         Point temp2[16];
@@ -798,6 +818,31 @@ inline void generateBezierTriangles(std::vector<Point>& controlPoints, std::vect
         matrixProd(4,1, 4, temp2, m, temp3);
         //Compute the result and store it in (j,k) position of the matrix
         matrixProd(1, 1, 4, temp3, u, points + j * divisions + k);
+
+         /*
+         Matrix multiplications: Normals
+        */
+        //du
+        Vector du_vector;
+        matrixProd(4,1, 4, v, m, temp1);
+        matrixProd(4,1, 4, temp1, p, temp2);
+        matrixProd(4,1, 4, temp2, m, temp3);
+        //Compute the result and store it in (j,k) position of the matrix
+        matrixProd(1, 1, 4, temp3, du, &du_vector);
+        //du
+        Vector dv_vector;
+        matrixProd(4,1, 4, dv, m, temp1);
+        matrixProd(4,1, 4, temp1, p, temp2);
+        matrixProd(4,1, 4, temp2, m, temp3);
+        //Compute the result and store it in (j,k) position of the matrix
+        matrixProd(1, 1, 4, temp3, u, &dv_vector);
+
+        Vector temp = du_vector ^ dv_vector;
+        if(length(temp) == 0)
+          temp = {0.0f, 1.0f, 0.0f};
+        else
+          temp = normalize(temp);
+        normalArr[j * divisions + k] = temp;
       }
     }
 
@@ -826,22 +871,31 @@ inline void generateBezierTriangles(std::vector<Point>& controlPoints, std::vect
         textures.push_back({(float)j / (divisions - 1), (float)k / (divisions - 1)});
         textures.push_back({(float)(j + 1) / (divisions - 1), (float)(k + 1) / (divisions - 1)});
         textures.push_back({(float)j / (divisions - 1), (float)(k + 1) / (divisions - 1)});
+
+        normals.push_back(normalArr[j * divisions + k]);
+        normals.push_back(normalArr[(j + 1) * divisions + k]);
+        normals.push_back(normalArr[(j + 1) * divisions + k + 1]);
+        normals.push_back(normalArr[j * divisions + k]);
+        normals.push_back(normalArr[(j + 1) * divisions + k + 1]);
+        normals.push_back(normalArr[(j) * divisions + k + 1]);
       }
     }
   }
 
   delete[] points;
+  delete[] normalArr;
 }
 
 std::unique_ptr<Shape> generateBezierPatches(std::string inputFile, int divisions) {
   auto controlPoints = std::vector<Point>();
   auto patches = std::vector<int[16]>();
   auto triangles = std::vector<Triangle>();
+  auto normals = std::vector<Vector>();
   auto textures = std::vector<Point2D>();
 
   readBezierPatchFile(inputFile, controlPoints, patches);
-  generateBezierTriangles(controlPoints, patches, divisions, triangles, textures);
+  generateBezierTriangles(controlPoints, patches, divisions, triangles, normals, textures);
   
 
-  return std::make_unique<Shape>(triangles, std::vector<Vector>(), textures);
+  return std::make_unique<Shape>(triangles, normals, textures);
 }
