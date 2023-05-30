@@ -312,12 +312,20 @@ std::unique_ptr<Shape> generateCylinder(float radius, float height,
   std::vector<Point> top = generateCircle({0, height, 0}, radius, slices, 0);
   std::vector<Point> bottom = generateCircle({0, 0, 0}, radius, slices, 0.5);
   std::vector<Triangle> ans;
+  std::vector<Vector> normals;
   std::vector<Point2D> textures;
 
   for (int i = 0; i < slices; i++) {
     int i2 = (i + 1) % slices;
     ans.push_back({top[i], top[i2], bottom[i]});
     ans.push_back({bottom[i2], bottom[i], top[i2]});
+
+    normals.push_back(normalize({std::get<0>(top[i]), 0.0f, std::get<2>(top[i])}));
+    normals.push_back(normalize({std::get<0>(top[i2]), 0.0f, std::get<2>(top[i2])}));
+    normals.push_back(normalize({std::get<0>(bottom[i]), 0.0f, std::get<2>(bottom[i])}));
+    normals.push_back(normalize({std::get<0>(bottom[i2]), 0.0f, std::get<2>(bottom[i2])}));
+    normals.push_back(normalize({std::get<0>(bottom[i]), 0.0f, std::get<2>(bottom[i])}));
+    normals.push_back(normalize({std::get<0>(top[i2]), 0.0f, std::get<2>(top[i2])}));
 
     i2 = i == slices - 1 ? slices : i2;
     textures.push_back({1.0f - (float)i / slices, 1.0f});
@@ -326,6 +334,8 @@ std::unique_ptr<Shape> generateCylinder(float radius, float height,
     textures.push_back({1.0f - (float)i2 / slices, 0.375f});
     textures.push_back({1.0f - (float)i / slices, 0.375f});
     textures.push_back({1.0f - (float)i2 / slices, 1.0f});
+
+    
   }
   int count = ans.size();
   reverse(top.begin(), top.end());
@@ -344,6 +354,7 @@ std::unique_ptr<Shape> generateCylinder(float radius, float height,
       v *= 0.375;
       u += 0.25;
       textures.push_back({u,v});
+      normals.push_back({0.0f, 1.0f, 0.0f});
     }     
   }
 
@@ -362,10 +373,11 @@ std::unique_ptr<Shape> generateCylinder(float radius, float height,
       v *= 0.375;
       u += 0.625;
       textures.push_back({u,v});
+      normals.push_back({0.0f, -1.0f, 0.0f});
     }     
   }
 
-  return std::make_unique<Shape>(ans, std::vector<Vector>(), textures);
+  return std::make_unique<Shape>(ans, normals, textures);
 }
 
 std::unique_ptr<Shape> generateCone(float radius, float height, int slices,
