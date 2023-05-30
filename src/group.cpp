@@ -53,7 +53,8 @@ Group& Group::operator=(Group&& group) {
   return *this;
 }
 
-void Group::draw(const Frustum& viewFrustum) {
+int Group::draw(const Frustum& viewFrustum) {
+  int count = 0;
   glPushMatrix();
 
   for (auto &t : this->transformations) {
@@ -61,13 +62,15 @@ void Group::draw(const Frustum& viewFrustum) {
   }
 
   for (auto &m : this->models) {
-    m.draw(viewFrustum);
+    count += m.draw(viewFrustum);
   }
 
   for (auto &g : this->subgroups) {
-    g.draw(viewFrustum);
+    count += g.draw(viewFrustum);
   }
+
   glPopMatrix();
+  return count;
 }
 
 void Group::assertValidXML(XMLParser parser) {

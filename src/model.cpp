@@ -81,7 +81,7 @@ Model::Model(XMLParser parser) :
   }  
 }
 
-void Model::draw(const Frustum& viewFrustum)
+int Model::draw(const Frustum& viewFrustum)
 {
   float modelview[16];
   glGetFloatv(GL_MODELVIEW_MATRIX, modelview);
@@ -109,7 +109,8 @@ void Model::draw(const Frustum& viewFrustum)
       Texture::unbind();
 
     shape->draw();
-  } //else {
-    //std::cout << "invisible" << std::endl;
-  //}
+    return 0;
+  } else {
+    return 1;
+  }
 }

@@ -88,7 +88,9 @@ void World::renderScene() {
 
   if(this->axis)
     drawAxis();
-  root.draw(camera->viewFrustum());
+  
+  int culled = root.draw(camera->viewFrustum());
+  glutSetWindowTitle(("Culled Shapes: " + std::to_string(culled)).c_str());
 
   // End of frame
   glutSwapBuffers();
