@@ -159,7 +159,7 @@ bool BoundingBox::isForward(Plane plane) {
 }
 
 
-Frustrum::Frustrum(Point position, Vector lookAtVector, Vector up, float near, float far, float fov, float ratio) {
+Frustum::Frustum(Point position, Vector lookAtVector, Vector up, float near, float far, float fov, float ratio) {
   lookAtVector = normalize(lookAtVector);
   up = normalize(up);
 
@@ -184,7 +184,7 @@ Frustrum::Frustrum(Point position, Vector lookAtVector, Vector up, float near, f
   this->right = Plane(upRightNear, normalize(up ^ upRightOut));
 }
 
-bool Frustrum::contains(BoundingBox boundingBox) const {
+bool Frustum::contains(BoundingBox boundingBox) const {
   for (Plane p : { up, down, left, right, near, far })
     if (!boundingBox.isForward(p))
       return false;

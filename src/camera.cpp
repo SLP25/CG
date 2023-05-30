@@ -68,8 +68,8 @@ void Camera::setupScene() {
   gluLookAt(GET_ALL(position), GET_ALL(lookAt), GET_ALL(up));
 }
 
-Frustrum Camera::viewFrustrum() {
-  return Frustrum(zero(), {0,0,-1}, {0,1,0}, near, far, fov, ratio);
+Frustum Camera::viewFrustum() {
+  return Frustum(zero(), {0,0,-1}, {0,1,0}, near, far, fov, ratio);
 }
 
 void Camera::handleKey(unsigned char key,

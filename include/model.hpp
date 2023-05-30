@@ -52,5 +52,5 @@ public:
    * @brief Draws the model by calling glut's static functions
    *
    */
-  void draw(const Frustrum& viewFrustrum);
+  void draw(const Frustum& viewFrustum);
 };

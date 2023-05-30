@@ -81,7 +81,7 @@ Model::Model(XMLParser parser) :
   }  
 }
 
-void Model::draw(const Frustrum& viewFrustrum)
+void Model::draw(const Frustum& viewFrustum)
 {
   float modelview[16];
   glGetFloatv(GL_MODELVIEW_MATRIX, modelview);
@@ -90,7 +90,7 @@ void Model::draw(const Frustrum& viewFrustrum)
   BoundingBox bb = shape->getBoundingBox();
   bb.transform(modelview);
 
-  if (viewFrustrum.contains(bb)) {
+  if (viewFrustum.contains(bb)) {
     //std::cout << "visible" << std::endl;
     float emi[] = { GET_ALL(emission), 1.0 };
     float amb[] = { GET_ALL(ambient), 1.0 };

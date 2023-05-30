@@ -36,7 +36,7 @@ public:
                                  //of the plane (aka the direction the normal points)
 };
 
-class Frustrum {
+class Frustum {
     //For all these, the normal vector points inwards
     Plane up;
     Plane down;
@@ -46,7 +46,7 @@ class Frustrum {
     Plane far;
 
 public:
-    Frustrum(Point position, Vector lookAtVector, Vector up, float near, float fat, float fov, float ratio);
+    Frustum(Point position, Vector lookAtVector, Vector up, float near, float fat, float fov, float ratio);
     bool contains(BoundingBox boundingBox) const;
 };
 

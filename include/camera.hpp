@@ -7,7 +7,7 @@
 
 /**
  * @brief Represents the camera through which the world is viewed. It stores information about the camera's
- * position, direction, frustrum and how these elements respond to inputs.
+ * position, direction, frustum and how these elements respond to inputs.
  * 
  */
 class Camera {
@@ -51,12 +51,12 @@ public:
   void setupScene();
 
   /**
-   * @brief Constructs the view frustrum
+   * @brief Constructs the view frustum
    * 
-   * @return The view frustrum
+   * @return The view frustum
    * 
    */
-  Frustrum viewFrustrum();
+  Frustum viewFrustum();
 
   /**
    * @brief Is called whenever a character key is pressed
