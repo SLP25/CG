@@ -142,7 +142,7 @@ std::unique_ptr<Shape> generateCube(float length, int divisions) {
       v = (v / 3.0f) + (1.0f / 3.0f);
 
       textureMapping.push_back({u, v});
-      normals.push_back({-1.0f, 0.0f, 0.0f});
+      normals.push_back({0.0f, 0.0f, 1.0f});
     }
   }
 
@@ -173,7 +173,7 @@ std::unique_ptr<Shape> generateCube(float length, int divisions) {
       v = (v / 3.0f) + (1.0f / 3.0f);
 
       textureMapping.push_back({u, v});
-      normals.push_back({1.0f, 0.0f, 0.0f});
+      normals.push_back({0.0f, 0.0f, -1.0f});
     }
   }
 
@@ -237,7 +237,7 @@ std::unique_ptr<Shape> generateCube(float length, int divisions) {
       v = (v / 3.0f) + (2.0f / 3.0f);
 
       textureMapping.push_back({u, v});
-      normals.push_back({1.0f, 0.0f, 0.0f});
+      normals.push_back({0.0f, 1.0f, 0.0f});
     }
   }
 
@@ -268,7 +268,7 @@ std::unique_ptr<Shape> generateCube(float length, int divisions) {
       v = (v / 3) + (1.0f / 3.0f);
 
       textureMapping.push_back({u, v});
-      normals.push_back({0.0f, 0.0f, -1.0f});
+      normals.push_back({1.0f, 0.0f, 0.0f});
     }
   }
 
@@ -299,7 +299,7 @@ std::unique_ptr<Shape> generateCube(float length, int divisions) {
       v = (v / 3.0f) + (1.0f / 3.0f);
 
       textureMapping.push_back({u, v});
-      normals.push_back({0.0f, 0.0f, 1.0f});
+      normals.push_back({-1.0f, 0.0f, 0.0f});
     }
   }
 
@@ -430,19 +430,18 @@ std::unique_ptr<Shape> generateCone(float radius, float height, int slices,
         textures.push_back({(float)j / slices, (float)i / stacks});
         textures.push_back({(float)(j + 1) / slices, (float)i / stacks});
 
-        if(i == stacks) {
-          for(int k = 0; k < 6; k++)
-            normals.push_back({0.0f, 1.0f, 0.0f});
-
-        } else {
-          Vector vertical = {0.0f, sin(angle), 0.0f};
-          normals.push_back((cos(angle)) * normalize(projectToPlane({0.0f, 1.0f, 0.0f}, p1)) + vertical);
-          normals.push_back((cos(angle)) * normalize(projectToPlane({0.0f, 1.0f, 0.0f}, p2)) + vertical);
-          normals.push_back((cos(angle)) * normalize(projectToPlane({0.0f, 1.0f, 0.0f}, p3)) + vertical);
-          normals.push_back((cos(angle)) * normalize(projectToPlane({0.0f, 1.0f, 0.0f}, p1)) + vertical);
-          normals.push_back((cos(angle)) * normalize(projectToPlane({0.0f, 1.0f, 0.0f}, p3)) + vertical);
-          normals.push_back((cos(angle)) * normalize(projectToPlane({0.0f, 1.0f, 0.0f}, p4)) + vertical);
-        }
+          float w = ((float)(j + 1) / slices) * 2 * M_PI;
+          normals.push_back({cos(angle) * cos(w), sin(angle), sin(w)});
+          w = ((float)j / slices) * 2 * M_PI;
+          normals.push_back({cos(angle) * cos(w), sin(angle), sin(w)});
+          w = ((float)j / slices) * 2 * M_PI;
+          normals.push_back({cos(angle) * cos(w), sin(angle), sin(w)});
+          w = ((float)(j + 1) / slices) * 2 * M_PI;
+          normals.push_back({cos(angle) * cos(w), sin(angle), sin(w)});
+          w = ((float)j / slices) * 2 * M_PI;
+          normals.push_back({cos(angle) * cos(w), sin(angle), sin(w)});
+          w = ((float)(j + 1) / slices) * 2 * M_PI;
+          normals.push_back({cos(angle) * cos(w), sin(angle), sin(w)});
       }
     }
 
@@ -458,23 +457,12 @@ std::unique_ptr<Shape> generateSphere(float radius, int slices, int stacks) {
   std::vector<Point2D> textureMapping;
   std::vector<Point> prev;
 
-  std::map<Point, Point2D> textureMap;
-
   for (int i = 0; i <= stacks; i++) {
-    float h = radius * (2.0f * i / stacks - 1);
+    float h = radius * sin(-M_PI / 2.0f + ((double)i / stacks) * M_PI);
     float r = sqrt(radius * radius - h * h);
 
     std::vector<Point> cur = generateCircle({0, h, 0}, r, slices, 0);
     cur.push_back(cur[0]);
-
-    for(Point p : cur) {
-      // Source: https://en.wikipedia.org/wiki/UV_mapping
-      // Computing texture coordinates based on lattitude and longitude
-      float u = 0.5f - (atan2(std::get<2>(p) / radius, std::get<0>(p) / radius)) / (2 * M_PI);
-      float v = 0.5f + asin(std::get<1>(p) / radius) / M_PI;
-
-      textureMap[p] = {u, v};
-    }
 
     if (i != 0)
       for (int j = 0; j < slices; j++) {
@@ -486,15 +474,24 @@ std::unique_ptr<Shape> generateSphere(float radius, int slices, int stacks) {
         ans.push_back({p1, p2, p3});
         ans.push_back({p1, p3, p4});
 
-        float u = 0.5f - (atan2(std::get<2>(p2) / radius, std::get<0>(p2) / radius)) / (2 * M_PI);
-        float v = 0.5f + asin(std::get<1>(p2) / radius) / M_PI;
+        //float u = 0.5f - (atan2(std::get<2>(p1) / radius, std::get<0>(p1) / radius)) / (2 * M_PI);
+        //float v = 0.5f + asin(std::get<1>(p1) / radius) / M_PI;
 
-        textureMapping.push_back({u - 1.0f / slices,v});
+        textureMapping.push_back({-(float)(j + 1) / slices,  (float)(i - 1) / stacks});
+        textureMapping.push_back({-(float)(j) / slices,  (float)(i - 1) / stacks});
+        textureMapping.push_back({-(float)(j) / slices,  (float)(i) / stacks});
+        textureMapping.push_back({-(float)(j + 1) / slices,  (float)(i - 1) / stacks});
+        textureMapping.push_back({-(float)(j) / slices,   (float)(i) / stacks});
+        textureMapping.push_back({-(float)(j + 1) / slices,  (float)(i) / stacks});
+
+        //textureMapping.push_back({u,v});
+
+        /*textureMapping.push_back({u + 1.0f / slices,v});
         textureMapping.push_back({u,v});
         textureMapping.push_back({u,v + 1.0f / stacks});
-        textureMapping.push_back({u - 1.0f / slices,v});
-        textureMapping.push_back({u,v + 1.0f / stacks});
-        textureMapping.push_back({u - 1.0f / slices,v + 1.0f / stacks});
+        textureMapping.push_back({u + 1.0f / slices,v});
+        textureMapping.push_back({u, v + 1.0f /  stacks});
+        textureMapping.push_back({u + 1.0f / slices, v + 1.0f /  (stacks - 1)});*/
 
         /*u = 0.5f - (atan2(std::get<2>(p2) / radius, std::get<0>(p2) / radius)) / (2 * M_PI);
         v = 0.5f + asin(std::get<1>(p2) / radius) / M_PI;
@@ -524,7 +521,6 @@ std::unique_ptr<Shape> generateSphere(float radius, int slices, int stacks) {
     Point p[3] = {std::get<0>(t), std::get<1>(t), std::get<2>(t)};
 
     for(int j = 0; j < 3; j++) {
-      textureMapping.push_back(textureMap[p[j]]);
       normals.push_back(normalize(p[j]));
     }
   }
@@ -856,10 +852,10 @@ inline void generateBezierTriangles(std::vector<Point>& controlPoints, std::vect
         */
         float d2 = (float)(divisions - 1)*(divisions - 1); //(divisions - 1)^2
         float d3 = (float)(divisions - 1)*d2; //(divisions - 1)^3
-        float u[4] = {(float)j*j*j / d3, (float)j*j / d2, (float)j / (divisions - 1), 1};
-        float du[4] = {(float)3*j*j / d3, (float)2*j / d2, 1.0f, 0.0f};
-        float v[4] = {(float)k*k*k / d3, (float)k*k / d2, (float)k / (divisions - 1), 1};
-        float dv[4] = {(float)3*k*k / d3, (float)2*k / d2, 1.0f, 0.0f};
+        float u[4] = {(float)(j*j*j) / d3, (float)(j*j) / d2, (float)j / (divisions - 1), 1};
+        float du[4] = {3.0f * (float)(j*j) / d3, 2.0f * (float)j / d2, 1.0f, 0.0f};
+        float v[4] = {(float)(k*k*k) / d3, (float)(k*k) / d2, (float)k / (divisions - 1), 1};
+        float dv[4] = {3.0f * (float)(k*k) / d3, 2.0f * (float)k / d2, 1.0f, 0.0f};
         
         /*
          Matrix multiplications: Coordinates
@@ -878,18 +874,18 @@ inline void generateBezierTriangles(std::vector<Point>& controlPoints, std::vect
         */
         //du
         Vector du_vector;
-        matrixProd(4,1, 4, v, m, temp1);
-        matrixProd(4,1, 4, temp1, p, temp2);
-        matrixProd(4,1, 4, temp2, m, temp3);
+        matrixProd(1,4, 4, m, v, temp1);
+        matrixProd(1,4, 4, p, temp1, temp2);
+        matrixProd(1,4, 4, m, temp2, temp3);
         //Compute the result and store it in (j,k) position of the matrix
-        matrixProd(1, 1, 4, temp3, du, &du_vector);
-        //du
+        matrixProd(1, 1, 4, du, temp3, &du_vector);
+        //dv
         Vector dv_vector;
-        matrixProd(4,1, 4, dv, m, temp1);
-        matrixProd(4,1, 4, temp1, p, temp2);
-        matrixProd(4,1, 4, temp2, m, temp3);
+        matrixProd(1, 4, 4, m, dv, temp1);
+        matrixProd(1, 4, 4, p, temp1, temp2);
+        matrixProd(1, 4, 4, m, temp2, temp3);
         //Compute the result and store it in (j,k) position of the matrix
-        matrixProd(1, 1, 4, temp3, u, &dv_vector);
+        matrixProd(1, 1, 4, u, temp3, &dv_vector);
 
         Vector temp = du_vector ^ dv_vector;
         if(length(temp) == 0)
