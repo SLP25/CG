@@ -19,6 +19,7 @@
     <group> <!-- Sol -->
         <models>
             <model file="models/sphere.3d">
+                <texture file = "planetas/2k_sun.jpg" />
                 <color>
                     <emissive R="253" G="184" B="19"/>
                 </color>
@@ -77,7 +78,7 @@
         <group> <!-- Mercúrio -->
             <models>
                 <model file="models/sphere.3d">
-                    <color hex="#8c8c94"/>
+                    <texture file = "planetas/mercurio/2k_mercury.jpg" />
                 </model>
             </models>
             <transform>
@@ -90,7 +91,7 @@
         <group> <!-- Vénus -->
             <models>
                 <model file="models/sphere.3d">
-                    <color hex="#c18f17"/>
+                    <texture file = "planetas/venus/2k_venus_atmosphere.jpg" />
                 </model>
             </models>
             <transform>
@@ -104,7 +105,7 @@
         <group> <!-- Terra -->
             <models>
                 <model file="models/sphere.3d">
-                    <color hex="#6b93d6"/>
+                    <texture file = "planetas/earth/2k_earth_daymap.jpg" />
                 </model>
             </models>
             <transform>
@@ -116,7 +117,7 @@
             <group> <!-- Lua -->
                 <models>
                     <model file="models/sphere.3d">
-                        <color hex="#f6f1d5"/>
+                        <texture file = "planetas/2k_moon.jpg" />
                     </model>
                 </models>
                 <transform>
@@ -132,7 +133,7 @@
         <group> <!-- Marte -->
             <models>
                 <model file="models/sphere.3d">
-                    <color hex="#c1440e"/>
+                    <texture file = "planetas/marte/2k_mars.jpg" />
                 </model>
             </models>
             <transform>
@@ -146,7 +147,7 @@
         <group> <!-- Júpiter -->
             <models>
                 <model file="models/sphere.3d">
-                    <color hex="#d8ca9d"/>
+                    <texture file = "planetas/jupiter/2k_jupiter.jpg" />
                 </model>
             </models>
             <transform>
@@ -160,10 +161,10 @@
         <group> <!-- Saturno -->
             <models>
                 <model file="models/sphere.3d">
-                    <color hex="#e3e0c0"/>
+                    <texture file = "planetas/saturn/2k_saturn.jpg" />
                 </model>
                 <model file="models/donut.3d">
-                    <color hex="#dbb57c"/>
+                    <texture file = "planetas/saturn/2k_saturn_ring_alpha.png" />
                 </model>
             </models>
             <transform>
@@ -179,7 +180,7 @@
         <group> <!-- Urano -->
             <models>
                 <model file="models/sphere.3d">
-                    <color hex="#c6d3e3"/>
+                    <texture file = "planetas/uranus/2k_uranus.jpg" />
                 </model>
             </models>
             <transform>
@@ -193,7 +194,7 @@
         <group> <!-- Neptuno -->
             <models>
                 <model file="models/sphere.3d">
-                    <color hex="#274687"/>
+                    <texture file = "planetas/neptune/2k_neptune.jpg" />
                 </model>
             </models>
             <transform>
@@ -207,7 +208,7 @@
         <group> <!-- Plutão -->
             <models>
                 <model file="models/sphere.3d">
-                    <color hex="#f6ddbd"/>
+                    <texture file = "planetas/2k_pluto.jpg" />
                 </model>
             </models>
             <transform>
