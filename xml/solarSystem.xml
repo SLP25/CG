@@ -13,8 +13,9 @@
 
 <!-- Planetas gasosos sao 5x maiores do que a escala -->
 <!-- Planetas terrestres sao 10x maiores do que a escala -->
-<!-- Todas as distâncias foram cortadas 50x, exceto a distancia terra-lua, q foi cortada 25x -->
+<!-- Todas as distâncias foram cortadas 50x, exceto a distância terra-lua, q foi cortada 25x -->
 <!-- 1 ano irl dura 10 segundos de animação -->
+<!-- Para a rotação do seu próprio eixo dos planetas, 365 dias correspondem a 5 segundos. -->
 
     <group> <!-- Sol -->
         <models>
