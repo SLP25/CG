@@ -79,6 +79,10 @@
             <models>
                 <model file="models/sphere.3d">
                     <texture file = "planetas/mercurio/2k_mercury.jpg" />
+                    <color>
+                        <specular R="200" G="200" B="200"/>
+                        <defuse R="129"  G="129" B="129"/>
+                    </color>
                 </model>
             </models>
             <transform>
@@ -92,6 +96,10 @@
             <models>
                 <model file="models/sphere.3d">
                     <texture file = "planetas/venus/2k_venus_atmosphere.jpg" />
+                    <color>
+                        <specular R="200" G="200" B="200"/>
+                        <defuse R="238"  G="198" B="136"/>
+                    </color>
                 </model>
             </models>
             <transform>
@@ -106,6 +114,10 @@
             <models>
                 <model file="models/sphere.3d">
                     <texture file = "planetas/earth/2k_earth_daymap.jpg" />
+                    <color>
+                        <specular R="200" G="200" B="200"/>
+                        <defuse R="30"  G="59" B="117"/>
+                    </color>
                 </model>
             </models>
             <transform>
@@ -118,6 +130,10 @@
                 <models>
                     <model file="models/sphere.3d">
                         <texture file = "planetas/2k_moon.jpg" />
+                        <color>
+                            <specular R="200" G="200" B="200"/>
+                            <defuse R="118"  G="117" B="113"/>
+                        </color>
                     </model>
                 </models>
                 <transform>
@@ -134,6 +150,10 @@
             <models>
                 <model file="models/sphere.3d">
                     <texture file = "planetas/marte/2k_mars.jpg" />
+                    <color>
+                        <specular R="200" G="200" B="200"/>
+                        <defuse R="213"  G="94" B="54"/>
+                    </color>
                 </model>
             </models>
             <transform>
@@ -148,6 +168,10 @@
             <models>
                 <model file="models/sphere.3d">
                     <texture file = "planetas/jupiter/2k_jupiter.jpg" />
+                    <color>
+                        <specular R="200" G="200" B="200"/>
+                        <defuse R="188"  G="177" B="166"/>
+                    </color>
                 </model>
             </models>
             <transform>
@@ -162,9 +186,17 @@
             <models>
                 <model file="models/sphere.3d">
                     <texture file = "planetas/saturn/2k_saturn.jpg" />
+                    <color>
+                        <specular R="200" G="200" B="200"/>
+                        <defuse R="211"  G="186" B="145"/>
+                    </color>
                 </model>
                 <model file="models/donut.3d">
                     <texture file = "planetas/saturn/2k_saturn_ring_alpha.png" />
+                    <color>
+                        <specular R="200" G="200" B="200"/>
+                        <defuse R="40"  G="39" B="46"/>
+                    </color>
                 </model>
             </models>
             <transform>
@@ -181,6 +213,10 @@
             <models>
                 <model file="models/sphere.3d">
                     <texture file = "planetas/uranus/2k_uranus.jpg" />
+                    <color>
+                        <specular R="200" G="200" B="200"/>
+                        <defuse R="174"  G="224" B="231"/>
+                    </color>
                 </model>
             </models>
             <transform>
@@ -195,6 +231,10 @@
             <models>
                 <model file="models/sphere.3d">
                     <texture file = "planetas/neptune/2k_neptune.jpg" />
+                    <color>
+                        <specular R="200" G="200" B="200"/>
+                        <defuse R="57"  G="90" B="187"/>
+                    </color>
                 </model>
             </models>
             <transform>
@@ -209,6 +249,10 @@
             <models>
                 <model file="models/sphere.3d">
                     <texture file = "planetas/2k_pluto.jpg" />
+                    <color>
+                        <specular R="200" G="200" B="200"/>
+                        <defuse R="120"  G="131" B="149"/>
+                    </color>
                 </model>
             </models>
             <transform>
