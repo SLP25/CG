@@ -76,15 +76,24 @@
         </group>
 
         <group> <!-- Mercúrio -->
-            <models>
-                <model file="models/sphere.3d">
-                    <texture file = "planetas/mercurio/2k_mercury.jpg" />
-                    <color>
-                        <specular R="200" G="200" B="200"/>
-                        <diffuse R="129"  G="129" B="129"/>
-                    </color>
-                </model>
-            </models>
+            <group>
+
+                <models>
+                    <model file="models/sphere.3d">
+                        <texture file = "planetas/mercurio/2k_mercury.jpg" />
+                        <color>
+                            <specular R="200" G="200" B="200"/>
+                            <diffuse R="129"  G="129" B="129"/>
+                        </color>
+                    </model>
+                </models>
+
+                <transform>
+                    <rotate x="0" y="1" z="0" time="3.84"/>
+                </transform>
+
+            </group>
+
             <transform>
                 <rotate x="0" y="1" z="0" time="2.41"/>
                 <translate x="1.67" y="0" z="0"/>
@@ -93,33 +102,48 @@
         </group>
 
         <group> <!-- Vénus -->
-            <models>
-                <model file="models/sphere.3d">
-                    <texture file = "planetas/venus/2k_venus_atmosphere.jpg" />
-                    <color>
-                        <specular R="200" G="200" B="200"/>
-                        <diffuse R="238"  G="198" B="136"/>
-                    </color>
-                </model>
-            </models>
+            <group>
+
+                <models>
+                    <model file="models/sphere.3d">
+                        <texture file = "planetas/venus/2k_venus_atmosphere.jpg" />
+                        <color>
+                            <specular R="200" G="200" B="200"/>
+                            <diffuse R="238"  G="198" B="136"/>
+                        </color>
+                    </model>
+                </models>
+
+                <transform>
+                    <rotate x="0" y="1" z="0" time="3"/>
+                </transform>
+
+            </group>
             <transform>
                 <rotate x="0" y="1" z="0" time="6.98"/>
                 <translate x="3.1" y="0" z="0"/>
                 <scale s="0.087"/>
             </transform>
-
         </group>
 
         <group> <!-- Terra -->
-            <models>
-                <model file="models/sphere.3d">
-                    <texture file = "planetas/earth/2k_earth_daymap.jpg" />
-                    <color>
-                        <specular R="200" G="200" B="200"/>
-                        <diffuse R="30"  G="59" B="117"/>
-                    </color>
-                </model>
-            </models>
+            <group>
+
+                <models>
+                    <model file="models/sphere.3d">
+                        <texture file = "planetas/earth/2k_earth_daymap.jpg" />
+                        <color>
+                            <specular R="200" G="200" B="200"/>
+                            <diffuse R="30"  G="59" B="117"/>
+                        </color>
+                    </model>
+                </models>
+
+                <transform>
+                    <rotate x="0" y="1" z="0" time="5"/>
+                </transform>
+
+            </group>
             <transform>
                 <rotate x="0" y="1" z="0" time="10"/>
                 <translate x="4.3" y="0" z="0"/>
@@ -147,15 +171,25 @@
         </group>
 
         <group> <!-- Marte -->
-            <models>
-                <model file="models/sphere.3d">
-                    <texture file = "planetas/marte/2k_mars.jpg" />
-                    <color>
-                        <specular R="200" G="200" B="200"/>
-                        <diffuse R="213"  G="94" B="54"/>
-                    </color>
-                </model>
-            </models>
+
+            <group>
+
+                <models>
+                    <model file="models/sphere.3d">
+                        <texture file = "planetas/marte/2k_mars.jpg" />
+                        <color>
+                            <specular R="200" G="200" B="200"/>
+                            <diffuse R="213"  G="94" B="54"/>
+                        </color>
+                    </model>
+                </models>
+
+                <transform>
+                    <rotate x="0" y="1" z="0" time="4.35"/>
+                </transform>
+
+            </group>
+
             <transform>
                 <rotate x="0" y="1" z="0" time="18.81"/>
                 <translate x="6.55" y="0" z="0"/>
@@ -165,15 +199,25 @@
         </group>
 
         <group> <!-- Júpiter -->
-            <models>
-                <model file="models/sphere.3d">
-                    <texture file = "planetas/jupiter/2k_jupiter.jpg" />
-                    <color>
-                        <specular R="200" G="200" B="200"/>
-                        <diffuse R="188"  G="177" B="166"/>
-                    </color>
-                </model>
-            </models>
+
+            <group>
+
+                <models>
+                    <model file="models/sphere.3d">
+                        <texture file = "planetas/jupiter/2k_jupiter.jpg" />
+                        <color>
+                            <specular R="200" G="200" B="200"/>
+                            <diffuse R="188"  G="177" B="166"/>
+                        </color>
+                    </model>
+                </models>
+
+                <transform>
+                    <rotate x="0" y="1" z="0" time="60"/>
+                </transform>
+
+            </group>
+
             <transform>
                 <rotate x="0" y="1" z="0" time="120"/>
                 <translate x="22.35" y="0" z="0"/>
@@ -183,22 +227,32 @@
         </group>
 
         <group> <!-- Saturno -->
-            <models>
-                <model file="models/sphere.3d">
-                    <texture file = "planetas/saturn/2k_saturn.jpg" />
-                    <color>
-                        <specular R="200" G="200" B="200"/>
-                        <diffuse R="211"  G="186" B="145"/>
-                    </color>
-                </model>
-                <model file="models/donut.3d">
-                    <texture file = "planetas/saturn/2k_saturn_ring_alpha.png" />
-                    <color>
-                        <specular R="200" G="200" B="200"/>
-                        <diffuse R="40"  G="39" B="46"/>
-                    </color>
-                </model>
-            </models>
+
+            <group>
+
+                <models>
+                    <model file="models/sphere.3d">
+                        <texture file = "planetas/saturn/2k_saturn.jpg" />
+                        <color>
+                            <specular R="200" G="200" B="200"/>
+                            <diffuse R="211"  G="186" B="145"/>
+                        </color>
+                    </model>
+                    <model file="models/donut.3d">
+                        <texture file = "planetas/saturn/2k_saturn_ring_alpha.png" />
+                        <color>
+                            <specular R="200" G="200" B="200"/>
+                            <diffuse R="40"  G="39" B="46"/>
+                        </color>
+                    </model>
+                </models>
+
+                <transform>
+                    <rotate x="0" y="1" z="0" time="147"/>
+                </transform>
+
+            </group>
+
             <transform>
                 <rotate x="0" y="1" z="0" time="290"/>
                 <translate x="40.21" y="0" z="0"/>
@@ -210,15 +264,25 @@
         </group>
 
         <group> <!-- Urano -->
-            <models>
-                <model file="models/sphere.3d">
-                    <texture file = "planetas/uranus/2k_uranus.jpg" />
-                    <color>
-                        <specular R="200" G="200" B="200"/>
-                        <diffuse R="174"  G="224" B="231"/>
-                    </color>
-                </model>
-            </models>
+
+            <group>
+
+                <models>
+                    <model file="models/sphere.3d">
+                        <texture file = "planetas/uranus/2k_uranus.jpg" />
+                        <color>
+                            <specular R="200" G="200" B="200"/>
+                            <diffuse R="174"  G="224" B="231"/>
+                        </color>
+                    </model>
+                </models>
+
+                <transform>
+                    <rotate x="0" y="1" z="0" time="419"/>
+                </transform>
+
+            </group>
+
             <transform>
                 <rotate x="0" y="1" z="0" time="840"/>
                 <translate x="83.29" y="0" z="0"/>
@@ -228,15 +292,25 @@
         </group>
 
         <group> <!-- Neptuno -->
-            <models>
-                <model file="models/sphere.3d">
-                    <texture file = "planetas/neptune/2k_neptune.jpg" />
-                    <color>
-                        <specular R="200" G="200" B="200"/>
-                        <diffuse R="57"  G="90" B="187"/>
-                    </color>
-                </model>
-            </models>
+
+            <group>
+
+                <models>
+                    <model file="models/sphere.3d">
+                        <texture file = "planetas/neptune/2k_neptune.jpg" />
+                        <color>
+                            <specular R="200" G="200" B="200"/>
+                            <diffuse R="57"  G="90" B="187"/>
+                        </color>
+                    </model>
+                </models>
+
+                <transform>
+                    <rotate x="0" y="1" z="0" time="819"/>
+                </transform>
+
+            </group>
+
             <transform>
                 <rotate x="0" y="1" z="0" time="1650"/>
                 <translate x="129.25" y="0" z="0"/>
@@ -246,15 +320,25 @@
         </group>
 
         <group> <!-- Plutão -->
-            <models>
-                <model file="models/sphere.3d">
-                    <texture file = "planetas/2k_pluto.jpg" />
-                    <color>
-                        <specular R="200" G="200" B="200"/>
-                        <diffuse R="120"  G="131" B="149"/>
-                    </color>
-                </model>
-            </models>
+
+            <group>
+
+                <models>
+                    <model file="models/sphere.3d">
+                        <texture file = "planetas/2k_pluto.jpg" />
+                        <color>
+                            <specular R="200" G="200" B="200"/>
+                            <diffuse R="120"  G="131" B="149"/>
+                        </color>
+                    </model>
+                </models>
+
+                <transform>
+                    <rotate x="0" y="1" z="0" time="1240"/>
+                </transform>
+
+            </group>
+
             <transform>
                 <rotate x="0" y="1" z="0" time="2480"/>
                 <translate x="169.46" y="0" z="0"/>
