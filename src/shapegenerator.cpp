@@ -806,7 +806,7 @@ inline void generateBezierTriangles(std::vector<Point>& controlPoints, std::vect
                            (p[2][0] p[2][1] p[2][2] p[2][3])     ( v )
                            (p[3][0] p[3][1] p[3][2] p[3][3])     ( 1 )
 
-      (-1 -3 -3 1)
+      (-1 3 -3 1)
   M = (3 -6  3  0)
       (-3 3  0  0)
       (1  0  0  0)
@@ -823,18 +823,16 @@ inline void generateBezierTriangles(std::vector<Point>& controlPoints, std::vect
     -3.0f, 3.0f, 0.0f, 0.0f,
     1.0f, 0.0f, 0.0f, 0.0f
   };
-
-  int patchCount = patches.size();
   
   Point* points = new Point[divisions * divisions];
   Vector* normalArr = new Vector[divisions * divisions];
 
-  for(int i = 0; i < patchCount; i++) {
+  for(int* patch : patches) {
     //Compute the matrix that depends on the control points. The matrix is 
     //stored row-major
     Point p[16];
     for(int l = 0; l < 16; l++)
-      p[l] = controlPoints[patches[i][l]];
+      p[l] = controlPoints[patch[l]];
 
     for(int j = 0; j < divisions; j++) {
       for(int k = 0; k < divisions; k++) {
@@ -853,21 +851,21 @@ inline void generateBezierTriangles(std::vector<Point>& controlPoints, std::vect
         float d2 = (float)(divisions - 1)*(divisions - 1); //(divisions - 1)^2
         float d3 = (float)(divisions - 1)*d2; //(divisions - 1)^3
         float u[4] = {(float)(j*j*j) / d3, (float)(j*j) / d2, (float)j / (divisions - 1), 1};
-        float du[4] = {3.0f * (float)(j*j) / d3, 2.0f * (float)j / d2, 1.0f, 0.0f};
+        float du[4] = {3.0f * (float)(j*j) / d2, 2.0f * (float)j / (divisions - 1), 1.0f, 0.0f};
         float v[4] = {(float)(k*k*k) / d3, (float)(k*k) / d2, (float)k / (divisions - 1), 1};
-        float dv[4] = {3.0f * (float)(k*k) / d3, 2.0f * (float)k / d2, 1.0f, 0.0f};
+        float dv[4] = {3.0f * (float)(k*k) / d2, 2.0f * (float)k / (divisions - 1), 1.0f, 0.0f};
         
         /*
          Matrix multiplications: Coordinates
         */
         float temp1[4];
         Point temp2[16];
-        matrixProd(4,1, 4, v, m, temp1);
-        matrixProd(4,1, 4, temp1, p, temp2);
         Point temp3[16];
-        matrixProd(4,1, 4, temp2, m, temp3);
+        matrixProd(1,4, 4, m, v, temp1);
+        matrixProd(1,4, 4, p, temp1, temp2);
+        matrixProd(1,4, 4, m, temp2, temp3);
         //Compute the result and store it in (j,k) position of the matrix
-        matrixProd(1, 1, 4, temp3, u, points + j * divisions + k);
+        matrixProd(1, 1, 4, u, temp3, &points[j * divisions + k]);
 
          /*
          Matrix multiplications: Normals
@@ -907,27 +905,27 @@ inline void generateBezierTriangles(std::vector<Point>& controlPoints, std::vect
     */
     for(int j = 0; j < divisions - 1; j++) {
       for(int k = 0; k < divisions - 1; k++) {
-        Point p1 = points[j * divisions + k];
-        Point p2 = points[(j + 1) * divisions + k];
-        Point p3 = points[(j + 1) * divisions + k + 1];
-        Point p4 = points[(j) * divisions + k + 1];
+        Point p1 = points[(j + 1) * divisions + k];
+        Point p2 = points[j * divisions + k];
+        Point p3 = points[j * divisions + k + 1];
+        Point p4 = points[(j + 1) * divisions + k + 1];
 
         triangles.push_back({p1, p2, p3});
         triangles.push_back({p1, p3, p4});
 
-        textures.push_back({(float)j / (divisions - 1), (float)k / (divisions - 1)});
         textures.push_back({(float)(j + 1) / (divisions - 1), (float)k / (divisions - 1)});
-        textures.push_back({(float)(j + 1) / (divisions - 1), (float)(k + 1) / (divisions - 1)});
         textures.push_back({(float)j / (divisions - 1), (float)k / (divisions - 1)});
-        textures.push_back({(float)(j + 1) / (divisions - 1), (float)(k + 1) / (divisions - 1)});
         textures.push_back({(float)j / (divisions - 1), (float)(k + 1) / (divisions - 1)});
+        textures.push_back({(float)(j + 1) / (divisions - 1), (float)k / (divisions - 1)});
+        textures.push_back({(float)j / (divisions - 1), (float)(k + 1) / (divisions - 1)});
+        textures.push_back({(float)(j + 1) / (divisions - 1), (float)(k + 1) / (divisions - 1)});
 
-        normals.push_back(normalArr[j * divisions + k]);
         normals.push_back(normalArr[(j + 1) * divisions + k]);
-        normals.push_back(normalArr[(j + 1) * divisions + k + 1]);
         normals.push_back(normalArr[j * divisions + k]);
+        normals.push_back(normalArr[j * divisions + k + 1]);
+        normals.push_back(normalArr[(j + 1) * divisions + k]);
+        normals.push_back(normalArr[j * divisions + k + 1]);
         normals.push_back(normalArr[(j + 1) * divisions + k + 1]);
-        normals.push_back(normalArr[(j) * divisions + k + 1]);
       }
     }
   }
