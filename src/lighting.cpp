@@ -27,15 +27,22 @@ Lighting& Lighting::operator=(const Lighting& lighting) {
     return *this;
 }
 
-Lighting::Lighting(XMLParser parser) {
+Lighting::Lighting(XMLParser parser) :
+    ambient({ 0.4, 0.4, 0.4 })
+{
     parser.validate_attrs({});
-    parser.validate_node({"light"});
+    parser.validate_node({"light", "ambient"});
+    parser.validate_max_nodes(1, {"ambient"});
     parser.validate_max_nodes(GL_MAX_LIGHTS, {"light"});
+    
+    for (auto n : parser.get_nodes("ambient")) {
+        parser.validate_node({});
+        parser.validate_attrs({"R", "G", "B"});
+        ambient = n.as_tuple<float,float,float>({"R", "G", "B"}) / 255;
+    }
 
     for (const XMLParser& x : parser.get_nodes("light"))
         this->lights.push_back(Light::parse(x));
-
-    this->ambient =  { 0.4, 0.4, 0.4 };
 }
 
 void Lighting::initScene() {

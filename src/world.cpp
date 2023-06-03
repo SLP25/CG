@@ -57,15 +57,13 @@ void World::parseWindow(XMLParser world) {
 }
 
 void World::parseLights(XMLParser world) {
-  auto aux = world.get_nodes("lights");
-    if (aux.size() != 0)
-      this->lighting = Lighting(aux[0]);
+  for (auto n : world.get_nodes("lights"))
+    this->lighting = Lighting(n);
 }
 
 void World::parseRootGroup(XMLParser world) {
-  auto aux = world.get_nodes("group");
-    if (aux.size() != 0)
-      this->root = Group(aux[0]);
+  for (auto n : world.get_nodes("group"))
+    this->root = Group(n);
 }
 
 void World::initScene() {
