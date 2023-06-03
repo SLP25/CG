@@ -20,14 +20,8 @@ World::World(std::string filePath) :
   srcFile(filePath)
 {
   XMLParser parser = parseXMLFile(filePath);
-
-  /* World node validation. */
-  parser.validate_attrs({});
-  parser.validate_node({"window", "camera", "lights", "group"});
-  parser.validate_max_nodes(1, {"window", "camera", "lights" "group"});
-
-  camera = Camera::parse(parser.get_node({"camera"}));
   parseWindow(parser);
+  parseCamera(parser);
   parseLights(parser);
   parseRootGroup(parser);
 }
@@ -39,7 +33,14 @@ XMLParser World::parseXMLFile(std::string filePath) {
   root.validate_node({"world"});
   root.validate_max_nodes(1, {"world"});
 
-  return root.get_node("world");
+  XMLParser parser = root.get_node("world");
+
+  /* World node validation. */
+  parser.validate_attrs({});
+  parser.validate_node({"window", "camera", "lights", "group"});
+  parser.validate_max_nodes(1, {"window", "camera", "lights" "group"});
+
+  return parser;
 }
 
 void World::parseWindow(XMLParser world) {
@@ -54,6 +55,10 @@ void World::parseWindow(XMLParser world) {
   std::string axisStr = "true";
   windowParser.get_opt_attr("axis", axisStr);
   this->axis = parseBool(axisStr);
+}
+
+void World::parseCamera(XMLParser world) {
+  camera = Camera::parse(world.get_node({"camera"}));
 }
 
 void World::parseLights(XMLParser world) {
@@ -123,18 +128,36 @@ void World::handleKey(unsigned char key,
   // Terminate the engine if 'q' is pressed
   if (key == 'q')
     exit(0); // TODO: More gracious shutdown
+
+  //hot reload (lights, models, shapes and textures)
   if (key == 'r') {
-    Shape::reloadShapes();
-    Texture::reloadTextures();
+    try {
+      Shape::clearCache();
+      Texture::clearCache();
+      
+      XMLParser parser = parseXMLFile(srcFile);
+      parseWindow(parser);
+      parseLights(parser);
+      parseRootGroup(parser);
 
-    XMLParser parser = parseXMLFile(srcFile);
-    parseWindow(parser);
-    parseLights(parser);
-    parseRootGroup(parser);
+      lighting.initScene();
+      Shape::initShapes();
+      Texture::initTextures();
+    } catch (std::exception& e) {
+      std::cout << e.what() << std::endl;
+    }
+  }
 
-    lighting.initScene();
-    Shape::initShapes();
-    Texture::initTextures();
+  //reload only camera
+  if (key == 'c') {
+    try {
+      float ratio = camera->ratio;
+      XMLParser parser = parseXMLFile(srcFile);
+      parseCamera(parser);
+      camera->ratio = ratio;
+    } catch (std::exception& e) {
+      std::cout << e.what() << std::endl;
+    }
   }
   camera->handleKey(key, x, y);
 }

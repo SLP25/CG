@@ -12,11 +12,11 @@ Lighting::Lighting(const Lighting& lighting) {
         std::unique_ptr<Light> ptr(copy);
         this->lights.push_back(std::move(ptr));
     }
-        
 }
 
 Lighting& Lighting::operator=(const Lighting& lighting) {
     this->ambient = lighting.ambient;
+    this->lights.clear();
 
     for (auto& l : lighting.lights) {
         Light* copy = l->clone();

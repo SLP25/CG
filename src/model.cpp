@@ -91,7 +91,6 @@ int Model::draw(const Frustum& viewFrustum)
   bb.transform(modelview);
 
   if (viewFrustum.contains(bb)) {
-    //std::cout << "visible" << std::endl;
     float emi[] = { GET_ALL(emission), 1.0 };
     float amb[] = { GET_ALL(ambient), 1.0 };
     float dif[] = { GET_ALL(diffuse), 1.0 };

@@ -1,5 +1,5 @@
 <world>
-    <window width="512" height="512" axis="false"/>
+    <window width="512" height="512" axis="true"/>
     <camera type="fps">
         <position x="10" y="5" z="10" />
         <lookAt x="5" y="0" z="-5" />
@@ -139,8 +139,7 @@
                         <texture file = "planetas/earth/2k_earth_daymap.jpg" />
                         <color>
                             <specular R="200" G="200" B="200"/>
-                            <diffuse R="50"  G="70" B="117"/>
-                            <ambient R="100" G="100" B="100"/>
+                            <diffuse R="200"  G="200" B="230"/>
                             <shininess value="100"/>
                         </color>
                     </model>
@@ -187,7 +186,7 @@
                         <texture file = "planetas/marte/2k_mars.jpg" />
                         <color>
                             <specular R="200" G="200" B="200"/>
-                            <diffuse R="213"  G="94" B="54"/>
+                            <diffuse R="150"  G="94" B="54"/>
                             <shininess value="100"/>
                         </color>
                     </model>
@@ -320,7 +319,7 @@
                         <texture file = "planetas/neptune/2k_neptune.jpg" />
                         <color>
                             <specular R="200" G="200" B="200"/>
-                            <diffuse R="57"  G="90" B="187"/>
+                            <diffuse R="200"  G="200" B="230"/>
                             <shininess value="100"/>
                         </color>
                     </model>

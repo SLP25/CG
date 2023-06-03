@@ -16,9 +16,8 @@ std::shared_ptr<Texture> Texture::fetchTexture(std::string filePath) {
     return t;
 }
 
-void Texture::reloadTextures() {
-  for (auto& ss : cache)
-    ss.second = std::shared_ptr<Texture>(new Texture(ss.first));
+void Texture::clearCache() {
+    cache.clear();
 }
 
 void Texture::initTextures() {

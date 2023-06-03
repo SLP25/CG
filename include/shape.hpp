@@ -23,7 +23,7 @@ typedef std::tuple<int,int,int> TriangleByPosition;
 class Shape {
 public:
   static std::shared_ptr<Shape> fetchShape(std::string filePath);
-  static void reloadShapes();
+  static void clearCache();
   static void initShapes();
 
   /**

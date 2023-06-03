@@ -44,6 +44,7 @@ private:
 
     XMLParser parseXMLFile(std::string filePath);
     void parseWindow(XMLParser world);
+    void parseCamera(XMLParser world);
     void parseLights(XMLParser world);
     void parseRootGroup(XMLParser world);
 

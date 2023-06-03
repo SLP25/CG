@@ -20,7 +20,6 @@ protected:
   float near;
   float far;
   float fov;
-  float ratio;
 
 public:
   /**
@@ -31,6 +30,8 @@ public:
    * @return std::unique_ptr<Camera> The constructed Camera object
    */
   static std::unique_ptr<Camera> parse(XMLParser parser);
+
+  float ratio;
 
   /**
   * @brief A virtual destructor for the Camera class.

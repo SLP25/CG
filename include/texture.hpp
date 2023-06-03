@@ -7,7 +7,7 @@
 class Texture {
 public:
     static std::shared_ptr<Texture> fetchTexture(std::string filePath);
-    static void reloadTextures();
+    static void clearCache();
     static void initTextures();
     static void unbind();
 
