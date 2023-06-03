@@ -7,6 +7,7 @@
         <projection fov="60" near="1" far="1000" />
     </camera>
     <lights>
+        <ambient R="100" G="100" B="100"/>
         <light type="point" posx="0" posy="0" posz="0" />
         <!--<light type="directional" dirx="0" diry="1" dirz="0" />-->
     </lights>
@@ -84,7 +85,9 @@
                         <texture file = "planetas/mercurio/2k_mercury.jpg" />
                         <color>
                             <specular R="200" G="200" B="200"/>
-                            <diffuse R="129"  G="129" B="129"/>
+                            <diffuse R="180"  G="180" B="180"/>
+                            <ambient R="128"  G="128" B="128"/>
+                            <shininess value="100"/>
                         </color>
                     </model>
                 </models>
@@ -111,6 +114,7 @@
                         <color>
                             <specular R="200" G="200" B="200"/>
                             <diffuse R="238"  G="198" B="136"/>
+                            <shininess value="100"/>
                         </color>
                     </model>
                 </models>
@@ -135,7 +139,9 @@
                         <texture file = "planetas/earth/2k_earth_daymap.jpg" />
                         <color>
                             <specular R="200" G="200" B="200"/>
-                            <diffuse R="30"  G="59" B="117"/>
+                            <diffuse R="50"  G="70" B="117"/>
+                            <ambient R="100" G="100" B="100"/>
+                            <shininess value="100"/>
                         </color>
                     </model>
                 </models>
@@ -158,6 +164,7 @@
                         <color>
                             <specular R="200" G="200" B="200"/>
                             <diffuse R="118"  G="117" B="113"/>
+                            <shininess value="100"/>
                         </color>
                     </model>
                 </models>
@@ -181,6 +188,7 @@
                         <color>
                             <specular R="200" G="200" B="200"/>
                             <diffuse R="213"  G="94" B="54"/>
+                            <shininess value="100"/>
                         </color>
                     </model>
                 </models>
@@ -209,6 +217,7 @@
                         <color>
                             <specular R="200" G="200" B="200"/>
                             <diffuse R="188"  G="177" B="166"/>
+                            <shininess value="100"/>
                         </color>
                     </model>
                 </models>
@@ -237,6 +246,7 @@
                         <color>
                             <specular R="200" G="200" B="200"/>
                             <diffuse R="211"  G="186" B="145"/>
+                            <shininess value="100"/>
                         </color>
                     </model>
                     <model file="models/donut.3d">
@@ -244,6 +254,7 @@
                         <color>
                             <specular R="200" G="200" B="200"/>
                             <diffuse R="40"  G="39" B="46"/>
+                            <shininess value="100"/>
                         </color>
                     </model>
                 </models>
@@ -267,19 +278,27 @@
         <group> <!-- Urano -->
 
             <group>
+                <group>
 
-                <models>
-                    <model file="models/sphere.3d">
-                        <texture file = "planetas/uranus/2k_uranus.jpg" />
-                        <color>
-                            <specular R="200" G="200" B="200"/>
-                            <diffuse R="174"  G="224" B="231"/>
-                        </color>
-                    </model>
-                </models>
+                    <models>
+                        <model file="models/sphere.3d">
+                            <texture file = "planetas/uranus/2k_uranus.jpg" />
+                            <color>
+                                <specular R="200" G="200" B="200"/>
+                                <diffuse R="174"  G="224" B="231"/>
+                                <shininess value="100"/>
+                            </color>
+                        </model>
+                    </models>
+
+                    <transform>
+                        <rotate x="0" y="1" z="0" time="419"/>
+                    </transform>
+
+                </group>
 
                 <transform>
-                    <rotate x="0" y="1" z="0" time="419"/>
+                    <rotate x="0" y="0" z="1" angle="97.77"/>
                 </transform>
 
             </group>
@@ -302,6 +321,7 @@
                         <color>
                             <specular R="200" G="200" B="200"/>
                             <diffuse R="57"  G="90" B="187"/>
+                            <shininess value="100"/>
                         </color>
                     </model>
                 </models>
@@ -330,6 +350,7 @@
                         <color>
                             <specular R="200" G="200" B="200"/>
                             <diffuse R="120"  G="131" B="149"/>
+                            <shininess value="100"/>
                         </color>
                     </model>
                 </models>
