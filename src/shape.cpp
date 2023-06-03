@@ -25,6 +25,11 @@ std::shared_ptr<Shape> Shape::fetchShape(std::string filePath) {
   return s;
 }
 
+void Shape::reloadShapes() {
+  for (auto const& ss : cache)
+    *(ss.second) = Shape(ss.first);
+}
+
 void Shape::initShapes() {
   for (auto const& ss : cache)
     ss.second->initialize();

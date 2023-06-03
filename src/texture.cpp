@@ -16,6 +16,11 @@ std::shared_ptr<Texture> Texture::fetchTexture(std::string filePath) {
     return t;
 }
 
+void Texture::reloadTextures() {
+  for (auto& ss : cache)
+    ss.second = std::shared_ptr<Texture>(new Texture(ss.first));
+}
+
 void Texture::initTextures() {
     for (const auto& t : cache)
         t.second->initialize();
@@ -69,13 +74,14 @@ Texture::~Texture() {
     if (texture != 0)
         glDeleteTextures(1, &texture);
 
-    delete data;
+    delete[] data;
 }
 
 Texture& Texture::operator=(const Texture& texture) {
     this->width = texture.width;
     this->height = texture.height;
 
+    delete[] data;
     int n = width * height * 4;
     this->data = new unsigned char[n];
     memcpy(data, texture.data, n);
@@ -87,6 +93,7 @@ Texture& Texture::operator=(const Texture& texture) {
 Texture& Texture::operator=(Texture&& texture) {
     this->width = texture.width;
     this->height = texture.height;
+    delete[] data;
     this->data = texture.data;
     this->texture = texture.texture;
 

@@ -9,23 +9,42 @@
 World::World() { }
 
 World::World(WindowSize windowSize, Camera *camera, Lighting lighting, Group&& root) :
+  srcFile(""),
   windowSize(windowSize),
   camera(std::unique_ptr<Camera>(camera)),
   lighting(lighting),
   root(std::move(root))
 {}
 
-World::World(XMLParser parser) :
-  camera(Camera::parse(parser.get_node({"camera"})))
+World::World(std::string filePath) :
+  srcFile(filePath)
 {
+  XMLParser parser = parseXMLFile(filePath);
 
   /* World node validation. */
   parser.validate_attrs({});
   parser.validate_node({"window", "camera", "lights", "group"});
   parser.validate_max_nodes(1, {"window", "camera", "lights" "group"});
 
+  camera = Camera::parse(parser.get_node({"camera"}));
+  parseWindow(parser);
+  parseLights(parser);
+  parseRootGroup(parser);
+}
+
+XMLParser World::parseXMLFile(std::string filePath) {
+  /* Parse the configuration file. */
+  XMLParser root = XMLParser(filePath);
+
+  root.validate_node({"world"});
+  root.validate_max_nodes(1, {"world"});
+
+  return root.get_node("world");
+}
+
+void World::parseWindow(XMLParser world) {
   /* Window node validation. */
-  XMLParser windowParser = parser.get_node("window");
+  XMLParser windowParser = world.get_node("window");
 
   windowParser.validate_attrs({"width", "height", "axis"});
   windowParser.validate_node({});
@@ -35,14 +54,18 @@ World::World(XMLParser parser) :
   std::string axisStr = "true";
   windowParser.get_opt_attr("axis", axisStr);
   this->axis = parseBool(axisStr);
+}
 
-  auto aux = parser.get_nodes("lights");
-  if (aux.size() != 0)
-    this->lighting = Lighting(aux[0]);
+void World::parseLights(XMLParser world) {
+  auto aux = world.get_nodes("lights");
+    if (aux.size() != 0)
+      this->lighting = Lighting(aux[0]);
+}
 
-  aux = parser.get_nodes("group");
-  if (aux.size() != 0)
-    this->root = Group(aux[0]);
+void World::parseRootGroup(XMLParser world) {
+  auto aux = world.get_nodes("group");
+    if (aux.size() != 0)
+      this->root = Group(aux[0]);
 }
 
 void World::initScene() {
@@ -102,6 +125,19 @@ void World::handleKey(unsigned char key,
   // Terminate the engine if 'q' is pressed
   if (key == 'q')
     exit(0); // TODO: More gracious shutdown
+  if (key == 'r') {
+    Shape::reloadShapes();
+    Texture::reloadTextures();
+
+    XMLParser parser = parseXMLFile(srcFile);
+    parseWindow(parser);
+    parseLights(parser);
+    parseRootGroup(parser);
+
+    lighting.initScene();
+    Shape::initShapes();
+    Texture::initTextures();
+  }
   camera->handleKey(key, x, y);
 }
 

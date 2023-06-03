@@ -21,6 +21,7 @@
  */
 class World {
 private:
+    std::string srcFile; ///< The xml file from which the World was read
     WindowSize windowSize; ///< The size of the window.
     std::unique_ptr<Camera> camera; ///< The camera to use for rendering the scene.
     Lighting lighting; ///< The lighting to use for rendering the scene.
@@ -41,6 +42,11 @@ private:
      */
     void drawAxis();
 
+    XMLParser parseXMLFile(std::string filePath);
+    void parseWindow(XMLParser world);
+    void parseLights(XMLParser world);
+    void parseRootGroup(XMLParser world);
+
 public:
     /**
      * @brief Constructs a World object with default values.
@@ -48,11 +54,11 @@ public:
     World();
 
     /**
-     * @brief Constructs a new World object from a xml node
+     * @brief Constructs a new World object from a xml file
      * 
-     * @param parser The xml node
+     * @param parser The xml file path
      */
-    World(XMLParser parser);
+    World(std::string filePath);
 
     /**
      * @brief Initializes the OpenGL and GLUT environment.

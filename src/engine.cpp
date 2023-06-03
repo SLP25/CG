@@ -73,13 +73,7 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  /* Parse the configuration file. */
-  XMLParser parser = XMLParser(arg);
-
-  parser.validate_node({"world"});
-  parser.validate_max_nodes(1, {"world"});
-
-  world = World(parser.get_node("world")); /* Set up the world. */
+  world = World(arg);
 
   // put GLUT's init here
   glutInit(&argc, argv);
