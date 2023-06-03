@@ -36,8 +36,8 @@ Lighting::Lighting(XMLParser parser) :
     parser.validate_max_nodes(GL_MAX_LIGHTS, {"light"});
     
     for (auto n : parser.get_nodes("ambient")) {
-        parser.validate_node({});
-        parser.validate_attrs({"R", "G", "B"});
+        n.validate_node({});
+        n.validate_attrs({"R", "G", "B"});
         ambient = n.as_tuple<float,float,float>({"R", "G", "B"}) / 255;
     }
 
