@@ -1,7 +1,7 @@
 #include "utils.hpp"
-#include <cmath>
+#define _USE_MATH_DEFINES
+#include <math.h>
 #include <string>
-
 
 Point average(std::initializer_list<Point> points) {
   /**

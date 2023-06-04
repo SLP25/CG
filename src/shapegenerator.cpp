@@ -129,7 +129,7 @@ std::unique_ptr<Shape> generateCube(float length, int divisions) {
   p_y = -mid;
   p_z = -mid;
 
-  //Face 5
+  //Face 4
   for(; count < (int)triangles.size(); count++) {
     Point p[3] = {std::get<0>(triangles[count]), std::get<1>(triangles[count]), std::get<2>(triangles[count])};
     for(int i = 0; i < 3; i++) {
@@ -143,7 +143,7 @@ std::unique_ptr<Shape> generateCube(float length, int divisions) {
       v = (v / 3.0f) + (1.0f / 3.0f);
 
       textureMapping.push_back({u, v});
-      normals.push_back({0.0f, 0.0f, 1.0f});
+      normals.push_back({-1.0f, 0.0f, 0.0f});
     }
   }
 
@@ -160,7 +160,7 @@ std::unique_ptr<Shape> generateCube(float length, int divisions) {
   p_y = -mid;
   p_z = -mid;
 
-  //Face 3
+  //Face 2
   for(; count < (int)triangles.size(); count++) {
     Point p[3] = {std::get<0>(triangles[count]), std::get<1>(triangles[count]), std::get<2>(triangles[count])};
     for(int i = 0; i < 3; i++) {
@@ -174,7 +174,7 @@ std::unique_ptr<Shape> generateCube(float length, int divisions) {
       v = (v / 3.0f) + (1.0f / 3.0f);
 
       textureMapping.push_back({u, v});
-      normals.push_back({0.0f, 0.0f, -1.0f});
+      normals.push_back({1.0f, 0.0f, 0.0f});
     }
   }
 
@@ -193,7 +193,7 @@ std::unique_ptr<Shape> generateCube(float length, int divisions) {
   p_y = -mid;
   p_z = -mid;
 
-  //Face 1
+  //Face 6
   for(; count < (int)triangles.size(); count++) {
     Point p[3] = {std::get<0>(triangles[count]), std::get<1>(triangles[count]), std::get<2>(triangles[count])};
     for(int i = 0; i < 3; i++) {
@@ -224,7 +224,7 @@ std::unique_ptr<Shape> generateCube(float length, int divisions) {
   p_y = mid;
   p_z = mid;
 
-  //Face 6
+  //Face 5
   for(; count < (int)triangles.size(); count++) {
     Point p[3] = {std::get<0>(triangles[count]), std::get<1>(triangles[count]), std::get<2>(triangles[count])};
     for(int i = 0; i < 3; i++) {
@@ -255,7 +255,7 @@ std::unique_ptr<Shape> generateCube(float length, int divisions) {
   p_y = -mid;
   p_z = -mid;
 
-  //Face 2
+  //Face 1
   for(; count < (int)triangles.size(); count++) {
     Point p[3] = {std::get<0>(triangles[count]), std::get<1>(triangles[count]), std::get<2>(triangles[count])};
     for(int i = 0; i < 3; i++) {
@@ -269,7 +269,7 @@ std::unique_ptr<Shape> generateCube(float length, int divisions) {
       v = (v / 3) + (1.0f / 3.0f);
 
       textureMapping.push_back({u, v});
-      normals.push_back({1.0f, 0.0f, 0.0f});
+      normals.push_back({0.0f, 0.0f, -1.0f});
     }
   }
 
@@ -286,7 +286,7 @@ std::unique_ptr<Shape> generateCube(float length, int divisions) {
   p_y = -mid;
   p_z = mid;
 
-  //Face 4
+  //Face 3
   for(; count < (int)triangles.size(); count++) {
     Point p[3] = {std::get<0>(triangles[count]), std::get<1>(triangles[count]), std::get<2>(triangles[count])};
     for(int i = 0; i < 3; i++) {
@@ -300,7 +300,7 @@ std::unique_ptr<Shape> generateCube(float length, int divisions) {
       v = (v / 3.0f) + (1.0f / 3.0f);
 
       textureMapping.push_back({u, v});
-      normals.push_back({-1.0f, 0.0f, 0.0f});
+      normals.push_back({0.0f, 0.0f, 1.0f});
     }
   }
 
@@ -859,7 +859,7 @@ inline void generateBezierTriangles(std::vector<Point>& controlPoints, std::vect
         //Compute the result and store it in (j,k) position of the matrix
         matrixProd(1, 1, 4, u, temp3, &dv_vector);
 
-        Vector temp = du_vector ^ dv_vector;
+        Vector temp = dv_vector ^ du_vector;
         if(length(temp) == 0)
           temp = {0.0f, 1.0f, 0.0f};
         else
