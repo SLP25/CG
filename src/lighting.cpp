@@ -51,7 +51,7 @@ void Lighting::initScene() {
 }
 
 void Lighting::setupScene() {
-    for (uint i = 0; i < GL_MAX_LIGHTS; i++) {
+    for (unsigned int i = 0; i < GL_MAX_LIGHTS; i++) {
         if (i < lights.size()) {
             glEnable(GL_LIGHT0 + i);
             lights[i]->draw(GL_LIGHT0 + i);

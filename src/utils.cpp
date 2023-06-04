@@ -116,7 +116,7 @@ BoundingBox::BoundingBox(const std::vector<Point>& points) {
   minY = maxY = std::get<1>(points.at(0));
   minZ = maxZ = std::get<2>(points.at(0));
 
-  for (uint i = 1; i < points.size(); i++) {
+  for (unsigned int i = 1; i < points.size(); i++) {
     float x = std::get<0>(points.at(i));
     float y = std::get<1>(points.at(i));
     float z = std::get<2>(points.at(i));
