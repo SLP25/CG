@@ -73,7 +73,12 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  world = World(arg);
+  try {
+    world = World(arg);
+  } catch (InvalidXMLStructure& e) {
+    std::cout << e.what() << std::endl;
+    return 1;
+  }
 
   // put GLUT's init here
   glutInit(&argc, argv);

@@ -11,6 +11,7 @@
 #include <cmath>
 #include <fstream>
 #include <iostream>
+#include <cstring>
 #include <map>
 #include <regex>
 
@@ -430,18 +431,18 @@ std::unique_ptr<Shape> generateCone(float radius, float height, int slices,
         textures.push_back({(float)j / slices, (float)i / stacks});
         textures.push_back({(float)(j + 1) / slices, (float)i / stacks});
 
-          float w = ((float)(j + 1) / slices) * 2 * M_PI;
-          normals.push_back({cos(angle) * cos(w), sin(angle), sin(w)});
-          w = ((float)j / slices) * 2 * M_PI;
-          normals.push_back({cos(angle) * cos(w), sin(angle), sin(w)});
-          w = ((float)j / slices) * 2 * M_PI;
-          normals.push_back({cos(angle) * cos(w), sin(angle), sin(w)});
-          w = ((float)(j + 1) / slices) * 2 * M_PI;
-          normals.push_back({cos(angle) * cos(w), sin(angle), sin(w)});
-          w = ((float)j / slices) * 2 * M_PI;
-          normals.push_back({cos(angle) * cos(w), sin(angle), sin(w)});
-          w = ((float)(j + 1) / slices) * 2 * M_PI;
-          normals.push_back({cos(angle) * cos(w), sin(angle), sin(w)});
+        float w = ((float)(j + 1) / slices) * 2 * M_PI;
+        normals.push_back(normalize({cos(angle) * cos(w), sin(angle), sin(w)}));
+        w = ((float)j / slices) * 2 * M_PI;
+        normals.push_back(normalize({cos(angle) * cos(w), sin(angle), sin(w)}));
+        w = ((float)j / slices) * 2 * M_PI;
+        normals.push_back(normalize({cos(angle) * cos(w), sin(angle), sin(w)}));
+        w = ((float)(j + 1) / slices) * 2 * M_PI;
+        normals.push_back(normalize({cos(angle) * cos(w), sin(angle), sin(w)}));
+        w = ((float)j / slices) * 2 * M_PI;
+        normals.push_back(normalize({cos(angle) * cos(w), sin(angle), sin(w)}));
+        w = ((float)(j + 1) / slices) * 2 * M_PI;
+        normals.push_back(normalize({cos(angle) * cos(w), sin(angle), sin(w)}));
       }
     }
 
@@ -518,11 +519,10 @@ std::unique_ptr<Shape> generateSphere(float radius, int slices, int stacks) {
   }
 
   for(Triangle t : ans) {
-    Point p[3] = {std::get<0>(t), std::get<1>(t), std::get<2>(t)};
+    Point ps[3] = {std::get<0>(t), std::get<1>(t), std::get<2>(t)};
 
-    for(int j = 0; j < 3; j++) {
-      normals.push_back(normalize(p[j]));
-    }
+    for(Point& p : ps)
+      normals.push_back(normalize(p));
   }
 
   return std::make_unique<Shape>(ans, normals, textureMapping);
@@ -604,117 +604,91 @@ std::unique_ptr<Shape> generateFromObj(std::string srcFile) {
     } // We ignore everything else
   }
 
-  //TODO: normals
-
   file.close();
   return std::make_unique<Shape>(triangles, normalMapping, textureMapping);
 }
 
 std::unique_ptr<Shape> generateDonut(float radius, float length, float height,
                                      int stacks, int slices) {
-  std::vector<Point> *circles[2];
-  std::vector<Vector> *normalsTemp[2];
-  std::vector<Point2D> *texturesTemp[2];
-  circles[0] = new std::vector<Point>[stacks + 1];
-  circles[1] = new std::vector<Point>[stacks + 1];
-  normalsTemp[0] = new std::vector<Vector>[stacks + 1];
-  normalsTemp[1] = new std::vector<Vector>[stacks + 1];
-  texturesTemp[0] = new std::vector<Point2D>[stacks + 1];
-  texturesTemp[1] = new std::vector<Point2D>[stacks + 1];
-
-
-  const float stack_height = height / (float)stacks;
-  const float min_y = -height / 2.0;
-  const float angle_step = 2 * M_PI / slices;
-  const float a = length / 2.0;
-  const float b = height / 2.0;
-  for (int i = 0; i <= stacks; i++) {
-    float y = min_y + stack_height * i;
-    float horizontal_gap =
-        sqrt(1 - (4 * y * y) / (height * height)) * (length / 2.0);
-
-    for (int j = 0; j <= slices; j++) {
-      float x = (radius - horizontal_gap) * cos(angle_step * j);
-      float z = (radius - horizontal_gap) * sin(angle_step * j);
-
-      float w = sqrt(x*x + z*z) - radius;
-      float gamma = b*b * w*w / (a*sqrt((1 - b*b*x*x) / a));
-      //float inside = (w + a) / length;
-
-      circles[0][i].push_back({x, y, z});
-      normalsTemp[0][i].push_back(normalize({sin(angle_step * j), gamma, cos(angle_step * j)}));
-      texturesTemp[0][i].push_back({(float)j / slices, 0.75f + 0.24f * y / (height / 2.0)});
-
-      x = (radius + horizontal_gap) * cos(angle_step * j);
-      z = (radius + horizontal_gap) * sin(angle_step * j);
-      w = sqrt(x*x + z*z) - radius;
-      //inside = (w + a) / length;
-
-      gamma = - b*b * w*w / (a*sqrt((1 - b*b*x*x) / a));
-      circles[1][i].push_back({x, y, z});
-      normalsTemp[1][i].push_back(normalize({sin(angle_step * j), gamma, cos(angle_step * j)}));
-      texturesTemp[1][i].push_back({(float)j / slices, 0.25f + 0.24f * y / (height / 2.0)});
-    }
-  }
-
-  std::vector<Triangle> triangles = std::vector<Triangle>();
+  
+  std::vector<Triangle> triangles;
   std::vector<Vector> normals;
   std::vector<Point2D> textures;
 
-  for (int i = 0; i < stacks; i++) {
-    for (int j = 0; j < slices; j++) {
-      Point p1 = circles[0][i][j];
-      Point p2 = circles[0][i][(j + 1)];
-      Point p3 = circles[0][i + 1][j];
-      Point p4 = circles[0][i + 1][(j + 1)];
+  const float a = length / 2.0;
+  const float b = height / 2.0;
 
-      triangles.push_back({p1, p2, p3});
-      triangles.push_back({p3, p2, p4});
+  std::vector<Point> ellipse;
+  std::vector<Vector> ellipse_n;
 
-      normals.push_back(normalsTemp[0][i][j]);
-      normals.push_back(normalsTemp[0][i][(j + 1)]);
-      normals.push_back(normalsTemp[0][i + 1][j]);
-      normals.push_back(normalsTemp[0][i + 1][j]);
-      normals.push_back(normalsTemp[0][i + 1][(j + 1)]);
-      normals.push_back(normalsTemp[0][i + 1][(j + 1)]);
+  for (int j = 0; j < stacks; j++) {
+    float theta = (float)j / stacks * 2 * M_PI;
+    float r = a * b / sqrt((b * cos(theta)) * (b * cos(theta)) + (a * sin(theta)) * (a * sin(theta)));
+    float x = r * cos(theta);
+    float y = r * sin(theta);
+    ellipse.push_back({ radius - a + x, y, 0 });
 
-      textures.push_back(texturesTemp[0][i][j]);
-      textures.push_back(texturesTemp[0][i][(j + 1)]);
-      textures.push_back(texturesTemp[0][i + 1][j]);
-      textures.push_back(texturesTemp[0][i + 1][j]);
-      textures.push_back(texturesTemp[0][i + 1][(j + 1)]);
-      textures.push_back(texturesTemp[0][i + 1][(j + 1)]);
-
-      p1 = circles[1][i][j];
-      p2 = circles[1][i][(j + 1)];
-      p3 = circles[1][i + 1][j];
-      p4 = circles[1][i + 1][(j + 1)];
-
-      triangles.push_back({p1, p3, p2});
-      triangles.push_back({p2, p3, p4});
-
-      normals.push_back(normalsTemp[1][i][j]);
-      normals.push_back(normalsTemp[1][i + 1][j]);
-      normals.push_back(normalsTemp[1][i][(j + 1)]);
-      normals.push_back(normalsTemp[1][i + 1][(j + 1)]);
-      normals.push_back(normalsTemp[1][i + 1][j]);
-      normals.push_back(normalsTemp[1][i + 1][(j + 1)]);
-      
-      textures.push_back(texturesTemp[1][i][j]);
-      textures.push_back(texturesTemp[1][i + 1][j]);
-      textures.push_back(texturesTemp[1][i][(j + 1)]);
-      textures.push_back(texturesTemp[1][i + 1][(j + 1)]);
-      textures.push_back(texturesTemp[1][i + 1][j]);
-      textures.push_back(texturesTemp[1][i + 1][(j + 1)]);
+    if (abs(x) == a)
+      ellipse_n.push_back({x > 0 ? 1 : -1, 0, 0});
+    else {
+      float gamma = b*x / (a*sqrt(a*a-x*x));
+      ellipse_n.push_back(normalize({gamma, y < 0 ? -1 : 1, 0}));
     }
   }
 
-  delete[] circles[0];
-  delete[] circles[1];
-  delete[] normalsTemp[0];
-  delete[] normalsTemp[1];
-  delete[] texturesTemp[0];
-  delete[] texturesTemp[1];
+  for (int i = 1; i <= slices; i++)
+  {
+    float alpha0 = 2.0f * M_PI * (i - 1) / slices;
+    float alpha = 2.0f * M_PI * i / slices;
+
+    std::vector<Point> prev;
+    std::vector<Point> cur;
+    std::vector<Vector> prev_n;
+    std::vector<Vector> cur_n;
+
+    for (int j = 0; j < stacks; j++) {
+      prev.push_back(rotate({0,1,0}, ellipse[j], alpha0));
+      cur.push_back(rotate({0,1,0}, ellipse[j], alpha));
+      prev_n.push_back(rotate({0,1,0}, ellipse_n[j], alpha0));
+      cur_n.push_back(rotate({0,1,0}, ellipse_n[j], alpha));
+    }
+
+    for (int j = 0; j < stacks; j++) {
+      int loopj = (j + 1) % stacks;
+
+      Point p1 = prev[loopj];
+      Point p2 = prev[j];
+      Point p3 = cur[j];
+      Point p4 = cur[loopj];
+
+      triangles.push_back({p1, p2, p3});
+      triangles.push_back({p1, p3, p4});
+
+      Vector n1 = prev_n[loopj];
+      Vector n2 = prev_n[j];
+      Vector n3 = cur_n[j];
+      Vector n4 = cur_n[loopj];
+
+      normals.push_back(n1);
+      normals.push_back(n2);
+      normals.push_back(n3);
+      normals.push_back(n1);
+      normals.push_back(n3);
+      normals.push_back(n4);
+
+      Point2D t1 = { (float)j / stacks, (float)(i - 1) / slices };
+      Point2D t2 = { (float)(j + 1) / stacks, (float)(i - 1) / slices };
+      Point2D t3 = { (float)(j + 1) / stacks, (float)i / slices };
+      Point2D t4 = { (float)j / stacks, (float)i / slices };
+
+      textures.push_back(t1);
+      textures.push_back(t2);
+      textures.push_back(t3);
+      textures.push_back(t1);
+      textures.push_back(t3);
+      textures.push_back(t4);
+    }
+  }
 
   return std::make_unique<Shape>(triangles, normals, textures);
 }

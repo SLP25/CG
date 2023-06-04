@@ -248,11 +248,11 @@
                             <shininess value="100"/>
                         </color>
                     </model>
-                    <model file="models/donut.3d">
+                    <model file="models/donut.3d"> <!-- bin/generator donut 2.25 1 0.1 32 32 models/donut.3d -->
                         <texture file = "planetas/saturn/2k_saturn_ring_alpha.png" />
                         <color>
                             <specular R="200" G="200" B="200"/>
-                            <diffuse R="40"  G="39" B="46"/>
+                            <diffuse R="200"  G="186" B="170"/>
                             <shininess value="100"/>
                         </color>
                     </model>
@@ -268,7 +268,6 @@
                 <rotate x="0" y="1" z="0" time="290"/>
                 <translate x="40.21" y="0" z="0"/>
                 <scale s="0.4180"/>
-                <rotate x="0" y="-1" z="0" time="290"/>
                 <rotate x="0" y="0" z="1" angle="20"/>
             </transform>
 
