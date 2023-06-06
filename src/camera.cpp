@@ -119,41 +119,55 @@ void PolarCamera::setupScene() {
 void PolarCamera::handleSpecialKey(int key, __attribute__((unused)) int x,
                                    __attribute__((unused)) int y) {
   Vector aux, perp, trasf;
-  
+
   switch (key) {
-  case GLUT_KEY_UP: 
-    aux = difference(lookAt, position);
-    if (angle(up, aux) - ON_READ_ANG > 0) {
-      perp = normalize(crossProduct(up, aux));
-      trasf = rotate(perp, aux, -ON_READ_ANG);
-      position = addVector(lookAt, trasf);
-      glutPostRedisplay();
-    }
-    break;
 
-  case GLUT_KEY_DOWN:
-    aux = difference(lookAt, position);
-    if (angle(inverse(up), aux) - ON_READ_ANG > 0) {
-      perp = normalize(crossProduct(up, aux));
-      trasf = rotate(perp, aux, ON_READ_ANG);
-      position = addVector(lookAt, trasf);
-      glutPostRedisplay();
-    }
-    break;
+      case GLUT_KEY_UP:
 
-  case GLUT_KEY_LEFT:
-    aux = difference(lookAt, position);
-    trasf = rotate(up, aux, -ON_READ_ANG);
-    position = addVector(lookAt, trasf);
-    glutPostRedisplay();
-    break;
+        aux = difference(lookAt, position); /* Vector from the lookat to the current position. */
 
-  case GLUT_KEY_RIGHT:
-    aux = difference(lookAt, position);
-    trasf = rotate(up, aux, ON_READ_ANG);
-    position = addVector(lookAt, trasf);
-    glutPostRedisplay();
-    break;
+        if (angle(up, aux) - ON_READ_ANG > 0) { /* Avoid moving camera to the underworld 😨😨😨 */
+          perp = normalize(crossProduct(up, aux)); /* Calculate perpendicular vector to up and aux so we can rotate. */
+          trasf = rotate(perp, aux, -ON_READ_ANG); /* Rotate camera over perp vector. */
+          position = addVector(lookAt, trasf); /* Add the trasf vector to lookat to get the new position. */
+
+          glutPostRedisplay();
+        }
+
+        break;
+
+      case GLUT_KEY_DOWN:
+        aux = difference(lookAt, position); /* Vector from the lookat to the current position. */
+
+        if (angle(inverse(up), aux) - ON_READ_ANG > 0) { /* Avoid moving camera to the underworld 😨😨😨 */
+
+          /* Same things as before. */
+          perp = normalize(crossProduct(up, aux));
+          trasf = rotate(perp, aux, ON_READ_ANG);
+          position = addVector(lookAt, trasf);
+
+          glutPostRedisplay();
+        }
+
+        break;
+
+      case GLUT_KEY_LEFT:
+
+        aux = difference(lookAt, position);
+        trasf = rotate(up, aux, -ON_READ_ANG);
+        position = addVector(lookAt, trasf);
+
+        glutPostRedisplay();
+        break;
+
+      case GLUT_KEY_RIGHT:
+
+        aux = difference(lookAt, position);
+        trasf = rotate(up, aux, ON_READ_ANG);
+        position = addVector(lookAt, trasf);
+
+        glutPostRedisplay();
+        break;
   }
 }
 void PolarCamera::handleKey(unsigned char key, __attribute__((unused)) int x,
